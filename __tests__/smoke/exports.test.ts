@@ -11,6 +11,13 @@ import {
   useAuthForm,
   getMessages,
   mergeMessages,
+  ResetPasswordForm,
+  EmailVerificationForm,
+  LoginPage,
+  RegisterPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  EmailVerificationPage,
 } from '../../src/index';
 
 // Mock fetch for components that call API on mount (AuthProvider)
@@ -78,6 +85,7 @@ describe('Library exports - smoke tests', () => {
     expect(messages.register).toBeDefined();
     expect(messages.forgotPassword).toBeDefined();
     expect(messages.resetPassword).toBeDefined();
+    expect(messages.emailVerification).toBeDefined();
   });
 
   it('mergeMessages can be imported and merges correctly', () => {
@@ -89,6 +97,35 @@ describe('Library exports - smoke tests', () => {
     // Other fields should be preserved from base
     expect(merged.login.emailLabel).toBeDefined();
     expect(merged.register.title).toBeDefined();
+  });
+
+  it('ResetPasswordForm can be imported and is a function', () => {
+    expect(ResetPasswordForm).toBeDefined();
+    expect(typeof ResetPasswordForm).toBe('function');
+  });
+  it('EmailVerificationForm can be imported and is a function', () => {
+    expect(EmailVerificationForm).toBeDefined();
+    expect(typeof EmailVerificationForm).toBe('function');
+  });
+  it('LoginPage can be imported and is a function', () => {
+    expect(LoginPage).toBeDefined();
+    expect(typeof LoginPage).toBe('function');
+  });
+  it('RegisterPage can be imported and is a function', () => {
+    expect(RegisterPage).toBeDefined();
+    expect(typeof RegisterPage).toBe('function');
+  });
+  it('ForgotPasswordPage can be imported and is a function', () => {
+    expect(ForgotPasswordPage).toBeDefined();
+    expect(typeof ForgotPasswordPage).toBe('function');
+  });
+  it('ResetPasswordPage can be imported and is a function', () => {
+    expect(ResetPasswordPage).toBeDefined();
+    expect(typeof ResetPasswordPage).toBe('function');
+  });
+  it('EmailVerificationPage can be imported and is a function', () => {
+    expect(EmailVerificationPage).toBeDefined();
+    expect(typeof EmailVerificationPage).toBe('function');
   });
 });
 
@@ -126,6 +163,35 @@ describe('Components render without crashing', () => {
     const { container } = render(
       React.createElement(OAuthButtons, { providers: ['google', 'github'] })
     );
+    expect(container).toBeTruthy();
+  });
+
+  it('ResetPasswordForm renders without crashing', () => {
+    const { container } = render(React.createElement(ResetPasswordForm, { token: 'test' }));
+    expect(container).toBeTruthy();
+  });
+  it('EmailVerificationForm renders without crashing', () => {
+    const { container } = render(React.createElement(EmailVerificationForm, { token: 'test' }));
+    expect(container).toBeTruthy();
+  });
+  it('LoginPage renders without crashing', () => {
+    const { container } = render(React.createElement(LoginPage));
+    expect(container).toBeTruthy();
+  });
+  it('RegisterPage renders without crashing', () => {
+    const { container } = render(React.createElement(RegisterPage));
+    expect(container).toBeTruthy();
+  });
+  it('ForgotPasswordPage renders without crashing', () => {
+    const { container } = render(React.createElement(ForgotPasswordPage));
+    expect(container).toBeTruthy();
+  });
+  it('ResetPasswordPage renders without crashing', () => {
+    const { container } = render(React.createElement(ResetPasswordPage, { token: 'test' }));
+    expect(container).toBeTruthy();
+  });
+  it('EmailVerificationPage renders without crashing', () => {
+    const { container } = render(React.createElement(EmailVerificationPage, { token: 'test' }));
     expect(container).toBeTruthy();
   });
 });
