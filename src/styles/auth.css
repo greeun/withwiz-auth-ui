@@ -1,0 +1,37 @@
+.wiz-auth-page {
+  --wiz-auth-primary: #4f46e5;
+  --wiz-auth-primary-hover: #4338ca;
+  --wiz-auth-error: #dc2626;
+  --wiz-auth-background: #ffffff;
+  --wiz-auth-foreground: #111827;
+  --wiz-auth-border: #d1d5db;
+  --wiz-auth-input: #d1d5db;
+  --wiz-auth-radius: 6px;
+  --wiz-auth-font: system-ui, -apple-system, sans-serif;
+
+  font-family: var(--wiz-auth-font);
+  color-scheme: light;
+}
+
+.wiz-auth-form input {
+  border-color: var(--wiz-auth-border);
+  border-radius: var(--wiz-auth-radius);
+}
+
+.wiz-auth-form input:focus {
+  outline: 2px solid var(--wiz-auth-primary);
+  outline-offset: -1px;
+}
+
+.wiz-auth-form button[type="submit"] {
+  background-color: var(--wiz-auth-primary);
+  border-radius: var(--wiz-auth-radius);
+}
+
+.wiz-auth-form button[type="submit"]:hover:not(:disabled) {
+  background-color: var(--wiz-auth-primary-hover);
+}
+
+.wiz-oauth-btn:hover:not(:disabled) {
+  background-color: #f9fafb;
+}
