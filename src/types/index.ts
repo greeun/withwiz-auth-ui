@@ -73,6 +73,18 @@ export interface AuthMessages {
     success: string;
     passwordMismatch: string;
   };
+  emailVerification: {
+    title: string;
+    verifying: string;
+    successTitle: string;
+    successMessage: string;
+    errorTitle: string;
+    errorExpired: string;
+    errorInvalid: string;
+    networkError: string;
+    loginButton: string;
+    resendLink: string;
+  };
 }
 
 export interface AuthLayoutProps {
@@ -177,9 +189,50 @@ export interface ForgotPasswordFormProps {
 }
 
 export interface ResetPasswordFormProps {
+  token: string;
   locale?: 'ko' | 'en' | 'ja';
   messages?: Partial<AuthMessages['resetPassword']>;
   apiBasePath?: string;
   className?: string;
   loginUrl?: string;
+}
+
+export interface EmailVerificationFormProps {
+  token: string;
+  locale?: 'ko' | 'en' | 'ja';
+  messages?: Partial<AuthMessages['emailVerification']>;
+  apiBasePath?: string;
+  className?: string;
+  loginUrl?: string;
+  resendUrl?: string;
+}
+
+export interface LoginPageProps
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+    Omit<LoginFormProps, 'className'> {
+  className?: string;
+}
+
+export interface RegisterPageProps
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+    Omit<RegisterFormProps, 'className'> {
+  className?: string;
+}
+
+export interface ForgotPasswordPageProps
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+    Omit<ForgotPasswordFormProps, 'className'> {
+  className?: string;
+}
+
+export interface ResetPasswordPageProps
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+    Omit<ResetPasswordFormProps, 'className'> {
+  className?: string;
+}
+
+export interface EmailVerificationPageProps
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+    Omit<EmailVerificationFormProps, 'className'> {
+  className?: string;
 }

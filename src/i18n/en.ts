@@ -71,4 +71,16 @@ export const en: AuthMessages = {
     success: 'Password has been changed',
     passwordMismatch: 'Passwords do not match',
   },
+  emailVerification: {
+    title: 'Email Verification',
+    verifying: 'Verifying...',
+    successTitle: 'Verification Complete!',
+    successMessage: 'Your email has been successfully verified',
+    errorTitle: 'Verification Failed',
+    errorExpired: 'The verification link has expired',
+    errorInvalid: 'Invalid verification link',
+    networkError: 'A network error occurred',
+    loginButton: 'Go to Login',
+    resendLink: 'Resend verification email',
+  },
 };

@@ -71,4 +71,16 @@ export const ko: AuthMessages = {
     success: '비밀번호가 변경되었습니다',
     passwordMismatch: '비밀번호가 일치하지 않습니다',
   },
+  emailVerification: {
+    title: '이메일 인증',
+    verifying: '인증 중...',
+    successTitle: '인증 완료!',
+    successMessage: '이메일이 성공적으로 인증되었습니다',
+    errorTitle: '인증 실패',
+    errorExpired: '인증 링크가 만료되었습니다',
+    errorInvalid: '유효하지 않은 인증 링크입니다',
+    networkError: '네트워크 오류가 발생했습니다',
+    loginButton: '로그인으로 이동',
+    resendLink: '인증 이메일 재전송',
+  },
 };

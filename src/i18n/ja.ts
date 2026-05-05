@@ -71,4 +71,16 @@ export const ja: AuthMessages = {
     success: 'パスワードが変更されました',
     passwordMismatch: 'パスワードが一致しません',
   },
+  emailVerification: {
+    title: 'メール認証',
+    verifying: '認証中...',
+    successTitle: '認証完了！',
+    successMessage: 'メールが正常に認証されました',
+    errorTitle: '認証失敗',
+    errorExpired: '認証リンクの有効期限が切れています',
+    errorInvalid: '無効な認証リンクです',
+    networkError: 'ネットワークエラーが発生しました',
+    loginButton: 'ログインへ移動',
+    resendLink: '認証メールを再送信',
+  },
 };
