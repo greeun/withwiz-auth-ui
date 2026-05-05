@@ -10,7 +10,8 @@
     "./components": { "types": "./dist/components/index.d.ts", "default": "./dist/components/index.js" },
     "./hooks": { "types": "./dist/hooks/index.d.ts", "default": "./dist/hooks/index.js" },
     "./styles": "./dist/styles/auth.css",
-    "./i18n": { "types": "./dist/i18n/index.d.ts", "default": "./dist/i18n/index.js" }
+    "./i18n": { "types": "./dist/i18n/index.d.ts", "default": "./dist/i18n/index.js" },
+    "./pages": { "types": "./dist/pages/index.d.ts", "default": "./dist/pages/index.js" }
   },
   "files": ["dist"],
   "scripts": {

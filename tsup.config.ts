@@ -6,6 +6,7 @@ export default defineConfig({
     'src/components/index.ts',
     'src/hooks/index.ts',
     'src/i18n/index.ts',
+    'src/pages/index.ts',
   ],
   format: ['esm'],
   dts: false,
