@@ -74,10 +74,10 @@ export const en: AuthMessages = {
   emailVerification: {
     title: 'Email Verification',
     verifying: 'Verifying...',
-    successTitle: 'Verification Complete!',
-    successMessage: 'Your email has been successfully verified',
+    successTitle: 'Verified',
+    successMessage: 'Your email has been verified successfully',
     errorTitle: 'Verification Failed',
-    errorExpired: 'The verification link has expired',
+    errorExpired: 'Verification link has expired',
     errorInvalid: 'Invalid verification link',
     networkError: 'A network error occurred',
     loginButton: 'Go to Login',
