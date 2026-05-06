@@ -58,7 +58,7 @@ describe('emailVerification i18n', () => {
       });
       expect(messages.emailVerification.title).toBe('Custom Title');
       expect(messages.login.title).toBe('Sign In');
-      expect(messages.register.title).toBe('Sign Up');
+      expect(messages.signup.title).toBe('Sign Up');
       expect(messages.resetPassword.title).toBe('Reset Password');
     });
   });

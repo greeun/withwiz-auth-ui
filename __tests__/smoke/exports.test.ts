@@ -82,7 +82,7 @@ describe('Library exports - smoke tests', () => {
     expect(messages).toBeDefined();
     expect(messages.login).toBeDefined();
     expect(messages.login.title).toBeDefined();
-    expect(messages.register).toBeDefined();
+    expect(messages.signup).toBeDefined();
     expect(messages.forgotPassword).toBeDefined();
     expect(messages.resetPassword).toBeDefined();
     expect(messages.emailVerification).toBeDefined();
@@ -96,7 +96,7 @@ describe('Library exports - smoke tests', () => {
     expect(merged.login.title).toBe('Custom Title');
     // Other fields should be preserved from base
     expect(merged.login.emailLabel).toBeDefined();
-    expect(merged.register.title).toBeDefined();
+    expect(merged.signup.title).toBeDefined();
   });
 
   it('ResetPasswordForm can be imported and is a function', () => {

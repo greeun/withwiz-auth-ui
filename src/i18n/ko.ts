@@ -24,7 +24,7 @@ export const ko: AuthMessages = {
     emailNotVerified: '이메일 인증이 필요합니다',
     networkError: '네트워크 오류가 발생했습니다',
   },
-  register: {
+  signup: {
     title: '회원가입',
     subtitle: '새 계정을 만드세요',
     nameLabel: '이름',

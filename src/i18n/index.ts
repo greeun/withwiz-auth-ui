@@ -14,7 +14,7 @@ export function mergeMessages(locale: string, overrides?: Partial<AuthMessages>)
   if (!overrides) return base;
   return {
     login: { ...base.login, ...overrides.login },
-    register: { ...base.register, ...overrides.register },
+    signup: { ...base.signup, ...overrides.signup },
     forgotPassword: { ...base.forgotPassword, ...overrides.forgotPassword },
     resetPassword: { ...base.resetPassword, ...overrides.resetPassword },
     emailVerification: { ...base.emailVerification, ...overrides.emailVerification },

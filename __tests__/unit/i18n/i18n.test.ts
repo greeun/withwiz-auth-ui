@@ -15,13 +15,13 @@ describe('i18n', () => {
     it('returns Japanese messages', () => {
       const messages = getMessages('ja');
       expect(messages.login.title).toBe('ログイン');
-      expect(messages.register.title).toBe('新規登録');
+      expect(messages.signup.title).toBe('新規登録');
     });
 
     it('falls back to English for unknown locale', () => {
       const messages = getMessages('fr');
       expect(messages.login.title).toBe('Sign In');
-      expect(messages.register.title).toBe('Sign Up');
+      expect(messages.signup.title).toBe('Sign Up');
     });
   });
 
@@ -29,7 +29,7 @@ describe('i18n', () => {
     it('returns base messages when no overrides provided', () => {
       const messages = mergeMessages('ko');
       expect(messages.login.title).toBe('로그인');
-      expect(messages.register.title).toBe('회원가입');
+      expect(messages.signup.title).toBe('회원가입');
     });
 
     it('merges login overrides with base', () => {
@@ -45,7 +45,7 @@ describe('i18n', () => {
         login: { title: 'Custom Login' } as any,
       });
       expect(messages.login.title).toBe('Custom Login');
-      expect(messages.register.title).toBe('Sign Up');
+      expect(messages.signup.title).toBe('Sign Up');
       expect(messages.forgotPassword.title).toBe('Forgot Password');
       expect(messages.resetPassword.title).toBe('Reset Password');
     });
