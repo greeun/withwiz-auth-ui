@@ -18,6 +18,7 @@ export function SignupForm({
   extraFields = [],
   slots,
   hooks,
+  onOAuthClick,
   apiBasePath = '/api/auth',
 }: SignupFormProps) {
   const t = { ...getMessages(locale).signup, ...messageOverrides };
@@ -99,7 +100,7 @@ export function SignupForm({
 
       {providers.length > 0 && (
         <>
-          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="signup" apiBasePath={apiBasePath} />}
+          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="signup" onOAuthClick={onOAuthClick} apiBasePath={apiBasePath} />}
           <div style={{ margin: '16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
             <span style={{ fontSize: '12px', color: '#9ca3af' }}>{t.orDivider}</span>

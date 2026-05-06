@@ -4,13 +4,17 @@ import { useState } from 'react';
 import { authPost } from '../utils/api-client';
 import type { OAuthButtonsProps, OAuthProvider } from '../types';
 
-export function OAuthButtons({ providers, mode = 'login', onOAuthStart, disabled, className, apiBasePath = '/api/auth' }: OAuthButtonsProps) {
+export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthClick, disabled, className, apiBasePath = '/api/auth' }: OAuthButtonsProps) {
   const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
 
   const handleOAuth = async (provider: OAuthProvider) => {
     setLoadingProvider(provider);
     onOAuthStart?.(provider);
     try {
+      if (onOAuthClick) {
+        onOAuthClick(provider);
+        return;
+      }
       const res = await authPost(`${apiBasePath}/oauth/login`, { provider });
       if (res.ok) {
         const data = await res.json();
