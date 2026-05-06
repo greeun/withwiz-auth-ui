@@ -49,8 +49,11 @@ describe('Type definitions exist', () => {
     expect(props.token).toBe('abc');
   });
 
-  it('AuthMessages includes emailVerification', () => {
-    const msgs = {} as AuthMessages;
-    expect(msgs.emailVerification).toBeDefined;
+  it('AuthMessages includes emailVerification key in its type', () => {
+    // Verify at the type level that emailVerification is a required key of AuthMessages
+    type HasEmailVerification = AuthMessages['emailVerification'];
+    // At runtime, verify the key name is assignable
+    const key: keyof AuthMessages = 'emailVerification';
+    expect(key).toBe('emailVerification');
   });
 });
