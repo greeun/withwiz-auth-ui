@@ -1,6 +1,6 @@
 {
   "name": "@withwiz/auth-ui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Customizable authentication UI components for withwiz projects",
   "type": "module",
   "main": "./dist/index.js",
