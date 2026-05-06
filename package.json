@@ -18,6 +18,7 @@
     "build": "tsup && tsc --emitDeclarationOnly",
     "build:js": "tsup",
     "build:types": "tsc --emitDeclarationOnly",
+    "prepublishOnly": "rm -rf dist && npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
