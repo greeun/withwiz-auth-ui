@@ -73,15 +73,15 @@ describe('SignupForm accessibility', () => {
     const emailInput = screen.getByLabelText('이메일');
     const passwordInput = screen.getByLabelText('비밀번호');
 
-    expect(nameInput).toHaveAttribute('id', 'wiz-register-name');
-    expect(emailInput).toHaveAttribute('id', 'wiz-register-email');
-    expect(passwordInput).toHaveAttribute('id', 'wiz-register-password');
+    expect(nameInput).toHaveAttribute('id', 'wiz-signup-name');
+    expect(emailInput).toHaveAttribute('id', 'wiz-signup-email');
+    expect(passwordInput).toHaveAttribute('id', 'wiz-signup-password');
   });
 
   it('extra fields have proper labels', () => {
     const companyInput = screen.getByLabelText('회사명');
     expect(companyInput).toBeInTheDocument();
-    expect(companyInput).toHaveAttribute('id', 'wiz-register-company');
+    expect(companyInput).toHaveAttribute('id', 'wiz-signup-company');
   });
 
   it('name input has type="text"', () => {

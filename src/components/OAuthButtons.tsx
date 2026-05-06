@@ -49,7 +49,7 @@ export function OAuthButtons({ providers, mode = 'login', onOAuthStart, disabled
   );
 }
 
-function getProviderLabel(provider: OAuthProvider, mode: 'login' | 'register'): string {
+function getProviderLabel(provider: OAuthProvider, mode: 'login' | 'signup'): string {
   const labels: Record<OAuthProvider, string> = { google: 'Google', github: 'GitHub', kakao: 'Kakao' };
   return `Continue with ${labels[provider]}`;
 }

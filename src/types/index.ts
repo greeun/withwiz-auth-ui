@@ -158,7 +158,7 @@ export interface SignupFormProps {
 
 export interface OAuthButtonsProps {
   providers: OAuthProvider[];
-  mode?: 'login' | 'register';
+  mode?: 'login' | 'signup';
   onOAuthStart?: (provider: OAuthProvider) => void;
   disabled?: boolean;
   className?: string;

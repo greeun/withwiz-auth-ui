@@ -53,7 +53,7 @@ export function SignupForm({
 
     setLoading(true);
     try {
-      const res = await authPost(`${apiBasePath}/register`, form);
+      const res = await authPost(`${apiBasePath}/signup`, form);
       const data = await res.json();
 
       if (!res.ok) {
@@ -99,7 +99,7 @@ export function SignupForm({
 
       {providers.length > 0 && (
         <>
-          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="register" apiBasePath={apiBasePath} />}
+          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="signup" apiBasePath={apiBasePath} />}
           <div style={{ margin: '16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
             <span style={{ fontSize: '12px', color: '#9ca3af' }}>{t.orDivider}</span>
@@ -110,27 +110,27 @@ export function SignupForm({
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
-          <label htmlFor="wiz-register-name" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.nameLabel}</label>
-          <input id="wiz-register-name" type="text" placeholder={t.namePlaceholder} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+          <label htmlFor="wiz-signup-name" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.nameLabel}</label>
+          <input id="wiz-signup-name" type="text" placeholder={t.namePlaceholder} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
           {fieldErrors.name && <p style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>{fieldErrors.name}</p>}
         </div>
 
         <div>
-          <label htmlFor="wiz-register-email" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.emailLabel}</label>
-          <input id="wiz-register-email" type="email" placeholder={t.emailPlaceholder} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+          <label htmlFor="wiz-signup-email" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.emailLabel}</label>
+          <input id="wiz-signup-email" type="email" placeholder={t.emailPlaceholder} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
           {fieldErrors.email && <p style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>{fieldErrors.email}</p>}
         </div>
 
         <div>
-          <label htmlFor="wiz-register-password" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.passwordLabel}</label>
-          <input id="wiz-register-password" type="password" placeholder={t.passwordPlaceholder} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+          <label htmlFor="wiz-signup-password" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.passwordLabel}</label>
+          <input id="wiz-signup-password" type="password" placeholder={t.passwordPlaceholder} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
           {fieldErrors.password && <p style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>{fieldErrors.password}</p>}
         </div>
 
         {extraFields.map((field) => (
           <div key={field.name}>
-            <label htmlFor={`wiz-register-${field.name}`} style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{field.label}</label>
-            <input id={`wiz-register-${field.name}`} type={field.type ?? 'text'} placeholder={field.placeholder} value={form[field.name] ?? ''} onChange={(e) => setForm({ ...form, [field.name]: e.target.value })} required={field.required} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+            <label htmlFor={`wiz-signup-${field.name}`} style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{field.label}</label>
+            <input id={`wiz-signup-${field.name}`} type={field.type ?? 'text'} placeholder={field.placeholder} value={form[field.name] ?? ''} onChange={(e) => setForm({ ...form, [field.name]: e.target.value })} required={field.required} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
           </div>
         ))}
 
