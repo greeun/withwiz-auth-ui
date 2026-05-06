@@ -39,13 +39,13 @@ describe('LoginForm', () => {
     expect(screen.queryByText('비밀번호를 잊으셨나요?')).not.toBeInTheDocument();
   });
 
-  it('should show register link by default', () => {
+  it('should show signup link by default', () => {
     render(<LoginForm />);
     expect(screen.getByText('회원가입')).toBeInTheDocument();
   });
 
-  it('should hide register link when disabled', () => {
-    render(<LoginForm showRegisterLink={false} />);
+  it('should hide signup link when disabled', () => {
+    render(<LoginForm showSignupLink={false} />);
     expect(screen.queryByText('회원가입')).not.toBeInTheDocument();
   });
 });

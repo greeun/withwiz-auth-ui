@@ -12,7 +12,7 @@ export function LoginForm({
   redirectAfterLogin = '/',
   showMagicLink = false,
   showForgotPassword = true,
-  showRegisterLink = true,
+  showSignupLink = true,
   title,
   subtitle,
   locale = 'ko',
@@ -87,6 +87,17 @@ export function LoginForm({
 
       {slots?.beforeForm}
 
+      {providers.length > 0 && (
+        <>
+          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="login" apiBasePath={apiBasePath} />}
+          <div style={{ margin: '16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
+            <span style={{ fontSize: '12px', color: '#9ca3af' }}>{t.orDivider}</span>
+            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
+          </div>
+        </>
+      )}
+
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
           <label htmlFor="wiz-login-email" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.emailLabel}</label>
@@ -133,17 +144,6 @@ export function LoginForm({
         </p>
       )}
 
-      {providers.length > 0 && (
-        <>
-          <div style={{ margin: '16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
-            <span style={{ fontSize: '12px', color: '#9ca3af' }}>{t.orDivider}</span>
-            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
-          </div>
-          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="login" apiBasePath={apiBasePath} />}
-        </>
-      )}
-
       {showMagicLink && (
         <button
           type="button"
@@ -154,9 +154,9 @@ export function LoginForm({
         </button>
       )}
 
-      {showRegisterLink && (
+      {showSignupLink && (
         <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '14px', color: '#6b7280' }}>
-          {t.noAccount} <a href="/register" style={{ color: '#4f46e5' }}>{t.signUp}</a>
+          {t.noAccount} <a href="/signup" style={{ color: '#4f46e5' }}>{t.signUp}</a>
         </p>
       )}
 

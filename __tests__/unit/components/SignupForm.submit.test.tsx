@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { RegisterForm } from '../../../src/components/RegisterForm';
+import { SignupForm } from '../../../src/components/SignupForm';
 
-describe('RegisterForm submit', () => {
+describe('SignupForm submit', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
@@ -48,7 +48,7 @@ describe('RegisterForm submit', () => {
   it('shows validation errors for short name, invalid email, short password', async () => {
     mockFetch({ ok: true, json: async () => ({ user: {} }) });
 
-    render(<RegisterForm />);
+    render(<SignupForm />);
 
     fillFormById({ name: 'A', email: 'invalid', password: 'short' });
     submitForm();
@@ -66,7 +66,7 @@ describe('RegisterForm submit', () => {
   it('calls API with correct data on valid submit', async () => {
     mockFetch({ ok: true, json: async () => ({ user: { id: '1' } }) });
 
-    render(<RegisterForm />);
+    render(<SignupForm />);
     fillFormById({ name: 'TestUser', email: 'test@example.com', password: 'password123' });
     submitForm();
 
@@ -85,7 +85,7 @@ describe('RegisterForm submit', () => {
   it('shows success state after successful registration', async () => {
     mockFetch({ ok: true, json: async () => ({ user: { id: '1' } }) });
 
-    render(<RegisterForm />);
+    render(<SignupForm />);
     fillFormById();
     submitForm();
 
@@ -99,7 +99,7 @@ describe('RegisterForm submit', () => {
   it('shows server error on failed registration', async () => {
     mockFetch({ ok: false, json: async () => ({ error: 'Email already exists' }) });
 
-    render(<RegisterForm />);
+    render(<SignupForm />);
     fillFormById();
     submitForm();
 
@@ -111,7 +111,7 @@ describe('RegisterForm submit', () => {
   it('shows network error when fetch throws', async () => {
     global.fetch = vi.fn().mockRejectedValue(new Error('Network failure'));
 
-    render(<RegisterForm />);
+    render(<SignupForm />);
     fillFormById();
     submitForm();
 
@@ -125,7 +125,7 @@ describe('RegisterForm submit', () => {
     mockFetch({ ok: true, json: async () => ({ user: userData }) });
 
     const onSuccess = vi.fn();
-    render(<RegisterForm hooks={{ onSuccess }} />);
+    render(<SignupForm hooks={{ onSuccess }} />);
     fillFormById();
     submitForm();
 
@@ -138,7 +138,7 @@ describe('RegisterForm submit', () => {
     mockFetch({ ok: false, json: async () => ({ error: 'Server error' }) });
 
     const onError = vi.fn();
-    render(<RegisterForm hooks={{ onError }} />);
+    render(<SignupForm hooks={{ onError }} />);
     fillFormById();
     submitForm();
 
@@ -151,7 +151,7 @@ describe('RegisterForm submit', () => {
     mockFetch({ ok: true, json: async () => ({ user: {} }) });
 
     const onBeforeSubmit = vi.fn().mockResolvedValue(false);
-    render(<RegisterForm hooks={{ onBeforeSubmit }} />);
+    render(<SignupForm hooks={{ onBeforeSubmit }} />);
     fillFormById();
     submitForm();
 
@@ -166,7 +166,7 @@ describe('RegisterForm submit', () => {
     mockFetch({ ok: true, json: async () => ({ user: { id: '1' } }) });
 
     render(
-      <RegisterForm
+      <SignupForm
         extraFields={[
           { name: 'company', label: 'Company', placeholder: 'Your company' },
         ]}

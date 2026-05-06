@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { LoginForm } from '../../src/components/LoginForm';
-import { RegisterForm } from '../../src/components/RegisterForm';
+import { SignupForm } from '../../src/components/SignupForm';
 import { ForgotPasswordForm } from '../../src/components/ForgotPasswordForm';
 import { OAuthButtons } from '../../src/components/OAuthButtons';
 
@@ -56,10 +56,10 @@ describe('LoginForm accessibility', () => {
   });
 });
 
-describe('RegisterForm accessibility', () => {
+describe('SignupForm accessibility', () => {
   beforeEach(() => {
     render(
-      <RegisterForm
+      <SignupForm
         locale="ko"
         extraFields={[
           { name: 'company', label: '회사명', type: 'text', placeholder: '회사명 입력' },

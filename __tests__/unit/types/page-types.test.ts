@@ -2,7 +2,7 @@ import type {
   ResetPasswordFormProps,
   EmailVerificationFormProps,
   LoginPageProps,
-  RegisterPageProps,
+  SignupPageProps,
   ForgotPasswordPageProps,
   ResetPasswordPageProps,
   EmailVerificationPageProps,
@@ -29,8 +29,8 @@ describe('Type definitions exist', () => {
     expect(props).toBeDefined();
   });
 
-  it('RegisterPageProps exists', () => {
-    const props: RegisterPageProps = {};
+  it('SignupPageProps exists', () => {
+    const props: SignupPageProps = {};
     expect(props).toBeDefined();
   });
 

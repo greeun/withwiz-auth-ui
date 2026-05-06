@@ -2,7 +2,7 @@ import { render } from '@testing-library/react';
 import React from 'react';
 import {
   LoginForm,
-  RegisterForm,
+  SignupForm,
   ForgotPasswordForm,
   AuthLayout,
   AuthProvider,
@@ -14,7 +14,7 @@ import {
   ResetPasswordForm,
   EmailVerificationForm,
   LoginPage,
-  RegisterPage,
+  SignupPage,
   ForgotPasswordPage,
   ResetPasswordPage,
   EmailVerificationPage,
@@ -39,9 +39,9 @@ describe('Library exports - smoke tests', () => {
     expect(typeof LoginForm).toBe('function');
   });
 
-  it('RegisterForm can be imported and is a function', () => {
-    expect(RegisterForm).toBeDefined();
-    expect(typeof RegisterForm).toBe('function');
+  it('SignupForm can be imported and is a function', () => {
+    expect(SignupForm).toBeDefined();
+    expect(typeof SignupForm).toBe('function');
   });
 
   it('ForgotPasswordForm can be imported and is a function', () => {
@@ -111,9 +111,9 @@ describe('Library exports - smoke tests', () => {
     expect(LoginPage).toBeDefined();
     expect(typeof LoginPage).toBe('function');
   });
-  it('RegisterPage can be imported and is a function', () => {
-    expect(RegisterPage).toBeDefined();
-    expect(typeof RegisterPage).toBe('function');
+  it('SignupPage can be imported and is a function', () => {
+    expect(SignupPage).toBeDefined();
+    expect(typeof SignupPage).toBe('function');
   });
   it('ForgotPasswordPage can be imported and is a function', () => {
     expect(ForgotPasswordPage).toBeDefined();
@@ -135,8 +135,8 @@ describe('Components render without crashing', () => {
     expect(container).toBeTruthy();
   });
 
-  it('RegisterForm renders without crashing', () => {
-    const { container } = render(React.createElement(RegisterForm));
+  it('SignupForm renders without crashing', () => {
+    const { container } = render(React.createElement(SignupForm));
     expect(container).toBeTruthy();
   });
 
@@ -178,8 +178,8 @@ describe('Components render without crashing', () => {
     const { container } = render(React.createElement(LoginPage));
     expect(container).toBeTruthy();
   });
-  it('RegisterPage renders without crashing', () => {
-    const { container } = render(React.createElement(RegisterPage));
+  it('SignupPage renders without crashing', () => {
+    const { container } = render(React.createElement(SignupPage));
     expect(container).toBeTruthy();
   });
   it('ForgotPasswordPage renders without crashing', () => {

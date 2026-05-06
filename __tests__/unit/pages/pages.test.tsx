@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import {
   LoginPage,
-  RegisterPage,
+  SignupPage,
   ForgotPasswordPage,
   ResetPasswordPage,
   EmailVerificationPage,
@@ -39,9 +39,9 @@ describe('LoginPage', () => {
   });
 });
 
-describe('RegisterPage', () => {
-  it('renders AuthLayout with RegisterForm', () => {
-    const { container } = render(<RegisterPage />);
+describe('SignupPage', () => {
+  it('renders AuthLayout with SignupForm', () => {
+    const { container } = render(<SignupPage />);
     expect(container.querySelector('.wiz-auth-page')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '회원가입' })).toBeInTheDocument();
     expect(screen.getByLabelText('이름')).toBeInTheDocument();

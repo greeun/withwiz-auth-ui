@@ -3,7 +3,7 @@ import { ResetPasswordForm } from '../../src/components/ResetPasswordForm';
 import { EmailVerificationForm } from '../../src/components/EmailVerificationForm';
 import {
   LoginPage,
-  RegisterPage,
+  SignupPage,
   ForgotPasswordPage,
   ResetPasswordPage,
   EmailVerificationPage,
@@ -112,8 +112,8 @@ describe('Pages accessibility - h1 heading within AuthLayout', () => {
     expect(heading).toBeInTheDocument();
   });
 
-  it('RegisterPage has h1 heading', () => {
-    render(<RegisterPage locale="ko" />);
+  it('SignupPage has h1 heading', () => {
+    render(<SignupPage locale="ko" />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeInTheDocument();
   });
