@@ -20,7 +20,7 @@ export function SignupForm({
   hooks,
   apiBasePath = '/api/auth',
 }: SignupFormProps) {
-  const t = { ...getMessages(locale).register, ...messageOverrides };
+  const t = { ...getMessages(locale).signup, ...messageOverrides };
   const [form, setForm] = useState<Record<string, string>>({ name: '', email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});

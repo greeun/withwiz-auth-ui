@@ -24,7 +24,7 @@ export const en: AuthMessages = {
     emailNotVerified: 'Please verify your email first',
     networkError: 'A network error occurred',
   },
-  register: {
+  signup: {
     title: 'Sign Up',
     subtitle: 'Create a new account',
     nameLabel: 'Name',

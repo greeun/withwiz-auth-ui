@@ -26,7 +26,7 @@ export interface AuthMessages {
     emailNotVerified: string;
     networkError: string;
   };
-  register: {
+  signup: {
     title: string;
     subtitle: string;
     nameLabel: string;
@@ -131,7 +131,7 @@ export interface SignupFormProps {
   redirectAfterSignup?: string;
   showLoginLink?: boolean;
   locale?: 'ko' | 'en' | 'ja';
-  messages?: Partial<AuthMessages['register']>;
+  messages?: Partial<AuthMessages['signup']>;
   className?: string;
   unstyled?: boolean;
   extraFields?: Array<{

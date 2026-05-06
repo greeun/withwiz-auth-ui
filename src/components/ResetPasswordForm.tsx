@@ -23,7 +23,7 @@ export function ResetPasswordForm({
   const [success, setSuccess] = useState(false);
 
   const schema = z.object({
-    password: z.string().min(8, { message: allMessages.register.passwordTooShort }),
+    password: z.string().min(8, { message: allMessages.signup.passwordTooShort }),
     confirm: z.string(),
   }).refine((data) => data.password === data.confirm, {
     message: t.passwordMismatch,

@@ -24,7 +24,7 @@ export const ja: AuthMessages = {
     emailNotVerified: 'メール認証が必要です',
     networkError: 'ネットワークエラーが発生しました',
   },
-  register: {
+  signup: {
     title: '新規登録',
     subtitle: '新しいアカウントを作成',
     nameLabel: '名前',
