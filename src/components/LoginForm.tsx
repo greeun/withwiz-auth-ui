@@ -21,6 +21,7 @@ export function LoginForm({
   unstyled = false,
   slots,
   hooks,
+  onOAuthClick,
   apiBasePath = '/api/auth',
 }: LoginFormProps) {
   const t = { ...getMessages(locale).login, ...messageOverrides };
@@ -89,7 +90,7 @@ export function LoginForm({
 
       {providers.length > 0 && (
         <>
-          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="login" apiBasePath={apiBasePath} />}
+          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="login" onOAuthClick={onOAuthClick} apiBasePath={apiBasePath} />}
           <div style={{ margin: '16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
             <span style={{ fontSize: '12px', color: '#9ca3af' }}>{t.orDivider}</span>

@@ -123,6 +123,7 @@ export interface LoginFormProps {
     onSuccess?: (user: unknown) => void;
     onError?: (error: string) => void;
   };
+  onOAuthClick?: (provider: OAuthProvider) => void;
   apiBasePath?: string;
 }
 
@@ -153,6 +154,7 @@ export interface SignupFormProps {
     onSuccess?: (user: unknown) => void;
     onError?: (error: string) => void;
   };
+  onOAuthClick?: (provider: OAuthProvider) => void;
   apiBasePath?: string;
 }
 
@@ -160,6 +162,7 @@ export interface OAuthButtonsProps {
   providers: OAuthProvider[];
   mode?: 'login' | 'signup';
   onOAuthStart?: (provider: OAuthProvider) => void;
+  onOAuthClick?: (provider: OAuthProvider) => void;
   disabled?: boolean;
   className?: string;
   apiBasePath?: string;
