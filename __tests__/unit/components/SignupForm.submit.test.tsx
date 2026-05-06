@@ -15,13 +15,13 @@ describe('SignupForm submit', () => {
     const email = overrides.email ?? 'test@example.com';
     const password = overrides.password ?? 'password123';
 
-    fireEvent.change(screen.getByLabelText(/이름/i) || screen.getById('wiz-register-name'), {
+    fireEvent.change(screen.getByLabelText(/이름/i) || screen.getById('wiz-signup-name'), {
       target: { value: name },
     });
-    fireEvent.change(screen.getById('wiz-register-email') || screen.getByLabelText(/이메일/i), {
+    fireEvent.change(screen.getById('wiz-signup-email') || screen.getByLabelText(/이메일/i), {
       target: { value: email },
     });
-    fireEvent.change(screen.getById('wiz-register-password') || screen.getByLabelText(/비밀번호/i), {
+    fireEvent.change(screen.getById('wiz-signup-password') || screen.getByLabelText(/비밀번호/i), {
       target: { value: password },
     });
   }
@@ -31,9 +31,9 @@ describe('SignupForm submit', () => {
     const email = overrides.email ?? 'test@example.com';
     const password = overrides.password ?? 'password123';
 
-    const nameInput = document.getElementById('wiz-register-name') as HTMLInputElement;
-    const emailInput = document.getElementById('wiz-register-email') as HTMLInputElement;
-    const passwordInput = document.getElementById('wiz-register-password') as HTMLInputElement;
+    const nameInput = document.getElementById('wiz-signup-name') as HTMLInputElement;
+    const emailInput = document.getElementById('wiz-signup-email') as HTMLInputElement;
+    const passwordInput = document.getElementById('wiz-signup-password') as HTMLInputElement;
 
     fireEvent.change(nameInput, { target: { value: name } });
     fireEvent.change(emailInput, { target: { value: email } });
@@ -75,7 +75,7 @@ describe('SignupForm submit', () => {
     });
 
     const [url, options] = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
-    expect(url).toBe('/api/auth/register');
+    expect(url).toBe('/api/auth/signup');
     const body = JSON.parse(options.body);
     expect(body.name).toBe('TestUser');
     expect(body.email).toBe('test@example.com');
@@ -174,7 +174,7 @@ describe('SignupForm submit', () => {
     );
 
     fillFormById();
-    const companyInput = document.getElementById('wiz-register-company') as HTMLInputElement;
+    const companyInput = document.getElementById('wiz-signup-company') as HTMLInputElement;
     fireEvent.change(companyInput, { target: { value: 'Acme Inc' } });
     submitForm();
 
