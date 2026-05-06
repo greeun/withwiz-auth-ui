@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import {
   LoginPage,
-  RegisterPage,
+  SignupPage,
   ResetPasswordPage,
   EmailVerificationPage,
 } from '../../src/pages';
@@ -37,10 +37,10 @@ describe('LoginPage composition', () => {
   });
 });
 
-describe('RegisterPage composition', () => {
-  it('passes extraFields through to RegisterForm', () => {
+describe('SignupPage composition', () => {
+  it('passes extraFields through to SignupForm', () => {
     render(
-      <RegisterPage
+      <SignupPage
         extraFields={[
           { name: 'phone', label: '전화번호', type: 'tel', placeholder: '010-0000-0000' },
         ]}
@@ -50,13 +50,13 @@ describe('RegisterPage composition', () => {
     expect(screen.getByPlaceholderText('010-0000-0000')).toBeInTheDocument();
   });
 
-  it('passes providers through to RegisterForm which renders OAuthButtons', () => {
-    render(<RegisterPage providers={['google']} />);
+  it('passes providers through to SignupForm which renders OAuthButtons', () => {
+    render(<SignupPage providers={['google']} />);
     expect(screen.getByText('Continue with Google')).toBeInTheDocument();
   });
 
   it('accepts and forwards layout props (pattern, backgroundColor)', () => {
-    const { container } = render(<RegisterPage pattern="dots" backgroundColor="#abcdef" />);
+    const { container } = render(<SignupPage pattern="dots" backgroundColor="#abcdef" />);
     const sidePanel = container.querySelector('.wiz-auth-side-panel');
     expect(sidePanel).toHaveStyle({ backgroundColor: '#abcdef' });
   });

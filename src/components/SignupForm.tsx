@@ -5,11 +5,11 @@ import { z } from 'zod';
 import { OAuthButtons } from './OAuthButtons';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
-import type { RegisterFormProps } from '../types';
+import type { SignupFormProps } from '../types';
 
-export function RegisterForm({
+export function SignupForm({
   providers = [],
-  redirectAfterRegister,
+  redirectAfterSignup,
   showLoginLink = true,
   locale = 'ko',
   messages: messageOverrides,
@@ -19,7 +19,7 @@ export function RegisterForm({
   slots,
   hooks,
   apiBasePath = '/api/auth',
-}: RegisterFormProps) {
+}: SignupFormProps) {
   const t = { ...getMessages(locale).register, ...messageOverrides };
   const [form, setForm] = useState<Record<string, string>>({ name: '', email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
@@ -65,8 +65,8 @@ export function RegisterForm({
       setSuccess(true);
       hooks?.onSuccess?.(data.user);
 
-      if (redirectAfterRegister) {
-        setTimeout(() => { window.location.href = redirectAfterRegister; }, 3000);
+      if (redirectAfterSignup) {
+        setTimeout(() => { window.location.href = redirectAfterSignup; }, 3000);
       }
     } catch {
       setError(t.networkError);
@@ -96,6 +96,17 @@ export function RegisterForm({
       )}
 
       {slots?.beforeForm}
+
+      {providers.length > 0 && (
+        <>
+          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="register" apiBasePath={apiBasePath} />}
+          <div style={{ margin: '16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
+            <span style={{ fontSize: '12px', color: '#9ca3af' }}>{t.orDivider}</span>
+            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
+          </div>
+        </>
+      )}
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
@@ -129,17 +140,6 @@ export function RegisterForm({
           {loading ? t.submitting : t.submitButton}
         </button>
       </form>
-
-      {providers.length > 0 && (
-        <>
-          <div style={{ margin: '16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
-            <span style={{ fontSize: '12px', color: '#9ca3af' }}>{t.orDivider}</span>
-            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
-          </div>
-          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="register" apiBasePath={apiBasePath} />}
-        </>
-      )}
 
       {showLoginLink && (
         <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '14px', color: '#6b7280' }}>

@@ -103,7 +103,7 @@ export interface LoginFormProps {
   redirectAfterLogin?: string;
   showMagicLink?: boolean;
   showForgotPassword?: boolean;
-  showRegisterLink?: boolean;
+  showSignupLink?: boolean;
   logo?: ReactNode;
   title?: string;
   subtitle?: string;
@@ -126,9 +126,9 @@ export interface LoginFormProps {
   apiBasePath?: string;
 }
 
-export interface RegisterFormProps {
+export interface SignupFormProps {
   providers?: OAuthProvider[];
-  redirectAfterRegister?: string;
+  redirectAfterSignup?: string;
   showLoginLink?: boolean;
   locale?: 'ko' | 'en' | 'ja';
   messages?: Partial<AuthMessages['register']>;
@@ -213,9 +213,9 @@ export interface LoginPageProps
   className?: string;
 }
 
-export interface RegisterPageProps
+export interface SignupPageProps
   extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
-    Omit<RegisterFormProps, 'className'> {
+    Omit<SignupFormProps, 'className'> {
   className?: string;
 }
 
