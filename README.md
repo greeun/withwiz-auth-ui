@@ -4,7 +4,7 @@ Customizable authentication UI components for React / Next.js projects.
 
 ## Features
 
-- Login, Register, Forgot Password forms
+- Login, Signup, Forgot Password, Reset Password, Email Verification forms
 - OAuth support (Google, GitHub, Kakao)
 - i18n (Korean, English, Japanese)
 - Slot-based layout customization
@@ -13,6 +13,60 @@ Customizable authentication UI components for React / Next.js projects.
 - Zod-based form validation
 - Unstyled mode for full CSS control
 - CSS custom properties for theming
+
+## Structure
+
+The package is layered. **`Form` is the real unit** — a self-contained card
+(header + validation + API calls). A `Page` is just a thin wrapper:
+`AuthLayout` (2-column split + decorative panel) around the matching `Form`.
+
+```
+Pick your entry point (granularity):
+
+  〔Screen / Page〕  whole thing     ← built-in split layout, no assembly
+     LoginScreen / SignupScreen / ...   (Screen = Form-shaped name)
+     LoginPage   / SignupPage   / ...   (Page   = route-component name)
+     │  same composition, two names
+     └─ both are just a wrap:
+          ┌─────────────────────────────┐
+          │  AuthLayout (2-col split,    │
+          │   triangle panel, logo)      │
+          │   └── <LoginForm {...props}/>│  ← the core
+          └─────────────────────────────┘
+
+  〔Form〕  core only   ★recommended for custom layouts★
+     LoginForm / SignupForm / ForgotPasswordForm /
+     ResetPasswordForm / EmailVerificationForm
+     │  (own card max-384 + header + zod validation + API calls)
+     │
+     └─ your layout, your call:
+          <Modal>          <Sidebar>        <CustomPage>
+            └ <LoginForm/>    └ <SignupForm/>  └ <LoginForm/>
+
+  〔Parts〕  finer grain
+     OAuthButtons   AuthLayout   useAuth / AuthProvider
+```
+
+```tsx
+// 1) Page — built-in split layout, zero assembly
+import { LoginPage } from '@withwiz/auth-ui';
+<LoginPage providers={['google', 'kakao']} />
+
+// 2) Form only — your own layout (recommended)
+import { LoginForm } from '@withwiz/auth-ui';
+<MyModal>
+  <LoginForm providers={['google', 'kakao']} redirectAfterLogin="/dashboard" />
+</MyModal>
+
+// 3) Form + your own wrap
+import { LoginForm, AuthLayout } from '@withwiz/auth-ui';
+<AuthLayout pattern="hexagon" logo={<Logo />}>
+  <LoginForm providers={['google']} />
+</AuthLayout>
+```
+
+> `Form` components render their own card and header. `logo` and the decorative
+> panel come from `AuthLayout`/`Page` only — a standalone `Form` shows neither.
 
 ## Installation
 
@@ -32,9 +86,10 @@ pnpm add react react-dom next
 import { AuthProvider, LoginForm } from '@withwiz/auth-ui';
 import '@withwiz/auth-ui/styles';
 
-export default function LoginPage() {
+export default function Login() {
   return (
     <AuthProvider apiBasePath="/api/auth">
+      {/* Form only — drop into your own layout */}
       <LoginForm
         providers={['google', 'github']}
         locale="en"
@@ -44,6 +99,72 @@ export default function LoginPage() {
   );
 }
 ```
+
+## Pages
+
+A `Page` = `AuthLayout` + the matching `Form`. Use it when you want the built-in
+split layout without assembling it yourself. Page props are the union of
+`AuthLayout`'s visual props (`logo`, `pattern`, `backgroundColor`, `leftPanel`)
+and the wrapped `Form`'s props — extra props pass straight through to the form.
+
+```tsx
+import { LoginPage } from '@withwiz/auth-ui';
+import '@withwiz/auth-ui/styles';
+
+<LoginPage
+  logo={<img src="/logo.svg" alt="Logo" />}
+  pattern="triangle"             // 'triangle' | 'hexagon' | 'dots' | 'none'
+  backgroundColor="#f0f4ff"
+  providers={['google', 'kakao']}   // ↓ forwarded to <LoginForm />
+  redirectAfterLogin="/dashboard"
+  locale="ko"
+/>
+```
+
+Available: `LoginPage`, `SignupPage`, `ForgotPasswordPage`, `ResetPasswordPage`,
+`EmailVerificationPage` (also exported from `@withwiz/auth-ui/pages`).
+
+## Screens
+
+A `Screen` is the bundled experience used like a single form: the matching
+`Form` + the triangle side panel + an optional logo, all in one component.
+Same composition as a `Page`, just expressed as a Form-shaped default — reach
+for it when you want "the login form, with our layout" in one import.
+
+```tsx
+import { LoginScreen } from '@withwiz/auth-ui';
+import '@withwiz/auth-ui/styles';
+
+// Triangle panel is on by default; logo is optional (renders nothing if omitted).
+<LoginScreen
+  logo={<Logo />}                  // optional
+  providers={['google', 'kakao']}  // ↓ forwarded to <LoginForm />
+  redirectAfterLogin="/dashboard"
+  locale="ko"
+/>
+```
+
+Bake your brand in once with a thin app-side wrapper so every screen shares it:
+
+```tsx
+// app/auth.tsx
+import { LoginScreen, SignupScreen, ForgotPasswordScreen, ResetPasswordScreen } from '@withwiz/auth-ui';
+import { Logo } from '@/components/Logo';
+
+const brand = { logo: <Logo />, pattern: 'triangle', backgroundColor: '#f0f4ff' } as const;
+
+export const Login  = (p) => <LoginScreen  {...brand} {...p} />;
+export const Signup = (p) => <SignupScreen {...brand} {...p} />;
+export const Forgot = (p) => <ForgotPasswordScreen {...brand} {...p} />;
+export const Reset  = (p) => <ResetPasswordScreen  {...brand} {...p} />;
+```
+
+Available: `LoginScreen`, `SignupScreen`, `ForgotPasswordScreen`,
+`ResetPasswordScreen` (also exported from `@withwiz/auth-ui/screens`). Each
+`*ScreenProps` equals the matching `*PageProps`.
+
+> `Screen` and `Page` render the same thing today. `Screen` is the Form-shaped
+> name; `Page` is kept for the route-component convention.
 
 ## Components
 
@@ -86,8 +207,9 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   redirectAfterLogin="/dashboard"
   showMagicLink={false}
   showForgotPassword={true}
-  showRegisterLink={true}
+  showSignupLink={true}
   unstyled={false}
+  onOAuthClick={(provider) => {}}  // Override default OAuth redirect
   apiBasePath="/api/auth"
   title="Welcome back"
   subtitle="Sign in to your account"
@@ -109,16 +231,17 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
 
 ---
 
-### RegisterForm
+### SignupForm
 
 ```tsx
-<RegisterForm
+<SignupForm
   providers={['google']}
   locale="ko"
-  redirectAfterRegister="/welcome"
+  redirectAfterSignup="/welcome"
   showLoginLink={true}
   unstyled={false}
   apiBasePath="/api/auth"
+  onOAuthClick={(provider) => {}}
   extraFields={[
     { name: 'company', label: 'Company', required: true, placeholder: 'Acme Inc.' },
   ]}
@@ -141,6 +264,34 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   apiBasePath="/api/auth"
   loginUrl="/login"
   messages={{ title: 'Reset Password' }}
+/>
+```
+
+---
+
+### ResetPasswordForm
+
+```tsx
+<ResetPasswordForm
+  token={tokenFromUrl}            // required — from the reset email link
+  locale="ko"
+  apiBasePath="/api/auth"
+  loginUrl="/login"
+  messages={{ title: '비밀번호 재설정' }}
+/>
+```
+
+---
+
+### EmailVerificationForm
+
+```tsx
+<EmailVerificationForm
+  token={tokenFromUrl}            // required — from the verification email link
+  locale="ko"
+  apiBasePath="/api/auth"
+  loginUrl="/login"
+  resendUrl="/auth/resend"
 />
 ```
 
@@ -174,8 +325,9 @@ Standalone OAuth button group.
 ```tsx
 <OAuthButtons
   providers={['google', 'github', 'kakao']}
-  mode="login"                   // 'login' | 'register'
+  mode="login"                   // 'login' | 'signup'
   onOAuthStart={(provider) => {}}
+  onOAuthClick={(provider) => {}}  // Override default redirect
   disabled={false}
   apiBasePath="/api/auth"
 />
@@ -274,11 +426,13 @@ The components expect these server-side endpoints:
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/auth/login` | Email/password login |
-| POST | `/api/auth/register` | User registration |
+| POST | `/api/auth/signup` | User registration |
 | POST | `/api/auth/logout` | Logout |
 | POST | `/api/auth/refresh` | Token refresh |
 | GET | `/api/auth/me` | Get current user |
 | POST | `/api/auth/forgot-password` | Send reset email |
+| POST | `/api/auth/reset-password` | Set new password (`{ token, password }`) |
+| POST | `/api/auth/verify-email` | Verify email (`{ token }`) |
 | POST | `/api/auth/oauth/login` | Start OAuth flow (returns `{ loginUrl }`) |
 
 All endpoints are prefixed with `apiBasePath` (default: `/api/auth`).
@@ -296,7 +450,6 @@ pnpm test:coverage  # Coverage report
 ## License
 
 MIT
-
 ---
 
 # @withwiz/auth-ui (한국어)
