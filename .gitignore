@@ -30,3 +30,4 @@ pnpm-debug.log*
 
 # superpowers brainstorm artifacts
 .superpowers/
+docs/superpowers/
