@@ -160,8 +160,9 @@ export const Reset  = (p) => <ResetPasswordScreen  {...brand} {...p} />;
 ```
 
 Available: `LoginScreen`, `SignupScreen`, `ForgotPasswordScreen`,
-`ResetPasswordScreen` (also exported from `@withwiz/auth-ui/screens`). Each
-`*ScreenProps` equals the matching `*PageProps`.
+`ResetPasswordScreen`, `EmailVerificationScreen` (also exported from
+`@withwiz/auth-ui/screens`). Each `*ScreenProps` equals the matching
+`*PageProps`.
 
 > `Screen` and `Page` render the same thing today. `Screen` is the Form-shaped
 > name; `Page` is kept for the route-component convention.
@@ -450,6 +451,7 @@ pnpm test:coverage  # Coverage report
 ## License
 
 MIT
+
 ---
 
 # @withwiz/auth-ui (한국어)
