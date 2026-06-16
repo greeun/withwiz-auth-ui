@@ -7,6 +7,7 @@ export default defineConfig({
     'src/hooks/index.ts',
     'src/i18n/index.ts',
     'src/pages/index.ts',
+    'src/screens/index.ts',
   ],
   format: ['esm'],
   dts: false,
