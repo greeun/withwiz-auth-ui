@@ -1,6 +1,10 @@
 # dependencies
 node_modules/
 
+# this package uses pnpm; ignore stray npm/yarn lockfiles
+package-lock.json
+yarn.lock
+
 # build output
 dist/
 *.tsbuildinfo
