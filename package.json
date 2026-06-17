@@ -1,20 +1,40 @@
 {
   "name": "@withwiz/auth-ui",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Customizable authentication UI components for withwiz projects",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
-    "./components": { "types": "./dist/components/index.d.ts", "default": "./dist/components/index.js" },
-    "./hooks": { "types": "./dist/hooks/index.d.ts", "default": "./dist/hooks/index.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "default": "./dist/components/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "default": "./dist/hooks/index.js"
+    },
     "./styles": "./dist/styles/auth.css",
-    "./i18n": { "types": "./dist/i18n/index.d.ts", "default": "./dist/i18n/index.js" },
-    "./pages": { "types": "./dist/pages/index.d.ts", "default": "./dist/pages/index.js" },
-    "./screens": { "types": "./dist/screens/index.d.ts", "default": "./dist/screens/index.js" }
+    "./i18n": {
+      "types": "./dist/i18n/index.d.ts",
+      "default": "./dist/i18n/index.js"
+    },
+    "./pages": {
+      "types": "./dist/pages/index.d.ts",
+      "default": "./dist/pages/index.js"
+    },
+    "./screens": {
+      "types": "./dist/screens/index.d.ts",
+      "default": "./dist/screens/index.js"
+    }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup && tsc --emitDeclarationOnly",
     "build:js": "tsup",
@@ -45,6 +65,12 @@
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   },
-  "keywords": ["auth", "login", "react", "nextjs", "withwiz"],
+  "keywords": [
+    "auth",
+    "login",
+    "react",
+    "nextjs",
+    "withwiz"
+  ],
   "license": "MIT"
 }
