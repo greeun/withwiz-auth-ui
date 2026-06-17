@@ -10,9 +10,9 @@ import type { SignupPageProps } from '../types';
  */
 export type SignupScreenProps = SignupPageProps;
 
-export function SignupScreen({ logo, pattern, backgroundColor, leftPanel, className, ...formProps }: SignupScreenProps) {
+export function SignupScreen({ logo, pattern, backgroundColor, leftPanel, className, fullHeight, ...formProps }: SignupScreenProps) {
   return (
-    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} className={className}>
+    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} fullHeight={fullHeight} className={className}>
       <SignupForm {...formProps} />
     </AuthLayout>
   );

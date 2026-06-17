@@ -10,9 +10,9 @@ import type { ForgotPasswordPageProps } from '../types';
  */
 export type ForgotPasswordScreenProps = ForgotPasswordPageProps;
 
-export function ForgotPasswordScreen({ logo, pattern, backgroundColor, leftPanel, className, ...formProps }: ForgotPasswordScreenProps) {
+export function ForgotPasswordScreen({ logo, pattern, backgroundColor, leftPanel, className, fullHeight, ...formProps }: ForgotPasswordScreenProps) {
   return (
-    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} className={className}>
+    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} fullHeight={fullHeight} className={className}>
       <ForgotPasswordForm {...formProps} />
     </AuthLayout>
   );

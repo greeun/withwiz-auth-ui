@@ -14,9 +14,9 @@ import type { LoginPageProps } from '../types';
  */
 export type LoginScreenProps = LoginPageProps;
 
-export function LoginScreen({ logo, pattern, backgroundColor, leftPanel, className, ...formProps }: LoginScreenProps) {
+export function LoginScreen({ logo, pattern, backgroundColor, leftPanel, className, fullHeight, ...formProps }: LoginScreenProps) {
   return (
-    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} className={className}>
+    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} fullHeight={fullHeight} className={className}>
       <LoginForm {...formProps} />
     </AuthLayout>
   );

@@ -300,7 +300,9 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
 
 ### AuthLayout
 
-Split-panel layout with decorative patterns for desktop.
+Split-panel layout with decorative patterns for desktop. This is the layout the
+`*Screen`/`*Page` components wrap around their form — use it directly when you
+want that split panel + logo but need to control placement yourself.
 
 ```tsx
 import { AuthLayout, LoginForm } from '@withwiz/auth-ui';
@@ -312,10 +314,29 @@ import { AuthLayout, LoginForm } from '@withwiz/auth-ui';
   pattern="triangle"             // 'triangle' | 'hexagon' | 'dots' | 'none'
   backgroundColor="#f0f4ff"
   leftPanel={<CustomPanel />}    // Override the decorative panel
+  fullHeight={true}              // false → drop min-height:100vh to embed in a shell
 >
   <LoginForm providers={['google']} />
 </AuthLayout>
 ```
+
+**Embedding the split layout inside your own shell.** `AuthLayout` (and therefore
+`*Screen`/`*Page`) defaults to `min-height: 100vh` — it expects to own the
+viewport, which is right for a dedicated auth route. To drop the same split
+panel + logo into a bounded region of your own page chrome, pass
+`fullHeight={false}` so it fills its container instead of the screen:
+
+```tsx
+// inside your app shell, in a sized region
+<section style={{ height: 600 }}>
+  <AuthLayout pattern="triangle" logo={<Logo />} fullHeight={false}>
+    <LoginForm providers={['google']} apiBasePath="/api/auth" />
+  </AuthLayout>
+</section>
+```
+
+For a plain embed with no decorative panel at all, use the bare `LoginForm`
+(just the card) instead.
 
 ---
 

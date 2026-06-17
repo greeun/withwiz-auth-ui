@@ -10,9 +10,9 @@ import type { EmailVerificationPageProps } from '../types';
  */
 export type EmailVerificationScreenProps = EmailVerificationPageProps;
 
-export function EmailVerificationScreen({ logo, pattern, backgroundColor, leftPanel, className, ...formProps }: EmailVerificationScreenProps) {
+export function EmailVerificationScreen({ logo, pattern, backgroundColor, leftPanel, className, fullHeight, ...formProps }: EmailVerificationScreenProps) {
   return (
-    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} className={className}>
+    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} fullHeight={fullHeight} className={className}>
       <EmailVerificationForm {...formProps} />
     </AuthLayout>
   );

@@ -11,9 +11,10 @@ export function AuthLayout({
   backgroundColor,
   leftPanel,
   className,
+  fullHeight = true,
 }: AuthLayoutProps) {
   return (
-    <div className={`wiz-auth-page ${className ?? ''}`} style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className={`wiz-auth-page ${className ?? ''}`} style={{ display: 'flex', minHeight: fullHeight ? '100vh' : '100%' }}>
       <div style={{ display: 'flex', width: '100%', flexDirection: 'column', justifyContent: 'center', padding: '48px 24px', maxWidth: '480px' }}>
         {logo && <div style={{ marginBottom: '32px' }}>{logo}</div>}
         {title && <h1 style={{ fontSize: '24px', fontWeight: 700 }}>{title}</h1>}
