@@ -96,6 +96,9 @@ export interface AuthLayoutProps {
   backgroundColor?: string;
   leftPanel?: ReactNode;
   className?: string;
+  /** When false, drops the `min-height: 100vh` so the layout fits inside a
+   *  bounded region (e.g. embedded in an app shell). Defaults to true. */
+  fullHeight?: boolean;
 }
 
 export interface LoginFormProps {
@@ -211,31 +214,31 @@ export interface EmailVerificationFormProps {
 }
 
 export interface LoginPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
     Omit<LoginFormProps, 'className'> {
   className?: string;
 }
 
 export interface SignupPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
     Omit<SignupFormProps, 'className'> {
   className?: string;
 }
 
 export interface ForgotPasswordPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
     Omit<ForgotPasswordFormProps, 'className'> {
   className?: string;
 }
 
 export interface ResetPasswordPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
     Omit<ResetPasswordFormProps, 'className'> {
   className?: string;
 }
 
 export interface EmailVerificationPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel'>,
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
     Omit<EmailVerificationFormProps, 'className'> {
   className?: string;
 }

@@ -10,9 +10,9 @@ import type { ResetPasswordPageProps } from '../types';
  */
 export type ResetPasswordScreenProps = ResetPasswordPageProps;
 
-export function ResetPasswordScreen({ logo, pattern, backgroundColor, leftPanel, className, ...formProps }: ResetPasswordScreenProps) {
+export function ResetPasswordScreen({ logo, pattern, backgroundColor, leftPanel, className, fullHeight, ...formProps }: ResetPasswordScreenProps) {
   return (
-    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} className={className}>
+    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} fullHeight={fullHeight} className={className}>
       <ResetPasswordForm {...formProps} />
     </AuthLayout>
   );
