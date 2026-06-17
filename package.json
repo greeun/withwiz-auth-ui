@@ -1,6 +1,6 @@
 {
   "name": "@withwiz/auth-ui",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Customizable authentication UI components for withwiz projects",
   "type": "module",
   "main": "./dist/index.js",
@@ -36,9 +36,10 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup && tsc --emitDeclarationOnly",
-    "build:js": "tsup",
+    "build": "tsup && npm run copy:styles && tsc --emitDeclarationOnly",
+    "build:js": "tsup && npm run copy:styles",
     "build:types": "tsc --emitDeclarationOnly",
+    "copy:styles": "mkdir -p dist/styles && cp src/styles/*.css dist/styles/",
     "prepublishOnly": "rm -rf dist && npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
