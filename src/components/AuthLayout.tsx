@@ -2,6 +2,16 @@
 
 import type { AuthLayoutProps } from '../types';
 
+/**
+ * Width of the content column's inner box.
+ *
+ * Every form (LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm,
+ * EmailVerificationForm) centers itself with `width:100%; max-width:384px; margin:0 auto`.
+ * The logo must sit in the same box, otherwise it hangs off the column padding and its
+ * offset from the form's left edge changes with the viewport — `(columnContentWidth - 384) / 2`.
+ */
+const CONTENT_MAX_WIDTH = '384px';
+
 export function AuthLayout({
   children,
   logo,
@@ -15,11 +25,19 @@ export function AuthLayout({
 }: AuthLayoutProps) {
   return (
     <div className={`wiz-auth-page ${className ?? ''}`} style={{ display: 'flex', minHeight: fullHeight ? '100vh' : '100%' }}>
-      <div style={{ display: 'flex', width: '100%', flexDirection: 'column', justifyContent: 'center', padding: '48px 24px', maxWidth: '480px' }}>
-        {logo && <div style={{ marginBottom: '32px' }}>{logo}</div>}
-        {title && <h1 style={{ fontSize: '24px', fontWeight: 700 }}>{title}</h1>}
-        {subtitle && <p style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}>{subtitle}</p>}
-        <div style={{ marginTop: '24px' }}>{children}</div>
+      {/*
+        The logo is anchored to the top of the column and the rest is centered in the
+        remaining space. Keeping the logo inside the centered stack made it drift
+        vertically with the form's height (validation copy, OAuth button count, which
+        screen is rendered), so it never landed in the same place twice.
+      */}
+      <div style={{ display: 'flex', width: '100%', flexDirection: 'column', padding: '48px 24px', maxWidth: '480px' }}>
+        {logo && <div style={{ width: '100%', maxWidth: CONTENT_MAX_WIDTH, margin: '0 auto 32px' }}>{logo}</div>}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          {title && <h1 style={{ fontSize: '24px', fontWeight: 700 }}>{title}</h1>}
+          {subtitle && <p style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}>{subtitle}</p>}
+          <div style={{ marginTop: '24px' }}>{children}</div>
+        </div>
       </div>
 
       <div
