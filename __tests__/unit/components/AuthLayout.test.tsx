@@ -12,6 +12,33 @@ describe('AuthLayout', () => {
     expect(screen.getByAltText('Logo')).toBeInTheDocument();
   });
 
+  it('constrains the logo to the same 384px box the forms center themselves in', () => {
+    const { container } = render(<AuthLayout logo={<img alt="Logo" src="/logo.png" />}><div /></AuthLayout>);
+    const logoBox = container.querySelector('.wiz-auth-page > div')?.firstElementChild as HTMLElement;
+    expect(logoBox).toContainElement(screen.getByAltText('Logo'));
+    expect(logoBox.style.maxWidth).toBe('384px');
+    expect(logoBox.style.margin).toBe('0px auto 32px');
+  });
+
+  it('keeps the logo out of the vertically centered stack', () => {
+    const { container } = render(<AuthLayout logo={<img alt="Logo" src="/logo.png" />}><p>Child content</p></AuthLayout>);
+    const column = container.querySelector('.wiz-auth-page > div') as HTMLElement;
+    // 컬럼 자체는 더 이상 중앙정렬하지 않는다 — 로고 아래 영역만 중앙정렬한다.
+    expect(column.style.justifyContent).toBe('');
+    const centered = column.children[1] as HTMLElement;
+    expect(centered.style.justifyContent).toBe('center');
+    expect(centered.style.flex).toContain('1');
+    expect(centered).toContainElement(screen.getByText('Child content'));
+  });
+
+  it('still centers content vertically when no logo is given', () => {
+    const { container } = render(<AuthLayout><p>Child content</p></AuthLayout>);
+    const column = container.querySelector('.wiz-auth-page > div') as HTMLElement;
+    const centered = column.firstElementChild as HTMLElement;
+    expect(centered.style.justifyContent).toBe('center');
+    expect(centered).toContainElement(screen.getByText('Child content'));
+  });
+
   it('renders title as h1', () => {
     render(<AuthLayout title="Welcome"><div /></AuthLayout>);
     expect(screen.getByRole('heading', { level: 1, name: 'Welcome' })).toBeInTheDocument();
