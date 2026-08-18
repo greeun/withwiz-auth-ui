@@ -103,7 +103,7 @@ export function SignupForm({
           {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="signup" onOAuthClick={onOAuthClick} apiBasePath={apiBasePath} />}
           <div style={{ margin: '16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
-            <span style={{ fontSize: '12px', color: '#9ca3af' }}>{t.orDivider}</span>
+            <span style={{ fontSize: '12px', color: '#6b7280' }}>{t.orDivider}</span>
             <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
           </div>
         </>
@@ -144,7 +144,7 @@ export function SignupForm({
 
       {showLoginLink && (
         <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '14px', color: '#6b7280' }}>
-          {t.alreadyHaveAccount} <a href="/login" style={{ color: '#4f46e5' }}>{t.signIn}</a>
+          {t.alreadyHaveAccount} <a href="/login" style={{ color: '#4f46e5', textDecoration: 'underline' }}>{t.signIn}</a>
         </p>
       )}
 
