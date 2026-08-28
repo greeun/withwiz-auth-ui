@@ -4,10 +4,12 @@ import { useState, type FormEvent } from 'react';
 import { z } from 'zod';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
+import { emailFromLink } from '../utils/link-email';
 import type { ResetPasswordFormProps } from '../types';
 
 export function ResetPasswordForm({
   token,
+  email,
   locale = 'ko',
   messages: messageOverrides,
   apiBasePath = '/api/auth',
@@ -45,7 +47,11 @@ export function ResetPasswordForm({
 
     setLoading(true);
     try {
-      const res = await authPost(`${apiBasePath}/reset-password`, { token, password: parsed.data.password });
+      // The endpoint matches token **and** email; sending the token alone is rejected
+      // as malformed before the token is ever checked.
+      const account = email ?? emailFromLink();
+      const payload = { token, password: parsed.data.password };
+      const res = await authPost(`${apiBasePath}/reset-password`, account ? { email: account, ...payload } : payload);
       const data = await res.json();
 
       if (!res.ok) {
