@@ -51,14 +51,26 @@ All tokens are prefixed `--wiz-auth-`.
 
 ### 2. Fine control with classNames slots
 
-Package styles live in a cascade layer, so your utility classes always win —
-no `!important`, and source order does not matter.
+Package styles live in the `wiz-auth` cascade layer, so your utility classes
+win over any **unlayered** CSS regardless of import order — no `!important`,
+no tailwind-merge.
 
 ```tsx
 <LoginScreen
   classNames={{ input: 'rounded-xl border-2', submitButton: 'bg-emerald-600 hover:bg-emerald-700' }}
   layoutClassNames={{ sidePanel: 'bg-gradient-to-br from-emerald-600 to-teal-800' }}
 />
+```
+
+If your own CSS is itself layered — Tailwind v4's `@import "tailwindcss"`
+emits `@layer theme, base, components, utilities;` — layer precedence is
+decided by which layer is *declared* first, not by import order, so your
+layered utilities can otherwise end up losing to `wiz-auth`. Declare the
+layer order yourself before importing Tailwind:
+
+```css
+@layer wiz-auth, theme, base, components, utilities;  /* before @import "tailwindcss" */
+@import "tailwindcss";
 ```
 
 `classNames` targets the form; `layoutClassNames` targets the surrounding
@@ -82,6 +94,22 @@ Three states are supported out of the box:
 <LoginScreen forceColorScheme="light" />   // stay light regardless of the app theme
 ```
 
+**`forceColorScheme` and your own token overrides.** When forced, the
+package declares its `--wiz-auth-*` tokens on the element carrying
+`forceColorScheme` itself (`.wiz-auth-page` on a Screen/Page, the form root
+otherwise) — not on `:root`. An element's own declaration always beats an
+inherited one, and that is unaffected by specificity or cascade layers, so a
+token override declared on an *ancestor* of that element will not win while
+`forceColorScheme` is set. Target the forced element itself, or lower:
+
+```css
+/* without forceColorScheme — any ancestor works */
+:root { --wiz-auth-primary: … }
+
+/* with forceColorScheme — target the page element */
+.my-auth-wrapper .wiz-auth-page { --wiz-auth-primary: … }
+```
+
 ### 4. Full control with unstyled
 
 `unstyled` drops every package class, leaving only what you pass in
@@ -91,6 +119,8 @@ with your own design system.
 ```tsx
 <LoginForm unstyled classNames={{ root: 'my-card', input: 'my-input', submitButton: 'my-btn' }} />
 ```
+
+See `docs/preview-*.html` for standalone, no-build previews of each screen and form.
 
 ## Structure
 

@@ -60,8 +60,8 @@ export function EmailVerificationForm({
     return (
       <div className={cls('wiz-auth-status', cx(className, classNames?.root))} data-wiz-scheme={forceColorScheme}>
         <svg width="40" height="40" viewBox="0 0 40 40" className={cls('wiz-auth-status-icon wiz-auth-spinner', classNames?.icon)}>
-          <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="4" opacity="0.2" />
-          <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="80" strokeDashoffset="60" strokeLinecap="round" />
+          <circle cx="20" cy="20" r="16" fill="none" stroke="var(--wiz-auth-border)" strokeWidth="4" />
+          <circle cx="20" cy="20" r="16" fill="none" stroke="var(--wiz-auth-primary)" strokeWidth="4" strokeDasharray="80" strokeDashoffset="60" strokeLinecap="round" />
         </svg>
         <p className={cls('wiz-auth-status-message', classNames?.message)}>{t.verifying}</p>
       </div>
