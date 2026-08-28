@@ -47,6 +47,20 @@ describe('auth.css contract', () => {
     expect(css).toMatch(/@media \(prefers-color-scheme: dark\)\s*\{\s*:where\(/);
   });
 
+  it('keeps [data-wiz-scheme] rules OUTSIDE :where(), so forceColorScheme keeps winning', () => {
+    // The automatic states above ((1) prefers-color-scheme, (2) [data-theme]/.dark)
+    // are deliberately wrapped in :where() to sit at specificity (0,0,0), so a
+    // consumer's own `:root[data-theme="dark"]` rule can outrank them.
+    // [data-wiz-scheme] is the opposite: it is the forceColorScheme escape hatch and
+    // MUST keep its natural attribute-selector specificity (0,1,0) so it outranks
+    // the :where()-wrapped automatic states. If a future edit "simplifies" this by
+    // wrapping [data-wiz-scheme] in :where() too, its specificity drops to (0,0,0),
+    // the app-level [data-theme]/.dark toggle above starts outranking it again, and
+    // forceColorScheme silently stops working — with every other test in this file
+    // still green, since none of them look at [data-wiz-scheme] specificity.
+    expect(css).not.toMatch(/:where\([^)]*\[data-wiz-scheme=/);
+  });
+
   it('no longer pins color-scheme to light', () => {
     // Negative lookbehind excludes the `--wiz-auth-color-scheme: light;`
     // custom property (part of the token contract) so this only catches a
