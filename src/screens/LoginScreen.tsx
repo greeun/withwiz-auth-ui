@@ -5,18 +5,27 @@ import { LoginForm } from '../components/LoginForm';
 import type { LoginPageProps } from '../types';
 
 /**
- * Full login screen: triangle side panel + optional logo (from AuthLayout)
- * wrapped around the self-contained <LoginForm />.
+ * Full login screen: side panel + optional logo (from AuthLayout) wrapped
+ * around the self-contained <LoginForm />.
  *
- * Visual props (logo, pattern, backgroundColor, leftPanel) feed AuthLayout;
- * everything else forwards to LoginForm. `pattern` defaults to 'triangle';
- * `logo` is optional and renders nothing when omitted.
+ * Visual props (logo, pattern, backgroundColor, leftPanel, layoutClassNames,
+ * forceColorScheme) feed AuthLayout; everything else — including the form's
+ * own `classNames` — forwards to LoginForm.
  */
 export type LoginScreenProps = LoginPageProps;
 
-export function LoginScreen({ logo, pattern, backgroundColor, leftPanel, className, fullHeight, ...formProps }: LoginScreenProps) {
+export function LoginScreen({ logo, pattern, backgroundColor, leftPanel, className, fullHeight, layoutClassNames, forceColorScheme, ...formProps }: LoginScreenProps) {
   return (
-    <AuthLayout logo={logo} pattern={pattern} backgroundColor={backgroundColor} leftPanel={leftPanel} fullHeight={fullHeight} className={className}>
+    <AuthLayout
+      logo={logo}
+      pattern={pattern}
+      backgroundColor={backgroundColor}
+      leftPanel={leftPanel}
+      fullHeight={fullHeight}
+      className={className}
+      classNames={layoutClassNames}
+      forceColorScheme={forceColorScheme}
+    >
       <LoginForm {...formProps} />
     </AuthLayout>
   );
