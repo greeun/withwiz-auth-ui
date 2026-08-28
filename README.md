@@ -12,7 +12,7 @@ Customizable authentication UI components for React / Next.js projects.
 - AuthProvider context with session management
 - Zod-based form validation
 - Unstyled mode for full CSS control (all five forms)
-- CSS custom properties for theming (22 tokens) + classNames slots + 3-state dark mode
+- CSS custom properties for theming (24 tokens) + classNames slots + 3-state dark mode
 
 ## Theming
 
@@ -26,7 +26,7 @@ import '@withwiz/auth-ui/styles';
 
 ### 1. Brand with CSS variables
 
-All 22 tokens are declared on `:root` inside `@layer wiz-auth`, so any
+All 24 tokens are declared on `:root` inside `@layer wiz-auth`, so any
 declaration of your own wins.
 
 ```css
@@ -42,6 +42,7 @@ declaration of your own wins.
 | Brand | `primary` · `primary-hover` · `primary-foreground` |
 | Surface | `background` · `foreground` · `muted-foreground` |
 | Fields | `border` · `input` · `input-background` |
+| Accents | `oauth-foreground` · `divider` |
 | States | `error` · `error-background` · `field-error` · `success` · `success-background` |
 | Metrics | `radius` · `field-height` · `oauth-height` · `content-width` · `field-gap` |
 | Misc | `font` · `side-panel-background` · `color-scheme` |

@@ -5,8 +5,8 @@ const css = readFileSync(join(__dirname, '../../../src/styles/auth.css'), 'utf8'
 
 const TOKENS = [
   'primary', 'primary-hover', 'primary-foreground',
-  'background', 'foreground', 'muted-foreground',
-  'border', 'input', 'input-background',
+  'background', 'foreground', 'muted-foreground', 'oauth-foreground',
+  'border', 'input', 'input-background', 'divider',
   'error', 'error-background', 'field-error',
   'success', 'success-background',
   'radius', 'field-height', 'content-width', 'field-gap',
@@ -18,7 +18,7 @@ describe('auth.css contract', () => {
     expect(css).toMatch(/@layer\s+wiz-auth\s*\{/);
   });
 
-  it('declares all 22 tokens with their light defaults', () => {
+  it('declares all 24 tokens with their light defaults', () => {
     for (const token of TOKENS) {
       expect(css).toContain(`--wiz-auth-${token}:`);
     }
