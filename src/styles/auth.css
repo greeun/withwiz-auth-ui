@@ -1,37 +1,461 @@
-.wiz-auth-page {
-  --wiz-auth-primary: #4f46e5;
-  --wiz-auth-primary-hover: #4338ca;
-  --wiz-auth-error: #dc2626;
-  --wiz-auth-background: #ffffff;
-  --wiz-auth-foreground: #111827;
-  --wiz-auth-border: #d1d5db;
-  --wiz-auth-input: #d1d5db;
-  --wiz-auth-radius: 6px;
-  --wiz-auth-font: system-ui, -apple-system, sans-serif;
+/*
+ * @withwiz/auth-ui base styles.
+ *
+ * Everything lives inside `@layer wiz-auth`. Layered rules always lose to
+ * unlayered ones, so a consumer's utility class wins regardless of CSS load
+ * order — no !important, no tailwind-merge.
+ *
+ * Consumers customise in two ways:
+ *   1. Override --wiz-auth-* variables (branding)
+ *   2. Pass classNames={{ … }} slots (precise control)
+ */
+@layer wiz-auth {
+  /* Light defaults. :where() keeps specificity at 0 so a consumer's own
+     `:root { --wiz-auth-primary: … }` (0,1,0) always wins. */
+  :where(:root) {
+    --wiz-auth-primary: #4f46e5;
+    --wiz-auth-primary-hover: #4338ca;
+    --wiz-auth-primary-foreground: #ffffff;
 
-  font-family: var(--wiz-auth-font);
-  color-scheme: light;
-}
+    --wiz-auth-background: #ffffff;
+    --wiz-auth-foreground: #111827;
+    --wiz-auth-muted-foreground: #6b7280;
 
-.wiz-auth-form input {
-  border-color: var(--wiz-auth-border);
-  border-radius: var(--wiz-auth-radius);
-}
+    --wiz-auth-border: #d1d5db;
+    --wiz-auth-input: #d1d5db;
+    --wiz-auth-input-background: #ffffff;
 
-.wiz-auth-form input:focus {
-  outline: 2px solid var(--wiz-auth-primary);
-  outline-offset: -1px;
-}
+    --wiz-auth-error: #dc2626;
+    --wiz-auth-error-background: #fef2f2;
+    --wiz-auth-field-error: #ef4444;
+    --wiz-auth-success: #16a34a;
+    --wiz-auth-success-background: #f0fdf4;
 
-.wiz-auth-form button[type="submit"] {
-  background-color: var(--wiz-auth-primary);
-  border-radius: var(--wiz-auth-radius);
-}
+    --wiz-auth-radius: 6px;
+    --wiz-auth-field-height: 40px;
+    --wiz-auth-oauth-height: 44px;
+    --wiz-auth-content-width: 384px;
+    --wiz-auth-field-gap: 16px;
 
-.wiz-auth-form button[type="submit"]:hover:not(:disabled) {
-  background-color: var(--wiz-auth-primary-hover);
-}
+    --wiz-auth-font: system-ui, -apple-system, sans-serif;
+    --wiz-auth-side-panel-background: #f0f4ff;
+    --wiz-auth-color-scheme: light;
+  }
 
-.wiz-oauth-btn:hover:not(:disabled) {
-  background-color: #f9fafb;
+  /* (1) System preference — only when the app has not declared explicit light */
+  @media (prefers-color-scheme: dark) {
+    :where(:root:not([data-theme="light"]):not(.light)) {
+      --wiz-auth-primary: #6366f1;
+      --wiz-auth-primary-hover: #818cf8;
+      --wiz-auth-background: #111827;
+      --wiz-auth-foreground: #f9fafb;
+      --wiz-auth-muted-foreground: #9ca3af;
+      --wiz-auth-border: #374151;
+      --wiz-auth-input: #374151;
+      --wiz-auth-input-background: #1f2937;
+      --wiz-auth-error: #f87171;
+      --wiz-auth-error-background: #450a0a;
+      --wiz-auth-field-error: #f87171;
+      --wiz-auth-success: #4ade80;
+      --wiz-auth-success-background: #052e16;
+      --wiz-auth-side-panel-background: #1e1b4b;
+      --wiz-auth-color-scheme: dark;
+    }
+  }
+
+  /* (2) App-level toggle. Both conventions: tavlet uses [data-theme],
+     shadcn-derived projects use .dark */
+  :where(:root[data-theme="dark"], :root.dark) {
+    --wiz-auth-primary: #6366f1;
+    --wiz-auth-primary-hover: #818cf8;
+    --wiz-auth-background: #111827;
+    --wiz-auth-foreground: #f9fafb;
+    --wiz-auth-muted-foreground: #9ca3af;
+    --wiz-auth-border: #374151;
+    --wiz-auth-input: #374151;
+    --wiz-auth-input-background: #1f2937;
+    --wiz-auth-error: #f87171;
+    --wiz-auth-error-background: #450a0a;
+    --wiz-auth-field-error: #f87171;
+    --wiz-auth-success: #4ade80;
+    --wiz-auth-success-background: #052e16;
+    --wiz-auth-side-panel-background: #1e1b4b;
+    --wiz-auth-color-scheme: dark;
+  }
+
+  /* (3) forceColorScheme prop. Specificity (0,1,0) beats the :where()-wrapped
+     rules above, which sit at 0. Attribute selector (not class) because forms
+     used on their own have no .wiz-auth-page ancestor. */
+  [data-wiz-scheme="light"] {
+    --wiz-auth-primary: #4f46e5;
+    --wiz-auth-primary-hover: #4338ca;
+    --wiz-auth-background: #ffffff;
+    --wiz-auth-foreground: #111827;
+    --wiz-auth-muted-foreground: #6b7280;
+    --wiz-auth-border: #d1d5db;
+    --wiz-auth-input: #d1d5db;
+    --wiz-auth-input-background: #ffffff;
+    --wiz-auth-error: #dc2626;
+    --wiz-auth-error-background: #fef2f2;
+    --wiz-auth-field-error: #ef4444;
+    --wiz-auth-success: #16a34a;
+    --wiz-auth-success-background: #f0fdf4;
+    --wiz-auth-side-panel-background: #f0f4ff;
+    --wiz-auth-color-scheme: light;
+  }
+
+  [data-wiz-scheme="dark"] {
+    --wiz-auth-primary: #6366f1;
+    --wiz-auth-primary-hover: #818cf8;
+    --wiz-auth-background: #111827;
+    --wiz-auth-foreground: #f9fafb;
+    --wiz-auth-muted-foreground: #9ca3af;
+    --wiz-auth-border: #374151;
+    --wiz-auth-input: #374151;
+    --wiz-auth-input-background: #1f2937;
+    --wiz-auth-error: #f87171;
+    --wiz-auth-error-background: #450a0a;
+    --wiz-auth-field-error: #f87171;
+    --wiz-auth-success: #4ade80;
+    --wiz-auth-success-background: #052e16;
+    --wiz-auth-side-panel-background: #1e1b4b;
+    --wiz-auth-color-scheme: dark;
+  }
+
+  /* ---------------------------------------------------------------- layout */
+
+  .wiz-auth-page {
+    display: flex;
+    min-height: 100vh;
+    font-family: var(--wiz-auth-font);
+    color-scheme: var(--wiz-auth-color-scheme);
+    background-color: var(--wiz-auth-background);
+    color: var(--wiz-auth-foreground);
+  }
+
+  /* fullHeight={false} — fits inside a bounded region such as an app shell */
+  .wiz-auth-page[data-full-height="false"] {
+    min-height: 100%;
+  }
+
+  .wiz-auth-content {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    padding: 48px 24px;
+    max-width: 480px;
+  }
+
+  .wiz-auth-logo {
+    width: 100%;
+    max-width: var(--wiz-auth-content-width);
+    margin: 0 auto 32px;
+  }
+
+  .wiz-auth-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .wiz-auth-slot {
+    margin-top: 24px;
+  }
+
+  .wiz-auth-side-panel {
+    display: none;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--wiz-auth-side-panel-background);
+  }
+
+  .wiz-auth-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.2;
+  }
+
+  @media (min-width: 1024px) {
+    .wiz-auth-side-panel { display: flex; }
+    .wiz-auth-page > .wiz-auth-content { width: 33.333%; }
+  }
+
+  /* ------------------------------------------------------------------ form */
+
+  .wiz-auth-form {
+    width: 100%;
+    max-width: var(--wiz-auth-content-width);
+    margin: 0 auto;
+    color: var(--wiz-auth-foreground);
+  }
+
+  .wiz-auth-header {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .wiz-auth-title {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .wiz-auth-subtitle {
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--wiz-auth-muted-foreground);
+  }
+
+  .wiz-auth-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wiz-auth-field-gap);
+  }
+
+  .wiz-auth-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .wiz-auth-input {
+    width: 100%;
+    height: var(--wiz-auth-field-height);
+    padding: 0 12px;
+    border: 1px solid var(--wiz-auth-input);
+    border-radius: var(--wiz-auth-radius);
+    font-size: 14px;
+    background-color: var(--wiz-auth-input-background);
+    color: var(--wiz-auth-foreground);
+  }
+
+  .wiz-auth-input:focus {
+    outline: 2px solid var(--wiz-auth-primary);
+    outline-offset: -1px;
+  }
+
+  .wiz-auth-field-error {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--wiz-auth-field-error);
+  }
+
+  .wiz-auth-error {
+    padding: 12px;
+    font-size: 14px;
+    color: var(--wiz-auth-error);
+    background-color: var(--wiz-auth-error-background);
+    border-radius: var(--wiz-auth-radius);
+  }
+
+  .wiz-auth-submit {
+    width: 100%;
+    height: var(--wiz-auth-field-height);
+    background-color: var(--wiz-auth-primary);
+    color: var(--wiz-auth-primary-foreground);
+    border-radius: var(--wiz-auth-radius);
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+  }
+
+  .wiz-auth-submit:hover:not(:disabled) {
+    background-color: var(--wiz-auth-primary-hover);
+  }
+
+  .wiz-auth-submit:disabled {
+    opacity: 0.5;
+  }
+
+  .wiz-auth-secondary {
+    margin-top: 8px;
+    width: 100%;
+    height: var(--wiz-auth-field-height);
+    border: 1px solid var(--wiz-auth-border);
+    border-radius: var(--wiz-auth-radius);
+    font-size: 14px;
+    background-color: var(--wiz-auth-background);
+    color: var(--wiz-auth-foreground);
+    cursor: pointer;
+  }
+
+  .wiz-auth-link {
+    color: var(--wiz-auth-primary);
+  }
+
+  .wiz-auth-footer {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--wiz-auth-muted-foreground);
+  }
+
+  .wiz-auth-footer .wiz-auth-link {
+    text-decoration: underline;
+  }
+
+  .wiz-auth-forgot {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  /* --------------------------------------------------------------- divider */
+
+  .wiz-auth-divider {
+    margin: 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wiz-auth-divider-line {
+    flex: 1;
+    border: none;
+    border-top: 1px solid var(--wiz-auth-border);
+  }
+
+  .wiz-auth-divider-text {
+    font-size: 12px;
+    color: var(--wiz-auth-muted-foreground);
+  }
+
+  /* ----------------------------------------------------------------- oauth */
+
+  .wiz-oauth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .wiz-oauth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: var(--wiz-auth-oauth-height);
+    border-radius: var(--wiz-auth-radius);
+    border: 1px solid var(--wiz-auth-border);
+    background-color: var(--wiz-auth-background);
+    color: var(--wiz-auth-foreground);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* Brand colours are fixed by each provider's brand guidelines. Override
+     with classNames.oauthButton if you must. */
+  .wiz-oauth-btn[data-provider="kakao"] {
+    background-color: #fee500;
+    color: #191919;
+    border-color: #fee500;
+  }
+
+  .wiz-oauth-btn:hover:not(:disabled) {
+    filter: brightness(0.97);
+  }
+
+  .wiz-oauth-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .wiz-oauth-icon {
+    margin-right: 8px;
+    display: flex;
+  }
+
+  /* --------------------------------------------------------------- success */
+
+  .wiz-auth-success {
+    text-align: center;
+    padding: 24px;
+  }
+
+  .wiz-auth-success-text {
+    color: var(--wiz-auth-success);
+    font-size: 14px;
+  }
+
+  .wiz-auth-success-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--wiz-auth-success);
+  }
+
+  .wiz-auth-success-message {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--wiz-auth-muted-foreground);
+  }
+
+  .wiz-auth-success .wiz-auth-link {
+    margin-top: 16px;
+    display: inline-block;
+    font-size: 14px;
+  }
+
+  /* ---------------------------------------------------------------- status */
+
+  .wiz-auth-status {
+    text-align: center;
+    padding: 48px 24px;
+  }
+
+  .wiz-auth-status-icon {
+    margin: 0 auto 16px;
+    display: block;
+  }
+
+  .wiz-auth-status-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .wiz-auth-status-title[data-state="success"] { color: var(--wiz-auth-success); }
+  .wiz-auth-status-title[data-state="error"] { color: var(--wiz-auth-error); }
+
+  .wiz-auth-status-message {
+    font-size: 14px;
+    color: var(--wiz-auth-muted-foreground);
+    margin-bottom: 24px;
+  }
+
+  .wiz-auth-status-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .wiz-auth-status-primary {
+    display: inline-block;
+    padding: 10px 24px;
+    background-color: var(--wiz-auth-primary);
+    color: var(--wiz-auth-primary-foreground);
+    border-radius: var(--wiz-auth-radius);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .wiz-auth-status-link {
+    font-size: 14px;
+    color: var(--wiz-auth-primary);
+    text-decoration: none;
+  }
+
+  .wiz-auth-spinner {
+    animation: wiz-spin 1s linear infinite;
+  }
+
+  @keyframes wiz-spin {
+    to { transform: rotate(360deg); }
+  }
 }
