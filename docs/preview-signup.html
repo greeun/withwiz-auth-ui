@@ -4,83 +4,73 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>@withwiz/auth-ui — SignupPage preview</title>
+<link rel="stylesheet" href="../src/styles/auth.css" />
 <style>
-  .wiz-auth-page {
-    --wiz-auth-primary: #4f46e5; --wiz-auth-primary-hover: #4338ca; --wiz-auth-error: #dc2626;
-    --wiz-auth-background: #ffffff; --wiz-auth-foreground: #111827; --wiz-auth-border: #d1d5db;
-    --wiz-auth-input: #d1d5db; --wiz-auth-radius: 6px; --wiz-auth-font: system-ui, -apple-system, sans-serif;
-    font-family: var(--wiz-auth-font); color-scheme: light;
-  }
-  .wiz-auth-form input { border-color: var(--wiz-auth-border); border-radius: var(--wiz-auth-radius); }
-  .wiz-auth-form input:focus { outline: 2px solid var(--wiz-auth-primary); outline-offset: -1px; }
-  .wiz-auth-form button[type="submit"] { background-color: var(--wiz-auth-primary); border-radius: var(--wiz-auth-radius); }
-  .wiz-auth-form button[type="submit"]:hover:not(:disabled) { background-color: var(--wiz-auth-primary-hover); }
-  .wiz-oauth-btn:hover:not(:disabled) { background-color: #f9fafb; }
-  @media (min-width: 1024px) {
-    .wiz-auth-side-panel { display: flex !important; }
-    .wiz-auth-page > div:first-child { width: 33.333%; }
-  }
+  /* Page-level reset for this static demo only — not part of the package. */
+  *, *::before, *::after { box-sizing: border-box; }
   body { margin: 0; }
 </style>
 </head>
 <body>
 <!-- <SignupPage providers={['google','github','kakao']} />  (locale default 'ko') -->
-<div class="wiz-auth-page" style="display:flex;min-height:100vh">
-  <div style="display:flex;width:100%;flex-direction:column;justify-content:center;padding:48px 24px;max-width:480px">
-    <div style="margin-top:24px">
+<div class="wiz-auth-page">
+  <div class="wiz-auth-content">
+    <div class="wiz-auth-body">
+      <div class="wiz-auth-slot">
 
-      <!-- SignupForm -->
-      <div class="wiz-auth-form" style="width:100%;max-width:384px;margin:0 auto">
-        <div style="margin-bottom:24px;text-align:center">
-          <h1 style="font-size:24px;font-weight:700;margin:0">회원가입</h1>
-          <p style="margin-top:4px;font-size:14px;color:#6b7280">새 계정을 만드세요</p>
-        </div>
-
-        <!-- OAuthButtons (mode=signup) -->
-        <div class="wiz-oauth-buttons" style="display:flex;flex-direction:column;gap:8px">
-          <button type="button" class="wiz-oauth-btn" style="display:flex;align-items:center;justify-content:center;width:100%;height:44px;border-radius:6px;border:1px solid #d1d5db;background-color:#fff;color:#374151;font-size:14px;font-weight:500;cursor:pointer">
-            <span style="margin-right:8px;display:flex"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></span>
-            Continue with Google
-          </button>
-          <button type="button" class="wiz-oauth-btn" style="display:flex;align-items:center;justify-content:center;width:100%;height:44px;border-radius:6px;border:1px solid #d1d5db;background-color:#fff;color:#374151;font-size:14px;font-weight:500;cursor:pointer">
-            <span style="margin-right:8px;display:flex"><svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></span>
-            Continue with GitHub
-          </button>
-          <button type="button" class="wiz-oauth-btn" style="display:flex;align-items:center;justify-content:center;width:100%;height:44px;border-radius:6px;border:1px solid #d1d5db;background-color:#FEE500;color:#191919;font-size:14px;font-weight:500;cursor:pointer">
-            <span style="margin-right:8px;display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="#191919"><path d="M12 3c-5.523 0-10 3.582-10 8 0 2.817 1.862 5.29 4.66 6.696l-.994 3.638c-.07.258.1.518.36.518a.5.5 0 00.312-.11l4.206-2.803c.474.046.958.07 1.456.07 5.523 0 10-3.582 10-8s-4.477-8-10-8z"/></svg></span>
-            Continue with Kakao
-          </button>
-        </div>
-
-        <div style="margin:16px 0;display:flex;align-items:center;gap:8px">
-          <hr style="flex:1;border:none;border-top:1px solid #e5e7eb" /><span style="font-size:12px;color:#9ca3af">또는</span><hr style="flex:1;border:none;border-top:1px solid #e5e7eb" />
-        </div>
-
-        <form style="display:flex;flex-direction:column;gap:16px" onsubmit="return false">
-          <div>
-            <label for="wiz-signup-name" style="display:block;font-size:14px;font-weight:500;margin-bottom:4px">이름</label>
-            <input id="wiz-signup-name" type="text" placeholder="이름을 입력하세요" style="width:100%;height:40px;padding:0 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box" />
+        <!-- SignupForm -->
+        <div class="wiz-auth-form">
+          <div class="wiz-auth-header">
+            <h1 class="wiz-auth-title">회원가입</h1>
+            <p class="wiz-auth-subtitle">새 계정을 만드세요</p>
           </div>
-          <div>
-            <label for="wiz-signup-email" style="display:block;font-size:14px;font-weight:500;margin-bottom:4px">이메일</label>
-            <input id="wiz-signup-email" type="email" placeholder="name@example.com" style="width:100%;height:40px;padding:0 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box" />
-          </div>
-          <div>
-            <label for="wiz-signup-password" style="display:block;font-size:14px;font-weight:500;margin-bottom:4px">비밀번호</label>
-            <input id="wiz-signup-password" type="password" placeholder="8자 이상 입력하세요" style="width:100%;height:40px;padding:0 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box" />
-          </div>
-          <button type="submit" style="width:100%;height:40px;background-color:#4f46e5;color:#fff;border-radius:6px;font-size:14px;font-weight:500;border:none;cursor:pointer">회원가입</button>
-        </form>
 
-        <p style="margin-top:16px;text-align:center;font-size:14px;color:#6b7280">
-          이미 계정이 있으신가요? <a href="/login" style="color:#4f46e5">로그인</a>
-        </p>
+          <!-- OAuthButtons (mode=signup) -->
+          <div class="wiz-oauth-buttons">
+            <button type="button" class="wiz-oauth-btn" data-provider="google">
+              <span class="wiz-oauth-icon"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></span>
+              Continue with Google
+            </button>
+            <button type="button" class="wiz-oauth-btn" data-provider="github">
+              <span class="wiz-oauth-icon"><svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></span>
+              Continue with GitHub
+            </button>
+            <button type="button" class="wiz-oauth-btn" data-provider="kakao">
+              <span class="wiz-oauth-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="#191919"><path d="M12 3c-5.523 0-10 3.582-10 8 0 2.817 1.862 5.29 4.66 6.696l-.994 3.638c-.07.258.1.518.36.518a.5.5 0 00.312-.11l4.206-2.803c.474.046.958.07 1.456.07 5.523 0 10-3.582 10-8s-4.477-8-10-8z"/></svg></span>
+              Continue with Kakao
+            </button>
+          </div>
+
+          <div class="wiz-auth-divider">
+            <hr class="wiz-auth-divider-line" /><span class="wiz-auth-divider-text">또는</span><hr class="wiz-auth-divider-line" />
+          </div>
+
+          <form class="wiz-auth-fields" onsubmit="return false">
+            <div class="wiz-auth-field">
+              <label for="wiz-signup-name" class="wiz-auth-label">이름</label>
+              <input id="wiz-signup-name" type="text" placeholder="이름을 입력하세요" class="wiz-auth-input" />
+            </div>
+            <div class="wiz-auth-field">
+              <label for="wiz-signup-email" class="wiz-auth-label">이메일</label>
+              <input id="wiz-signup-email" type="email" placeholder="name@example.com" class="wiz-auth-input" />
+            </div>
+            <div class="wiz-auth-field">
+              <label for="wiz-signup-password" class="wiz-auth-label">비밀번호</label>
+              <input id="wiz-signup-password" type="password" placeholder="8자 이상 입력하세요" class="wiz-auth-input" />
+            </div>
+            <button type="submit" class="wiz-auth-submit">회원가입</button>
+          </form>
+
+          <p class="wiz-auth-footer">
+            이미 계정이 있으신가요? <a href="/login" class="wiz-auth-link">로그인</a>
+          </p>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="wiz-auth-side-panel" style="display:none;flex:1;align-items:center;justify-content:center;position:relative;overflow:hidden;background-color:#f0f4ff">
-    <div style="position:absolute;inset:0;opacity:0.2">
+  <div class="wiz-auth-side-panel">
+    <div class="wiz-auth-pattern">
       <svg width="100%" height="100%"><defs><pattern id="wiz-triangles" x="0" y="0" width="60" height="52" patternUnits="userSpaceOnUse"><polygon points="30,0 60,52 0,52" fill="#6366f1" fill-opacity="0.3" /></pattern></defs><rect width="100%" height="100%" fill="url(#wiz-triangles)" /></svg>
     </div>
   </div>

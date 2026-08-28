@@ -11,8 +11,85 @@ Customizable authentication UI components for React / Next.js projects.
 - Lifecycle hooks (onBeforeSubmit, onSuccess, onError)
 - AuthProvider context with session management
 - Zod-based form validation
-- Unstyled mode for full CSS control
-- CSS custom properties for theming
+- Unstyled mode for full CSS control (all five forms)
+- CSS custom properties for theming (22 tokens) + classNames slots + 3-state dark mode
+
+## Theming
+
+**The stylesheet import is required as of 0.6.0.** Component styles moved from
+inline `style` attributes into `@layer wiz-auth` in `auth.css`; without the
+import the components render unstyled.
+
+```tsx
+import '@withwiz/auth-ui/styles';
+```
+
+### 1. Brand with CSS variables
+
+All 22 tokens are declared on `:root` inside `@layer wiz-auth`, so any
+declaration of your own wins.
+
+```css
+:root {
+  --wiz-auth-primary: oklch(0.48 0.11 162);
+  --wiz-auth-radius: 10px;
+  --wiz-auth-font: var(--font-geist-sans), system-ui, sans-serif;
+}
+```
+
+| Group | Tokens |
+|---|---|
+| Brand | `primary` · `primary-hover` · `primary-foreground` |
+| Surface | `background` · `foreground` · `muted-foreground` |
+| Fields | `border` · `input` · `input-background` |
+| States | `error` · `error-background` · `field-error` · `success` · `success-background` |
+| Metrics | `radius` · `field-height` · `oauth-height` · `content-width` · `field-gap` |
+| Misc | `font` · `side-panel-background` · `color-scheme` |
+
+All tokens are prefixed `--wiz-auth-`.
+
+### 2. Fine control with classNames slots
+
+Package styles live in a cascade layer, so your utility classes always win —
+no `!important`, and source order does not matter.
+
+```tsx
+<LoginScreen
+  classNames={{ input: 'rounded-xl border-2', submitButton: 'bg-emerald-600 hover:bg-emerald-700' }}
+  layoutClassNames={{ sidePanel: 'bg-gradient-to-br from-emerald-600 to-teal-800' }}
+/>
+```
+
+`classNames` targets the form; `layoutClassNames` targets the surrounding
+`AuthLayout`. They are separate because `title` and `subtitle` exist on both.
+
+Note: `classNames.root` maps to the element carrying `wiz-auth-form` (the form
+wrapper `div`), while `classNames.form` maps to the actual `<form>` element.
+The class name predates the split and is kept for backwards compatibility.
+
+### 3. Dark mode
+
+Three states are supported out of the box:
+
+| State | How it is detected |
+|---|---|
+| System | `@media (prefers-color-scheme: dark)`, unless the app declares `[data-theme="light"]` or `.light` |
+| App toggle | `[data-theme="dark"]` or `.dark` on the root element |
+| Forced | `forceColorScheme="light" \| "dark"` on any screen, page, layout or form |
+
+```tsx
+<LoginScreen forceColorScheme="light" />   // stay light regardless of the app theme
+```
+
+### 4. Full control with unstyled
+
+`unstyled` drops every package class, leaving only what you pass in
+`classNames`. Use it to keep the logic and validation while drawing the markup
+with your own design system.
+
+```tsx
+<LoginForm unstyled classNames={{ root: 'my-card', input: 'my-input', submitButton: 'my-btn' }} />
+```
 
 ## Structure
 
