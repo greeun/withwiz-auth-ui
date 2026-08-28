@@ -32,8 +32,8 @@ describe('LoginPage composition', () => {
 
   it('accepts and forwards layout props (pattern, backgroundColor)', () => {
     const { container } = render(<LoginPage pattern="hexagon" backgroundColor="#123456" />);
-    const sidePanel = container.querySelector('.wiz-auth-side-panel');
-    expect(sidePanel).toHaveStyle({ backgroundColor: '#123456' });
+    const sidePanel = container.querySelector('.wiz-auth-side-panel') as HTMLElement;
+    expect(sidePanel.style.getPropertyValue('--wiz-auth-side-panel-background')).toBe('#123456');
   });
 });
 
@@ -57,8 +57,8 @@ describe('SignupPage composition', () => {
 
   it('accepts and forwards layout props (pattern, backgroundColor)', () => {
     const { container } = render(<SignupPage pattern="dots" backgroundColor="#abcdef" />);
-    const sidePanel = container.querySelector('.wiz-auth-side-panel');
-    expect(sidePanel).toHaveStyle({ backgroundColor: '#abcdef' });
+    const sidePanel = container.querySelector('.wiz-auth-side-panel') as HTMLElement;
+    expect(sidePanel.style.getPropertyValue('--wiz-auth-side-panel-background')).toBe('#abcdef');
   });
 });
 
@@ -77,8 +77,8 @@ describe('ResetPasswordPage composition', () => {
 
   it('accepts and forwards layout props (pattern, backgroundColor)', () => {
     const { container } = render(<ResetPasswordPage token="tok" pattern="none" backgroundColor="#ff0000" />);
-    const sidePanel = container.querySelector('.wiz-auth-side-panel');
-    expect(sidePanel).toHaveStyle({ backgroundColor: '#ff0000' });
+    const sidePanel = container.querySelector('.wiz-auth-side-panel') as HTMLElement;
+    expect(sidePanel.style.getPropertyValue('--wiz-auth-side-panel-background')).toBe('#ff0000');
   });
 });
 
@@ -119,7 +119,7 @@ describe('EmailVerificationPage composition', () => {
 
   it('accepts and forwards layout props (pattern, backgroundColor)', () => {
     const { container } = render(<EmailVerificationPage token="tok" pattern="triangle" backgroundColor="#00ff00" />);
-    const sidePanel = container.querySelector('.wiz-auth-side-panel');
-    expect(sidePanel).toHaveStyle({ backgroundColor: '#00ff00' });
+    const sidePanel = container.querySelector('.wiz-auth-side-panel') as HTMLElement;
+    expect(sidePanel.style.getPropertyValue('--wiz-auth-side-panel-background')).toBe('#00ff00');
   });
 });
