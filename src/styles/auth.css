@@ -20,10 +20,12 @@
     --wiz-auth-background: #ffffff;
     --wiz-auth-foreground: #111827;
     --wiz-auth-muted-foreground: #6b7280;
+    --wiz-auth-oauth-foreground: #374151;
 
     --wiz-auth-border: #d1d5db;
     --wiz-auth-input: #d1d5db;
     --wiz-auth-input-background: #ffffff;
+    --wiz-auth-divider: #e5e7eb;
 
     --wiz-auth-error: #dc2626;
     --wiz-auth-error-background: #fef2f2;
@@ -50,9 +52,11 @@
       --wiz-auth-background: #111827;
       --wiz-auth-foreground: #f9fafb;
       --wiz-auth-muted-foreground: #9ca3af;
+      --wiz-auth-oauth-foreground: #e5e7eb;
       --wiz-auth-border: #374151;
       --wiz-auth-input: #374151;
       --wiz-auth-input-background: #1f2937;
+      --wiz-auth-divider: #1f2937;
       --wiz-auth-error: #f87171;
       --wiz-auth-error-background: #450a0a;
       --wiz-auth-field-error: #f87171;
@@ -71,9 +75,11 @@
     --wiz-auth-background: #111827;
     --wiz-auth-foreground: #f9fafb;
     --wiz-auth-muted-foreground: #9ca3af;
+    --wiz-auth-oauth-foreground: #e5e7eb;
     --wiz-auth-border: #374151;
     --wiz-auth-input: #374151;
     --wiz-auth-input-background: #1f2937;
+    --wiz-auth-divider: #1f2937;
     --wiz-auth-error: #f87171;
     --wiz-auth-error-background: #450a0a;
     --wiz-auth-field-error: #f87171;
@@ -92,9 +98,11 @@
     --wiz-auth-background: #ffffff;
     --wiz-auth-foreground: #111827;
     --wiz-auth-muted-foreground: #6b7280;
+    --wiz-auth-oauth-foreground: #374151;
     --wiz-auth-border: #d1d5db;
     --wiz-auth-input: #d1d5db;
     --wiz-auth-input-background: #ffffff;
+    --wiz-auth-divider: #e5e7eb;
     --wiz-auth-error: #dc2626;
     --wiz-auth-error-background: #fef2f2;
     --wiz-auth-field-error: #ef4444;
@@ -110,9 +118,11 @@
     --wiz-auth-background: #111827;
     --wiz-auth-foreground: #f9fafb;
     --wiz-auth-muted-foreground: #9ca3af;
+    --wiz-auth-oauth-foreground: #e5e7eb;
     --wiz-auth-border: #374151;
     --wiz-auth-input: #374151;
     --wiz-auth-input-background: #1f2937;
+    --wiz-auth-divider: #1f2937;
     --wiz-auth-error: #f87171;
     --wiz-auth-error-background: #450a0a;
     --wiz-auth-field-error: #f87171;
@@ -317,7 +327,7 @@
   .wiz-auth-divider-line {
     flex: 1;
     border: none;
-    border-top: 1px solid var(--wiz-auth-border);
+    border-top: 1px solid var(--wiz-auth-divider);
   }
 
   .wiz-auth-divider-text {
@@ -342,7 +352,7 @@
     border-radius: var(--wiz-auth-radius);
     border: 1px solid var(--wiz-auth-border);
     background-color: var(--wiz-auth-background);
-    color: var(--wiz-auth-foreground);
+    color: var(--wiz-auth-oauth-foreground);
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
