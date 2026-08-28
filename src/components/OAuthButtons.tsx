@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { authPost } from '../utils/api-client';
 import type { OAuthButtonsProps, OAuthProvider } from '../types';
+import { cx } from '../utils/class-names';
 
-export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthClick, disabled, className, apiBasePath = '/api/auth' }: OAuthButtonsProps) {
+export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthClick, disabled, className, classNames, apiBasePath = '/api/auth' }: OAuthButtonsProps) {
   const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
 
   const handleOAuth = async (provider: OAuthProvider) => {
@@ -28,7 +29,7 @@ export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthC
   };
 
   return (
-    <div className={`wiz-oauth-buttons ${className ?? ''}`} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div className={cx('wiz-oauth-buttons', className, classNames?.root)}>
       {providers.map((provider) => (
         <button
           key={provider}
@@ -36,16 +37,10 @@ export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthC
           onClick={() => handleOAuth(provider)}
           disabled={disabled || loadingProvider !== null}
           data-testid={`oauth-${provider}-btn`}
-          className="wiz-oauth-btn"
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: '100%', height: '44px', borderRadius: '6px',
-            border: '1px solid #d1d5db', backgroundColor: provider === 'kakao' ? '#FEE500' : '#fff',
-            color: provider === 'kakao' ? '#191919' : '#374151',
-            fontSize: '14px', fontWeight: 500, cursor: 'pointer',
-          }}
+          data-provider={provider}
+          className={cx('wiz-oauth-btn', classNames?.button)}
         >
-          <span style={{ marginRight: '8px', display: 'flex' }}>{getProviderIcon(provider)}</span>
+          <span className="wiz-oauth-icon">{getProviderIcon(provider)}</span>
           {loadingProvider === provider ? '...' : getProviderLabel(provider, mode)}
         </button>
       ))}
