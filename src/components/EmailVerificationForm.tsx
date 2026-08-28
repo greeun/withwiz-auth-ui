@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { emailFromLink } from '../utils/link-email';
+import { cx } from '../utils/class-names';
 import type { EmailVerificationFormProps } from '../types';
 
 export function EmailVerificationForm({
@@ -15,6 +16,9 @@ export function EmailVerificationForm({
   className,
   loginUrl = '/login',
   resendUrl = '/resend-verification',
+  classNames,
+  forceColorScheme,
+  unstyled = false,
 }: EmailVerificationFormProps) {
   const t = { ...getMessages(locale).emailVerification, ...messageOverrides };
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -50,59 +54,45 @@ export function EmailVerificationForm({
     return () => { cancelled = true; };
   }, [token, email, apiBasePath]);
 
+  const cls = (base: string, slot?: string) => cx(unstyled ? undefined : base, slot);
+
   if (status === 'loading') {
     return (
-      <div className={className} style={{ textAlign: 'center', padding: '48px 24px' }}>
-        <svg width="40" height="40" viewBox="0 0 40 40" style={{ animation: 'wiz-spin 1s linear infinite', margin: '0 auto 16px' }}>
-          <circle cx="20" cy="20" r="16" fill="none" stroke="#d1d5db" strokeWidth="4" />
-          <circle cx="20" cy="20" r="16" fill="none" stroke="#4f46e5" strokeWidth="4" strokeDasharray="80" strokeDashoffset="60" strokeLinecap="round" />
+      <div className={cls('wiz-auth-status', cx(className, classNames?.root))} data-wiz-scheme={forceColorScheme}>
+        <svg width="40" height="40" viewBox="0 0 40 40" className={cls('wiz-auth-status-icon wiz-auth-spinner', classNames?.icon)}>
+          <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="4" opacity="0.2" />
+          <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="80" strokeDashoffset="60" strokeLinecap="round" />
         </svg>
-        <p style={{ fontSize: '14px', color: '#6b7280' }}>{t.verifying}</p>
-        <style>{`@keyframes wiz-spin { to { transform: rotate(360deg); } }`}</style>
+        <p className={cls('wiz-auth-status-message', classNames?.message)}>{t.verifying}</p>
       </div>
     );
   }
 
   if (status === 'success') {
     return (
-      <div className={className} style={{ textAlign: 'center', padding: '48px 24px' }}>
-        <svg width="48" height="48" viewBox="0 0 48 48" style={{ margin: '0 auto 16px' }}>
-          <circle cx="24" cy="24" r="22" fill="#f0fdf4" stroke="#16a34a" strokeWidth="2" />
-          <path d="M15 24l6 6 12-12" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <div className={cls('wiz-auth-status', cx(className, classNames?.root))} data-wiz-scheme={forceColorScheme}>
+        <svg width="48" height="48" viewBox="0 0 48 48" className={cls('wiz-auth-status-icon', classNames?.icon)}>
+          <circle cx="24" cy="24" r="22" fill="var(--wiz-auth-success-background)" stroke="var(--wiz-auth-success)" strokeWidth="2" />
+          <path d="M15 24l6 6 12-12" fill="none" stroke="var(--wiz-auth-success)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a', marginBottom: '8px' }}>{t.successTitle}</h2>
-        <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px' }}>{t.successMessage}</p>
-        <a
-          href={loginUrl}
-          style={{ display: 'inline-block', padding: '10px 24px', backgroundColor: '#4f46e5', color: '#fff', borderRadius: '6px', fontSize: '14px', fontWeight: 500, textDecoration: 'none' }}
-        >
-          {t.loginButton}
-        </a>
+        <h2 className={cls('wiz-auth-status-title', classNames?.title)} data-state="success">{t.successTitle}</h2>
+        <p className={cls('wiz-auth-status-message', classNames?.message)}>{t.successMessage}</p>
+        <a href={loginUrl} className={cls('wiz-auth-status-primary', classNames?.primaryAction)}>{t.loginButton}</a>
       </div>
     );
   }
 
   return (
-    <div className={className} style={{ textAlign: 'center', padding: '48px 24px' }}>
-      <svg width="48" height="48" viewBox="0 0 48 48" style={{ margin: '0 auto 16px' }}>
-        <circle cx="24" cy="24" r="22" fill="#fef2f2" stroke="#dc2626" strokeWidth="2" />
-        <path d="M17 17l14 14M31 17l-14 14" fill="none" stroke="#dc2626" strokeWidth="3" strokeLinecap="round" />
+    <div className={cls('wiz-auth-status', cx(className, classNames?.root))} data-wiz-scheme={forceColorScheme}>
+      <svg width="48" height="48" viewBox="0 0 48 48" className={cls('wiz-auth-status-icon', classNames?.icon)}>
+        <circle cx="24" cy="24" r="22" fill="var(--wiz-auth-error-background)" stroke="var(--wiz-auth-error)" strokeWidth="2" />
+        <path d="M17 17l14 14M31 17l-14 14" fill="none" stroke="var(--wiz-auth-error)" strokeWidth="3" strokeLinecap="round" />
       </svg>
-      <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#dc2626', marginBottom: '8px' }}>{t.errorTitle}</h2>
-      <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px' }}>{errorMessage}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
-        <a
-          href={resendUrl}
-          style={{ fontSize: '14px', color: '#4f46e5', textDecoration: 'none' }}
-        >
-          {t.resendLink}
-        </a>
-        <a
-          href={loginUrl}
-          style={{ display: 'inline-block', padding: '10px 24px', backgroundColor: '#4f46e5', color: '#fff', borderRadius: '6px', fontSize: '14px', fontWeight: 500, textDecoration: 'none' }}
-        >
-          {t.loginButton}
-        </a>
+      <h2 className={cls('wiz-auth-status-title', classNames?.title)} data-state="error">{t.errorTitle}</h2>
+      <p className={cls('wiz-auth-status-message', classNames?.message)}>{errorMessage}</p>
+      <div className={cls('wiz-auth-status-actions', classNames?.actions)}>
+        <a href={resendUrl} className={cls('wiz-auth-status-link', classNames?.secondaryLink)}>{t.resendLink}</a>
+        <a href={loginUrl} className={cls('wiz-auth-status-primary', classNames?.primaryAction)}>{t.loginButton}</a>
       </div>
     </div>
   );
