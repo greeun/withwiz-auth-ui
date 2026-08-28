@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { OAuthButtons } from './OAuthButtons';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
+import { cx } from '../utils/class-names';
 import type { SignupFormProps } from '../types';
 
 export function SignupForm({
@@ -14,7 +15,9 @@ export function SignupForm({
   locale = 'ko',
   messages: messageOverrides,
   className,
+  classNames,
   unstyled = false,
+  forceColorScheme,
   extraFields = [],
   slots,
   hooks,
@@ -76,23 +79,24 @@ export function SignupForm({
     }
   };
 
+  /** Package class only when styled; consumer slot always. */
+  const cls = (base: string, slot?: string) => cx(unstyled ? undefined : base, slot);
+
   if (success) {
     return (
-      <div style={{ textAlign: 'center', padding: '24px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#16a34a' }}>{t.successTitle}</h2>
-        <p style={{ marginTop: '8px', fontSize: '14px', color: '#6b7280' }}>{t.successMessage}</p>
+      <div className={cls('wiz-auth-success', classNames?.success)} data-wiz-scheme={forceColorScheme}>
+        <h2 className={cls('wiz-auth-success-title', classNames?.title)}>{t.successTitle}</h2>
+        <p className={cls('wiz-auth-success-message', classNames?.successText)}>{t.successMessage}</p>
       </div>
     );
   }
 
-  const baseClass = unstyled ? '' : 'wiz-auth-form';
-
   return (
-    <div className={`${baseClass} ${className ?? ''}`} style={unstyled ? undefined : { width: '100%', maxWidth: '384px', margin: '0 auto' }}>
+    <div className={cls('wiz-auth-form', cx(className, classNames?.root))} data-wiz-scheme={forceColorScheme}>
       {slots?.header ?? (
-        <div style={{ marginBottom: '24px', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: 700 }}>{t.title}</h1>
-          <p style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}>{t.subtitle}</p>
+        <div className={cls('wiz-auth-header', classNames?.header)}>
+          <h1 className={cls('wiz-auth-title', classNames?.title)}>{t.title}</h1>
+          <p className={cls('wiz-auth-subtitle', classNames?.subtitle)}>{t.subtitle}</p>
         </div>
       )}
 
@@ -100,51 +104,59 @@ export function SignupForm({
 
       {providers.length > 0 && (
         <>
-          {slots?.oauthSection ?? <OAuthButtons providers={providers} mode="signup" onOAuthClick={onOAuthClick} apiBasePath={apiBasePath} />}
-          <div style={{ margin: '16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
-            <span style={{ fontSize: '12px', color: '#6b7280' }}>{t.orDivider}</span>
-            <hr style={{ flex: 1, border: 'none', borderTop: '1px solid #e5e7eb' }} />
+          {slots?.oauthSection ?? (
+            <OAuthButtons
+              providers={providers}
+              mode="signup"
+              onOAuthClick={onOAuthClick}
+              apiBasePath={apiBasePath}
+              classNames={{ root: classNames?.oauth, button: classNames?.oauthButton }}
+            />
+          )}
+          <div className={cls('wiz-auth-divider', classNames?.divider)}>
+            <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
+            <span className={cls('wiz-auth-divider-text', classNames?.dividerText)}>{t.orDivider}</span>
+            <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
           </div>
         </>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <div>
-          <label htmlFor="wiz-signup-name" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.nameLabel}</label>
-          <input id="wiz-signup-name" type="text" placeholder={t.namePlaceholder} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
-          {fieldErrors.name && <p style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>{fieldErrors.name}</p>}
+      <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>
+        <div className={cls('wiz-auth-field', classNames?.field)}>
+          <label htmlFor="wiz-signup-name" className={cls('wiz-auth-label', classNames?.label)}>{t.nameLabel}</label>
+          <input id="wiz-signup-name" type="text" placeholder={t.namePlaceholder} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
+          {fieldErrors.name && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.name}</p>}
         </div>
 
-        <div>
-          <label htmlFor="wiz-signup-email" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.emailLabel}</label>
-          <input id="wiz-signup-email" type="email" placeholder={t.emailPlaceholder} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
-          {fieldErrors.email && <p style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>{fieldErrors.email}</p>}
+        <div className={cls('wiz-auth-field', classNames?.field)}>
+          <label htmlFor="wiz-signup-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}</label>
+          <input id="wiz-signup-email" type="email" placeholder={t.emailPlaceholder} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
+          {fieldErrors.email && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
         </div>
 
-        <div>
-          <label htmlFor="wiz-signup-password" style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{t.passwordLabel}</label>
-          <input id="wiz-signup-password" type="password" placeholder={t.passwordPlaceholder} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
-          {fieldErrors.password && <p style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>{fieldErrors.password}</p>}
+        <div className={cls('wiz-auth-field', classNames?.field)}>
+          <label htmlFor="wiz-signup-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}</label>
+          <input id="wiz-signup-password" type="password" placeholder={t.passwordPlaceholder} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
+          {fieldErrors.password && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
         </div>
 
         {extraFields.map((field) => (
-          <div key={field.name}>
-            <label htmlFor={`wiz-signup-${field.name}`} style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>{field.label}</label>
-            <input id={`wiz-signup-${field.name}`} type={field.type ?? 'text'} placeholder={field.placeholder} value={form[field.name] ?? ''} onChange={(e) => setForm({ ...form, [field.name]: e.target.value })} required={field.required} disabled={loading} style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+          <div key={field.name} className={cls('wiz-auth-field', classNames?.field)}>
+            <label htmlFor={`wiz-signup-${field.name}`} className={cls('wiz-auth-label', classNames?.label)}>{field.label}</label>
+            <input id={`wiz-signup-${field.name}`} type={field.type ?? 'text'} placeholder={field.placeholder} value={form[field.name] ?? ''} onChange={(e) => setForm({ ...form, [field.name]: e.target.value })} required={field.required} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
           </div>
         ))}
 
-        {error && <div style={{ padding: '12px', fontSize: '14px', color: '#dc2626', backgroundColor: '#fef2f2', borderRadius: '6px' }}>{error}</div>}
+        {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
 
-        <button type="submit" disabled={loading} style={{ width: '100%', height: '40px', backgroundColor: '#4f46e5', color: '#fff', borderRadius: '6px', fontSize: '14px', fontWeight: 500, border: 'none', cursor: 'pointer', opacity: loading ? 0.5 : 1 }}>
+        <button type="submit" disabled={loading} className={cls('wiz-auth-submit', classNames?.submitButton)}>
           {loading ? t.submitting : t.submitButton}
         </button>
       </form>
 
       {showLoginLink && (
-        <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '14px', color: '#6b7280' }}>
-          {t.alreadyHaveAccount} <a href="/login" style={{ color: '#4f46e5', textDecoration: 'underline' }}>{t.signIn}</a>
+        <p className={cls('wiz-auth-footer', classNames?.footer)}>
+          {t.alreadyHaveAccount} <a href="/login" className={cls('wiz-auth-link', classNames?.link)}>{t.signIn}</a>
         </p>
       )}
 
