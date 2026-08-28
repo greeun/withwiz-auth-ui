@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
+import { emailFromLink } from '../utils/link-email';
 import type { EmailVerificationFormProps } from '../types';
 
 export function EmailVerificationForm({
   token,
+  email,
   locale = 'ko',
   messages: messageOverrides,
   apiBasePath = '/api/auth',
@@ -23,7 +25,10 @@ export function EmailVerificationForm({
 
     async function verify() {
       try {
-        const res = await authPost(`${apiBasePath}/verify-email`, { token });
+        // The endpoint matches token **and** email; sending the token alone is rejected
+        // as malformed before the token is ever checked.
+        const account = email ?? emailFromLink();
+        const res = await authPost(`${apiBasePath}/verify-email`, account ? { email: account, token } : { token });
         const data = await res.json();
 
         if (cancelled) return;
@@ -43,7 +48,7 @@ export function EmailVerificationForm({
 
     verify();
     return () => { cancelled = true; };
-  }, [token, apiBasePath]);
+  }, [token, email, apiBasePath]);
 
   if (status === 'loading') {
     return (
