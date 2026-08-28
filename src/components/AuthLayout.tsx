@@ -1,8 +1,7 @@
 'use client';
 
+import { cx } from '../utils/class-names';
 import type { AuthLayoutProps } from '../types';
-
-const CONTENT_MAX_WIDTH = '384px';
 
 export function AuthLayout({
   children,
@@ -13,44 +12,35 @@ export function AuthLayout({
   backgroundColor,
   leftPanel,
   className,
+  classNames,
   fullHeight = true,
+  forceColorScheme,
 }: AuthLayoutProps) {
   return (
-    <div className={`wiz-auth-page ${className ?? ''}`} style={{ display: 'flex', minHeight: fullHeight ? '100vh' : '100%' }}>
-      <div style={{ display: 'flex', width: '100%', flexDirection: 'column', padding: '48px 24px', maxWidth: '480px' }}>
-        {logo && <div style={{ width: '100%', maxWidth: CONTENT_MAX_WIDTH, margin: '0 auto 32px' }}>{logo}</div>}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          {title && <h1 style={{ fontSize: '24px', fontWeight: 700 }}>{title}</h1>}
-          {subtitle && <p style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}>{subtitle}</p>}
-          <div style={{ marginTop: '24px' }}>{children}</div>
+    <div
+      className={cx('wiz-auth-page', className, classNames?.root)}
+      data-full-height={fullHeight ? undefined : 'false'}
+      data-wiz-scheme={forceColorScheme}
+    >
+      <div className={cx('wiz-auth-content', classNames?.content)}>
+        {logo && <div className={cx('wiz-auth-logo', classNames?.logo)}>{logo}</div>}
+        <div className={cx('wiz-auth-body', classNames?.body)}>
+          {title && <h1 className={cx('wiz-auth-title', classNames?.title)}>{title}</h1>}
+          {subtitle && <p className={cx('wiz-auth-subtitle', classNames?.subtitle)}>{subtitle}</p>}
+          <div className="wiz-auth-slot">{children}</div>
         </div>
       </div>
 
       <div
-        className="wiz-auth-side-panel"
-        style={{
-          display: 'none',
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-          backgroundColor: backgroundColor ?? '#f0f4ff',
-        }}
+        className={cx('wiz-auth-side-panel', classNames?.sidePanel)}
+        style={backgroundColor ? ({ '--wiz-auth-side-panel-background': backgroundColor } as React.CSSProperties) : undefined}
       >
         {leftPanel ?? (
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.2 }}>
+          <div className="wiz-auth-pattern">
             {pattern !== 'none' && <PatternSVG pattern={pattern} />}
           </div>
         )}
       </div>
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .wiz-auth-side-panel { display: flex !important; }
-          .wiz-auth-page > div:first-child { width: 33.333%; }
-        }
-      `}</style>
     </div>
   );
 }

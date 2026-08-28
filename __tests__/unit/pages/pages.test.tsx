@@ -29,8 +29,8 @@ describe('LoginPage', () => {
 
   it('passes layout props to AuthLayout', () => {
     const { container } = render(<LoginPage pattern="dots" backgroundColor="#ff0000" />);
-    const sidePanel = container.querySelector('.wiz-auth-side-panel');
-    expect(sidePanel).toHaveStyle({ backgroundColor: '#ff0000' });
+    const sidePanel = container.querySelector('.wiz-auth-side-panel') as HTMLElement;
+    expect(sidePanel.style.getPropertyValue('--wiz-auth-side-panel-background')).toBe('#ff0000');
   });
 
   it('passes form props through', () => {

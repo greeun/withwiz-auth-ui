@@ -64,6 +64,6 @@ describe('AuthLayout', () => {
   it('applies custom backgroundColor to side panel', () => {
     const { container } = render(<AuthLayout backgroundColor="#ff0000"><div /></AuthLayout>);
     const sidePanel = container.querySelector('.wiz-auth-side-panel') as HTMLElement;
-    expect(sidePanel.style.backgroundColor).toBe('rgb(255, 0, 0)');
+    expect(sidePanel.style.getPropertyValue('--wiz-auth-side-panel-background')).toBe('#ff0000');
   });
 });
