@@ -4,47 +4,43 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>@withwiz/auth-ui — ResetPasswordPage preview</title>
+<link rel="stylesheet" href="../src/styles/auth.css" />
 <style>
-  .wiz-auth-page {
-    --wiz-auth-primary: #4f46e5; --wiz-auth-primary-hover: #4338ca; --wiz-auth-error: #dc2626;
-    --wiz-auth-background: #ffffff; --wiz-auth-foreground: #111827; --wiz-auth-border: #d1d5db;
-    --wiz-auth-input: #d1d5db; --wiz-auth-radius: 6px; --wiz-auth-font: system-ui, -apple-system, sans-serif;
-    font-family: var(--wiz-auth-font); color-scheme: light;
-  }
-  @media (min-width: 1024px) {
-    .wiz-auth-side-panel { display: flex !important; }
-    .wiz-auth-page > div:first-child { width: 33.333%; }
-  }
+  /* Page-level reset for this static demo only — not part of the package. */
+  *, *::before, *::after { box-sizing: border-box; }
   body { margin: 0; }
 </style>
 </head>
 <body>
 <!-- <ResetPasswordPage token="..." />  (locale default 'ko') -->
-<div class="wiz-auth-page" style="display:flex;min-height:100vh">
-  <div style="display:flex;width:100%;flex-direction:column;justify-content:center;padding:48px 24px;max-width:480px">
-    <div style="margin-top:24px">
+<div class="wiz-auth-page">
+  <div class="wiz-auth-content">
+    <div class="wiz-auth-body">
+      <div class="wiz-auth-slot">
 
-      <!-- ResetPasswordForm -->
-      <div style="width:100%;max-width:384px;margin:0 auto">
-        <h1 style="font-size:24px;font-weight:700;text-align:center;margin:0 0 8px">비밀번호 재설정</h1>
-        <p style="font-size:14px;color:#6b7280;text-align:center;margin-bottom:24px">새 비밀번호를 입력하세요</p>
-        <form style="display:flex;flex-direction:column;gap:16px" onsubmit="return false">
-          <div>
-            <label for="wiz-reset-password" style="display:block;font-size:14px;font-weight:500;margin-bottom:4px">새 비밀번호</label>
-            <input id="wiz-reset-password" type="password" placeholder="8자 이상 입력하세요" style="width:100%;height:40px;padding:0 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box" />
-          </div>
-          <div>
-            <label for="wiz-reset-confirm" style="display:block;font-size:14px;font-weight:500;margin-bottom:4px">비밀번호 확인</label>
-            <input id="wiz-reset-confirm" type="password" placeholder="비밀번호를 다시 입력하세요" style="width:100%;height:40px;padding:0 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box" />
-          </div>
-          <button type="submit" style="width:100%;height:40px;background-color:#4f46e5;color:#fff;border-radius:6px;font-size:14px;font-weight:500;border:none;cursor:pointer">비밀번호 변경</button>
-        </form>
+        <!-- ResetPasswordForm — title/subtitle are direct children of .wiz-auth-form,
+             same as ForgotPasswordForm. -->
+        <div class="wiz-auth-form">
+          <h1 class="wiz-auth-title">비밀번호 재설정</h1>
+          <p class="wiz-auth-subtitle">새 비밀번호를 입력하세요</p>
+          <form class="wiz-auth-fields" onsubmit="return false">
+            <div class="wiz-auth-field">
+              <label for="wiz-reset-password" class="wiz-auth-label">새 비밀번호</label>
+              <input id="wiz-reset-password" type="password" placeholder="8자 이상 입력하세요" class="wiz-auth-input" />
+            </div>
+            <div class="wiz-auth-field">
+              <label for="wiz-reset-confirm" class="wiz-auth-label">비밀번호 확인</label>
+              <input id="wiz-reset-confirm" type="password" placeholder="비밀번호를 다시 입력하세요" class="wiz-auth-input" />
+            </div>
+            <button type="submit" class="wiz-auth-submit">비밀번호 변경</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="wiz-auth-side-panel" style="display:none;flex:1;align-items:center;justify-content:center;position:relative;overflow:hidden;background-color:#f0f4ff">
-    <div style="position:absolute;inset:0;opacity:0.2">
+  <div class="wiz-auth-side-panel">
+    <div class="wiz-auth-pattern">
       <svg width="100%" height="100%"><defs><pattern id="wiz-triangles" x="0" y="0" width="60" height="52" patternUnits="userSpaceOnUse"><polygon points="30,0 60,52 0,52" fill="#6366f1" fill-opacity="0.3" /></pattern></defs><rect width="100%" height="100%" fill="url(#wiz-triangles)" /></svg>
     </div>
   </div>
