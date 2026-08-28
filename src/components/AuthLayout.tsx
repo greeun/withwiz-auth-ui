@@ -2,6 +2,8 @@
 
 import type { AuthLayoutProps } from '../types';
 
+const CONTENT_MAX_WIDTH = '384px';
+
 export function AuthLayout({
   children,
   logo,
@@ -15,11 +17,13 @@ export function AuthLayout({
 }: AuthLayoutProps) {
   return (
     <div className={`wiz-auth-page ${className ?? ''}`} style={{ display: 'flex', minHeight: fullHeight ? '100vh' : '100%' }}>
-      <div style={{ display: 'flex', width: '100%', flexDirection: 'column', justifyContent: 'center', padding: '48px 24px', maxWidth: '480px' }}>
-        {logo && <div style={{ marginBottom: '32px' }}>{logo}</div>}
-        {title && <h1 style={{ fontSize: '24px', fontWeight: 700 }}>{title}</h1>}
-        {subtitle && <p style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}>{subtitle}</p>}
-        <div style={{ marginTop: '24px' }}>{children}</div>
+      <div style={{ display: 'flex', width: '100%', flexDirection: 'column', padding: '48px 24px', maxWidth: '480px' }}>
+        {logo && <div style={{ width: '100%', maxWidth: CONTENT_MAX_WIDTH, margin: '0 auto 32px' }}>{logo}</div>}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          {title && <h1 style={{ fontSize: '24px', fontWeight: 700 }}>{title}</h1>}
+          {subtitle && <p style={{ marginTop: '4px', fontSize: '14px', color: '#6b7280' }}>{subtitle}</p>}
+          <div style={{ marginTop: '24px' }}>{children}</div>
+        </div>
       </div>
 
       <div
