@@ -277,6 +277,11 @@ export interface ForgotPasswordFormProps {
 
 export interface ResetPasswordFormProps {
   token: string;
+  /**
+   * Account the link was issued for. Falls back to the link's `?email=` query when
+   * omitted — the endpoint matches token **and** email, so one of the two must reach it.
+   */
+  email?: string;
   locale?: 'ko' | 'en' | 'ja';
   messages?: Partial<AuthMessages['resetPassword']>;
   apiBasePath?: string;
@@ -289,6 +294,11 @@ export interface ResetPasswordFormProps {
 
 export interface EmailVerificationFormProps {
   token: string;
+  /**
+   * Account the link was issued for. Falls back to the link's `?email=` query when
+   * omitted — the endpoint matches token **and** email, so one of the two must reach it.
+   */
+  email?: string;
   locale?: 'ko' | 'en' | 'ja';
   messages?: Partial<AuthMessages['emailVerification']>;
   apiBasePath?: string;
