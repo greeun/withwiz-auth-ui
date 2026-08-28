@@ -2,8 +2,12 @@
  * @withwiz/auth-ui base styles.
  *
  * Everything lives inside `@layer wiz-auth`. Layered rules always lose to
- * unlayered ones, so a consumer's utility class wins regardless of CSS load
- * order — no !important, no tailwind-merge.
+ * unlayered ones, so a consumer's *unlayered* utility class wins regardless
+ * of CSS load order — no !important, no tailwind-merge. If the consumer's
+ * own CSS is itself layered (e.g. Tailwind v4's `theme, base, components,
+ * utilities`), layer order is decided by first declaration, so the consumer
+ * must declare `@layer wiz-auth, …` before importing its own layered CSS to
+ * keep winning. See README's Theming section for the exact snippet.
  *
  * Consumers customise in two ways:
  *   1. Override --wiz-auth-* variables (branding)
