@@ -458,4 +458,13 @@
   @keyframes wiz-spin {
     to { transform: rotate(360deg); }
   }
+
+  .wiz-auth-form > .wiz-auth-title,
+  .wiz-auth-form > .wiz-auth-subtitle {
+    text-align: center;
+  }
+
+  .wiz-auth-form > .wiz-auth-subtitle {
+    margin-bottom: 24px;
+  }
 }
