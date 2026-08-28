@@ -1,7 +1,13 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import {
   AuthLayout, LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, OAuthButtons,
 } from '../../../src/components';
+import {
+  LoginScreen, SignupScreen, ForgotPasswordScreen, ResetPasswordScreen, EmailVerificationScreen,
+} from '../../../src/screens';
+import {
+  LoginPage, SignupPage, ForgotPasswordPage, ResetPasswordPage, EmailVerificationPage,
+} from '../../../src/pages';
 
 /**
  * Inline styles always beat both CSS variables and consumer class names, so a
@@ -56,5 +62,71 @@ describe('no inline styles', () => {
   it('no component injects a <style> tag any more', () => {
     const { container } = render(<AuthLayout><LoginForm /></AuthLayout>);
     expect(container.querySelector('style')).toBeNull();
+  });
+});
+
+/**
+ * Screens and Pages (Task 10) each wrap a form in AuthLayout and forward
+ * `backgroundColor` straight through, so they share AuthLayout's one allowed
+ * exception. Rendered here WITHOUT `backgroundColor`, so the exception does
+ * not apply and the bar is the same as every other component: zero.
+ */
+describe('no inline styles — screens and pages', () => {
+  it('LoginScreen renders none', () => {
+    const { container } = render(<LoginScreen />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('SignupScreen renders none', () => {
+    const { container } = render(<SignupScreen />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('ForgotPasswordScreen renders none', () => {
+    const { container } = render(<ForgotPasswordScreen />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('ResetPasswordScreen renders none', () => {
+    const { container } = render(<ResetPasswordScreen token="tok" />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('EmailVerificationScreen renders none', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) }) as unknown as typeof fetch;
+    const { container } = render(<EmailVerificationScreen token="tok" />);
+    await waitFor(() => {
+      expect(container.querySelector('.wiz-auth-status-title')).toBeTruthy();
+    });
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('LoginPage renders none', () => {
+    const { container } = render(<LoginPage />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('SignupPage renders none', () => {
+    const { container } = render(<SignupPage />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('ForgotPasswordPage renders none', () => {
+    const { container } = render(<ForgotPasswordPage />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('ResetPasswordPage renders none', () => {
+    const { container } = render(<ResetPasswordPage token="tok" />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('EmailVerificationPage renders none', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) }) as unknown as typeof fetch;
+    const { container } = render(<EmailVerificationPage token="tok" />);
+    await waitFor(() => {
+      expect(container.querySelector('.wiz-auth-status-title')).toBeTruthy();
+    });
+    expect(inlineStyled(container)).toEqual([]);
   });
 });
