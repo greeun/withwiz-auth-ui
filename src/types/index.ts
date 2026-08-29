@@ -2,6 +2,77 @@ import type { ReactNode } from 'react';
 
 export type OAuthProvider = 'google' | 'github' | 'kakao';
 
+export type ColorScheme = 'light' | 'dark';
+
+/** Class name slots for the four form components. */
+export interface AuthFormClassNames {
+  /** Outer wrapper (carries `wiz-auth-form`). Release the width cap here. */
+  root?: string;
+  /** Title + subtitle block */
+  header?: string;
+  title?: string;
+  subtitle?: string;
+  /** The `<form>` element — adjust field spacing here */
+  form?: string;
+  /** One label + input pair */
+  field?: string;
+  label?: string;
+  input?: string;
+  /** Validation message under a field */
+  fieldError?: string;
+  /** Error banner above the submit button */
+  error?: string;
+  submitButton?: string;
+  /** Magic-link button */
+  secondaryButton?: string;
+  /** Inline links (forgot password, sign up, sign in) */
+  link?: string;
+  /** Paragraph holding the footer link */
+  footer?: string;
+  /** OAuth divider container */
+  divider?: string;
+  dividerLine?: string;
+  dividerText?: string;
+  /** OAuth button group */
+  oauth?: string;
+  oauthButton?: string;
+  /** Submitted-successfully state box */
+  success?: string;
+  successText?: string;
+}
+
+/** Class name slots for AuthLayout. */
+export interface AuthLayoutClassNames {
+  root?: string;
+  /** Left column holding logo, title and children */
+  content?: string;
+  logo?: string;
+  title?: string;
+  subtitle?: string;
+  /** Wrapper around children */
+  body?: string;
+  sidePanel?: string;
+}
+
+/** Class name slots for the EmailVerification status screens. */
+export interface AuthStatusClassNames {
+  root?: string;
+  icon?: string;
+  title?: string;
+  message?: string;
+  actions?: string;
+  /** Button-shaped link (go to login) */
+  primaryAction?: string;
+  /** Plain link (resend verification) */
+  secondaryLink?: string;
+}
+
+/** Class name slots for OAuthButtons used on its own. */
+export interface OAuthButtonsClassNames {
+  root?: string;
+  button?: string;
+}
+
 export interface AuthMessages {
   login: {
     title: string;
@@ -99,6 +170,8 @@ export interface AuthLayoutProps {
   /** When false, drops the `min-height: 100vh` so the layout fits inside a
    *  bounded region (e.g. embedded in an app shell). Defaults to true. */
   fullHeight?: boolean;
+  classNames?: AuthLayoutClassNames;
+  forceColorScheme?: ColorScheme;
 }
 
 export interface LoginFormProps {
@@ -114,6 +187,8 @@ export interface LoginFormProps {
   messages?: Partial<AuthMessages['login']>;
   className?: string;
   unstyled?: boolean;
+  classNames?: AuthFormClassNames;
+  forceColorScheme?: ColorScheme;
   slots?: {
     header?: ReactNode;
     footer?: ReactNode;
@@ -138,6 +213,8 @@ export interface SignupFormProps {
   messages?: Partial<AuthMessages['signup']>;
   className?: string;
   unstyled?: boolean;
+  classNames?: AuthFormClassNames;
+  forceColorScheme?: ColorScheme;
   extraFields?: Array<{
     name: string;
     label: string;
@@ -168,6 +245,7 @@ export interface OAuthButtonsProps {
   onOAuthClick?: (provider: OAuthProvider) => void;
   disabled?: boolean;
   className?: string;
+  classNames?: OAuthButtonsClassNames;
   apiBasePath?: string;
 }
 
@@ -192,53 +270,82 @@ export interface ForgotPasswordFormProps {
   apiBasePath?: string;
   className?: string;
   loginUrl?: string;
+  classNames?: AuthFormClassNames;
+  forceColorScheme?: ColorScheme;
+  unstyled?: boolean;
 }
 
 export interface ResetPasswordFormProps {
   token: string;
+  /**
+   * Account the link was issued for. Falls back to the link's `?email=` query when
+   * omitted — the endpoint matches token **and** email, so one of the two must reach it.
+   */
+  email?: string;
   locale?: 'ko' | 'en' | 'ja';
   messages?: Partial<AuthMessages['resetPassword']>;
   apiBasePath?: string;
   className?: string;
   loginUrl?: string;
+  classNames?: AuthFormClassNames;
+  forceColorScheme?: ColorScheme;
+  unstyled?: boolean;
 }
 
 export interface EmailVerificationFormProps {
   token: string;
+  /**
+   * Account the link was issued for. Falls back to the link's `?email=` query when
+   * omitted — the endpoint matches token **and** email, so one of the two must reach it.
+   */
+  email?: string;
   locale?: 'ko' | 'en' | 'ja';
   messages?: Partial<AuthMessages['emailVerification']>;
   apiBasePath?: string;
   className?: string;
   loginUrl?: string;
   resendUrl?: string;
+  classNames?: AuthStatusClassNames;
+  forceColorScheme?: ColorScheme;
+  unstyled?: boolean;
 }
 
 export interface LoginPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
-    Omit<LoginFormProps, 'className'> {
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight' | 'forceColorScheme'>,
+    Omit<LoginFormProps, 'className' | 'forceColorScheme'> {
   className?: string;
+  /** Class name slots for the surrounding AuthLayout */
+  layoutClassNames?: AuthLayoutClassNames;
 }
 
 export interface SignupPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
-    Omit<SignupFormProps, 'className'> {
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight' | 'forceColorScheme'>,
+    Omit<SignupFormProps, 'className' | 'forceColorScheme'> {
   className?: string;
+  /** Class name slots for the surrounding AuthLayout */
+  layoutClassNames?: AuthLayoutClassNames;
 }
 
 export interface ForgotPasswordPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
-    Omit<ForgotPasswordFormProps, 'className'> {
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight' | 'forceColorScheme'>,
+    Omit<ForgotPasswordFormProps, 'className' | 'forceColorScheme'> {
   className?: string;
+  /** Class name slots for the surrounding AuthLayout */
+  layoutClassNames?: AuthLayoutClassNames;
 }
 
 export interface ResetPasswordPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
-    Omit<ResetPasswordFormProps, 'className'> {
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight' | 'forceColorScheme'>,
+    Omit<ResetPasswordFormProps, 'className' | 'forceColorScheme'> {
   className?: string;
+  /** Class name slots for the surrounding AuthLayout */
+  layoutClassNames?: AuthLayoutClassNames;
 }
 
 export interface EmailVerificationPageProps
-  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight'>,
-    Omit<EmailVerificationFormProps, 'className'> {
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight' | 'forceColorScheme'>,
+    Omit<EmailVerificationFormProps, 'className' | 'forceColorScheme'> {
   className?: string;
+  /** Class name slots for the surrounding AuthLayout */
+  layoutClassNames?: AuthLayoutClassNames;
 }
