@@ -1,0 +1,13 @@
+# Whether dependency build scripts (postinstall etc.) may run on install.
+#
+# pnpm 10+ blocks install scripts by default as a supply-chain defence. With no
+# explicit decision here, every install skips them with ERR_PNPM_IGNORED_BUILDS
+# and pnpm rewrites this file with undecided entries — which makes `pnpm test`
+# and `pnpm build` exit 1 before they start.
+#
+# - esbuild : used by tsup and vitest. Its postinstall fetches the platform
+#             native binary, so blocking it breaks both build and test.
+# - sharp   : native image module pulled in by next. Same reason.
+allowBuilds:
+  esbuild: true
+  sharp: true
