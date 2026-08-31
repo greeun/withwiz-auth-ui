@@ -32,6 +32,12 @@ coverage/
 npm-debug.log*
 pnpm-debug.log*
 
-# superpowers brainstorm artifacts
+# superpowers (auto-installed brainstorm artifacts; do not track)
 .superpowers/
 docs/superpowers/
+
+# agent tooling — session worktrees live under .claude/worktrees/
+.claude/
+
+# pnpm writes this on install just to record build-script approvals
+pnpm-workspace.yaml
