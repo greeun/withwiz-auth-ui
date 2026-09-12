@@ -6,6 +6,7 @@ import { OAuthButtons } from './OAuthButtons';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { cx } from '../utils/class-names';
+import { safeRedirectTarget } from '../utils/safe-redirect';
 import type { LoginFormProps } from '../types';
 
 export function LoginForm({
@@ -69,7 +70,7 @@ export function LoginForm({
       }
 
       hooks?.onSuccess?.(data.user);
-      window.location.href = redirectAfterLogin;
+      window.location.href = safeRedirectTarget(redirectAfterLogin);
     } catch {
       setError(t.networkError);
       hooks?.onError?.(t.networkError);
@@ -119,6 +120,7 @@ export function LoginForm({
           <input
             id="wiz-login-email"
             type="email"
+            autoComplete="email"
             placeholder={t.emailPlaceholder}
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -133,6 +135,7 @@ export function LoginForm({
           <input
             id="wiz-login-password"
             type="password"
+            autoComplete="current-password"
             placeholder={t.passwordPlaceholder}
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
