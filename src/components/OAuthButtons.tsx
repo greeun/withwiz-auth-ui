@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { authPost } from '../utils/api-client';
 import type { OAuthButtonsProps, OAuthProvider } from '../types';
 import { cx } from '../utils/class-names';
+import { isHttpUrl } from '../utils/safe-redirect';
 
 export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthClick, disabled, className, classNames, apiBasePath = '/api/auth' }: OAuthButtonsProps) {
   const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
@@ -19,7 +20,9 @@ export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthC
       const res = await authPost(`${apiBasePath}/oauth/login`, { provider });
       if (res.ok) {
         const data = await res.json();
-        if (data.loginUrl) {
+        // The provider's authorize URL is cross-origin by nature, so only the
+        // scheme is pinned here: never `javascript:`/`data:`.
+        if (isHttpUrl(data.loginUrl)) {
           window.location.href = data.loginUrl;
         }
       }
