@@ -50,7 +50,7 @@ export function ForgotPasswordForm({ locale = 'ko', messages: messageOverrides, 
       <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>
         <div className={cls('wiz-auth-field', classNames?.field)}>
           <label htmlFor="wiz-forgot-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}</label>
-          <input id="wiz-forgot-email" type="email" placeholder={t.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
+          <input id="wiz-forgot-email" type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
         </div>
         {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
         <button type="submit" disabled={loading} className={cls('wiz-auth-submit', classNames?.submitButton)}>

@@ -567,6 +567,45 @@ The components expect these server-side endpoints:
 
 All endpoints are prefixed with `apiBasePath` (default: `/api/auth`).
 
+## Security Notes
+
+The package is UI only; authentication, session and token handling live on
+your server. The client does the following on its side, and expects the
+following from yours.
+
+**Redirects.** `redirectAfterLogin` / `redirectAfterSignup` are restricted to
+the current origin: a path starting with a single `/`, or an absolute URL on
+the same origin. `//host`, `javascript:` and foreign origins fall back to `/`,
+so feeding them from a `?next=` query cannot become an open redirect. The
+`loginUrl` returned by `/oauth/login` must be an `http(s)` URL; anything else
+is ignored.
+
+**Signup payload.** Only the validated `name` / `email` / `password` plus the
+fields you declare in `extraFields` are sent. Still allow-list the fields you
+persist server-side.
+
+**Cookies and CSRF.** Requests are sent with `credentials: 'include'` and
+`Content-Type: application/json`. The JSON content type forces a CORS
+preflight for cross-origin callers, so keep the server rejecting non-JSON
+bodies, set session cookies with `SameSite=Lax` (or `Strict`) and `HttpOnly`,
+and add a CSRF token if your cookies must be `SameSite=None`.
+
+**Links carrying tokens.** Reset and verification links put `token` and
+`email` in the query string, where they can leak through the `Referer` header,
+browser history and access logs. Serve those pages with
+`Referrer-Policy: no-referrer` (or `strict-origin`), keep tokens short-lived
+and single-use, and make `/verify-email` idempotent — mail security scanners
+sometimes open links before the user does.
+
+**Error messages.** Whatever `error` string the server returns is shown to the
+user verbatim (escaped by React, so not an XSS vector). Return the same message
+for "unknown account" and "wrong password", and answer `/forgot-password`
+with `200` regardless of whether the address exists, to avoid account
+enumeration.
+
+**Next.js version.** Use Next.js `16.3.3` or newer in the consuming app;
+earlier 16.x releases carry published remote-code-execution advisories.
+
 ## Development
 
 ```bash

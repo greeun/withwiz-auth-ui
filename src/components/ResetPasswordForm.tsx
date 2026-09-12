@@ -93,6 +93,7 @@ export function ResetPasswordForm({
           <input
             id="wiz-reset-password"
             type="password"
+            autoComplete="new-password"
             placeholder={t.passwordPlaceholder}
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -107,6 +108,7 @@ export function ResetPasswordForm({
           <input
             id="wiz-reset-confirm"
             type="password"
+            autoComplete="new-password"
             placeholder={t.confirmPlaceholder}
             value={form.confirm}
             onChange={(e) => setForm({ ...form, confirm: e.target.value })}
