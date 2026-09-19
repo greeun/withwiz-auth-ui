@@ -74,5 +74,16 @@
     "nextjs",
     "withwiz"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/greeun/withwiz-auth-ui.git"
+  },
+  "homepage": "https://github.com/greeun/withwiz-auth-ui#readme",
+  "bugs": {
+    "url": "https://github.com/greeun/withwiz-auth-ui/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
