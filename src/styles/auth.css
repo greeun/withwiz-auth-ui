@@ -71,8 +71,8 @@
     }
   }
 
-  /* (2) App-level toggle. Both conventions: consumer app uses [data-theme],
-     shadcn-derived projects use .dark */
+  /* (2) App-level toggle. Both common conventions are supported:
+     [data-theme="dark"] and the shadcn-style .dark class */
   :where(:root[data-theme="dark"], :root.dark) {
     --wiz-auth-primary: #6366f1;
     --wiz-auth-primary-hover: #818cf8;
