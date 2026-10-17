@@ -57,7 +57,7 @@ describe('ForgotPasswordForm', () => {
     });
   });
 
-  it('on network error shows "Network error"', async () => {
+  it('on network error shows the localized network error', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Failed to fetch')));
 
     render(<ForgotPasswordForm />);
@@ -65,7 +65,7 @@ describe('ForgotPasswordForm', () => {
     fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Network error')).toBeInTheDocument();
+      expect(screen.getByText('네트워크 오류가 발생했습니다')).toBeInTheDocument();
     });
   });
 

@@ -58,6 +58,8 @@ export const ko: AuthMessages = {
     submitting: '보내는 중...',
     success: '재설정 링크를 이메일로 보냈습니다',
     backToLogin: '로그인으로 돌아가기',
+    failed: '요청을 처리하지 못했습니다',
+    networkError: '네트워크 오류가 발생했습니다',
   },
   resetPassword: {
     title: '비밀번호 재설정',
@@ -70,6 +72,8 @@ export const ko: AuthMessages = {
     submitting: '변경 중...',
     success: '비밀번호가 변경되었습니다',
     passwordMismatch: '비밀번호가 일치하지 않습니다',
+    failed: '비밀번호를 변경하지 못했습니다',
+    networkError: '네트워크 오류가 발생했습니다',
   },
   emailVerification: {
     title: '이메일 인증',
@@ -82,5 +86,18 @@ export const ko: AuthMessages = {
     networkError: '네트워크 오류가 발생했습니다',
     loginButton: '로그인',
     resendLink: '인증 이메일 재전송',
+  },
+  oauth: {
+    // 조사(로/으로)가 표시명의 받침에 따라 달라지지 않도록 '계정으로'를 붙인다
+    continueWith: '{provider} 계정으로 계속하기',
+    signUpWith: '{provider} 계정으로 가입하기',
+    failed: '소셜 로그인을 시작하지 못했습니다',
+    providers: {
+      google: 'Google',
+      github: 'GitHub',
+      kakao: '카카오',
+      meta: 'Meta',
+      microsoft: 'Microsoft',
+    },
   },
 };

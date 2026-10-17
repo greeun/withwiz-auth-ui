@@ -6,7 +6,9 @@ import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { emailFromLink } from '../utils/link-email';
 import { cx } from '../utils/class-names';
-import type { ResetPasswordFormProps } from '../types';
+import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
+import { pickFieldErrors, formLevelText, fieldErrorA11y } from '../utils/form-errors';
+import type { AuthErrorInfo, ResetPasswordFormProps } from '../types';
 
 export function ResetPasswordForm({
   token,
@@ -19,6 +21,7 @@ export function ResetPasswordForm({
   unstyled = false,
   forceColorScheme,
   loginUrl = '/login',
+  hooks,
 }: ResetPasswordFormProps) {
   const allMessages = getMessages(locale);
   const t = { ...allMessages.resetPassword, ...messageOverrides };
@@ -36,6 +39,14 @@ export function ResetPasswordForm({
     path: ['confirm'],
   });
 
+  /** Shows a failure (form-level and per-field) and reports it through `hooks.onError`. */
+  const fail = (info: AuthErrorInfo) => {
+    const shown = pickFieldErrors(info, ['password']);
+    setFieldErrors(shown);
+    setError(formLevelText(info, shown));
+    hooks?.onError?.(info.text, info);
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -49,6 +60,8 @@ export function ResetPasswordForm({
       return;
     }
 
+    if (hooks?.onBeforeSubmit && !(await hooks.onBeforeSubmit({ password: parsed.data.password }))) return;
+
     setLoading(true);
     try {
       // The endpoint matches token **and** email; sending the token alone is rejected
@@ -56,15 +69,15 @@ export function ResetPasswordForm({
       const account = email ?? emailFromLink();
       const payload = { token, password: parsed.data.password };
       const res = await authPost(`${apiBasePath}/reset-password`, account ? { email: account, ...payload } : payload);
-      const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? 'Failed');
+        fail(readAuthError(res.status, await readJsonSafely(res), t.failed));
         return;
       }
       setSuccess(true);
+      hooks?.onSuccess?.();
     } catch {
-      setError(allMessages.login.networkError);
+      fail(networkAuthError(t.networkError));
     } finally {
       setLoading(false);
     }
@@ -99,8 +112,9 @@ export function ResetPasswordForm({
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             disabled={loading}
             className={cls('wiz-auth-input', classNames?.input)}
+            {...fieldErrorA11y('wiz-reset-password', fieldErrors.password)}
           />
-          {fieldErrors.password && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
+          {fieldErrors.password && <p id="wiz-reset-password-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
@@ -114,8 +128,9 @@ export function ResetPasswordForm({
             onChange={(e) => setForm({ ...form, confirm: e.target.value })}
             disabled={loading}
             className={cls('wiz-auth-input', classNames?.input)}
+            {...fieldErrorA11y('wiz-reset-confirm', fieldErrors.confirm)}
           />
-          {fieldErrors.confirm && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.confirm}</p>}
+          {fieldErrors.confirm && <p id="wiz-reset-confirm-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.confirm}</p>}
         </div>
 
         {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}

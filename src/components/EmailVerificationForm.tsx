@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { emailFromLink } from '../utils/link-email';
 import { cx } from '../utils/class-names';
+import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
 import type { EmailVerificationFormProps } from '../types';
 
 export function EmailVerificationForm({
@@ -19,10 +20,15 @@ export function EmailVerificationForm({
   classNames,
   forceColorScheme,
   unstyled = false,
+  hooks,
 }: EmailVerificationFormProps) {
   const t = { ...getMessages(locale).emailVerification, ...messageOverrides };
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+  // Verification runs once per token; reading hooks through a ref keeps a new hooks
+  // object on every render from re-sending the request.
+  const hooksRef = useRef(hooks);
+  hooksRef.current = hooks;
 
   useEffect(() => {
     let cancelled = false;
@@ -33,20 +39,25 @@ export function EmailVerificationForm({
         // as malformed before the token is ever checked.
         const account = email ?? emailFromLink();
         const res = await authPost(`${apiBasePath}/verify-email`, account ? { email: account, token } : { token });
-        const data = await res.json();
+        const data = await readJsonSafely(res);
 
         if (cancelled) return;
 
         if (res.ok) {
           setStatus('success');
+          hooksRef.current?.onSuccess?.();
         } else {
+          const info = readAuthError(res.status, data, t.errorInvalid);
           setStatus('error');
-          setErrorMessage(data.error ?? t.errorInvalid);
+          setErrorMessage(info.text);
+          hooksRef.current?.onError?.(info.text, info);
         }
       } catch {
         if (cancelled) return;
+        const info = networkAuthError(t.networkError);
         setStatus('error');
-        setErrorMessage(t.networkError);
+        setErrorMessage(info.text);
+        hooksRef.current?.onError?.(info.text, info);
       }
     }
 

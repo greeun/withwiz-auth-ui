@@ -3,6 +3,8 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { authGet, authPost } from '../utils/api-client';
 import type { AuthContextValue, AuthProviderProps } from '../types';
+import { readAuthError, readJsonSafely } from '../utils/read-auth-error';
+import { AuthError } from '../utils/auth-error';
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -34,8 +36,7 @@ export function AuthProvider({ children, apiBasePath = '/api/auth', onAuthChange
   const login = useCallback(async (email: string, password: string) => {
     const res = await authPost(`${apiBasePath}/login`, { email, password });
     if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error ?? 'Login failed');
+      throw new AuthError(readAuthError(res.status, await readJsonSafely(res), 'Login failed'));
     }
     const data = await res.json();
     setUser(data.user);

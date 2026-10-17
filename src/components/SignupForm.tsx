@@ -7,7 +7,9 @@ import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { cx } from '../utils/class-names';
 import { safeRedirectTarget } from '../utils/safe-redirect';
-import type { SignupFormProps } from '../types';
+import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
+import { pickFieldErrors, formLevelText, fieldErrorA11y } from '../utils/form-errors';
+import type { AuthErrorInfo, SignupFormProps } from '../types';
 
 export function SignupForm({
   providers = [],
@@ -24,6 +26,7 @@ export function SignupForm({
   hooks,
   onOAuthClick,
   apiBasePath = '/api/auth',
+  loginUrl = '/login',
 }: SignupFormProps) {
   const t = { ...getMessages(locale).signup, ...messageOverrides };
   const [form, setForm] = useState<Record<string, string>>({ name: '', email: '', password: '' });
@@ -37,6 +40,14 @@ export function SignupForm({
     email: z.string().email({ message: t.invalidEmail }),
     password: z.string().min(8, { message: t.passwordTooShort }),
   });
+
+  /** Shows a failure (form-level and per-field) and reports it through `hooks.onError`. */
+  const fail = (info: AuthErrorInfo) => {
+    const shown = pickFieldErrors(info, ['name', 'email', 'password', ...extraFields.map((f) => f.name)]);
+    setFieldErrors(shown);
+    setError(formLevelText(info, shown));
+    hooks?.onError?.(info.text, info);
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -66,22 +77,21 @@ export function SignupForm({
     setLoading(true);
     try {
       const res = await authPost(`${apiBasePath}/signup`, payload);
-      const data = await res.json();
+      const data = await readJsonSafely(res);
 
       if (!res.ok) {
-        setError(data.error ?? t.registrationFailed);
-        hooks?.onError?.(data.error);
+        fail(readAuthError(res.status, data, t.registrationFailed));
         return;
       }
 
       setSuccess(true);
-      hooks?.onSuccess?.(data.user);
+      hooks?.onSuccess?.((data as { user?: unknown } | null)?.user);
 
       if (redirectAfterSignup) {
         setTimeout(() => { window.location.href = safeRedirectTarget(redirectAfterSignup); }, 3000);
       }
     } catch {
-      setError(t.networkError);
+      fail(networkAuthError(t.networkError));
     } finally {
       setLoading(false);
     }
@@ -117,6 +127,8 @@ export function SignupForm({
               providers={providers}
               mode="signup"
               onOAuthClick={onOAuthClick}
+              onError={fail}
+              locale={locale}
               apiBasePath={apiBasePath}
               classNames={{ root: classNames?.oauth, button: classNames?.oauthButton }}
             />
@@ -132,26 +144,27 @@ export function SignupForm({
       <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>
         <div className={cls('wiz-auth-field', classNames?.field)}>
           <label htmlFor="wiz-signup-name" className={cls('wiz-auth-label', classNames?.label)}>{t.nameLabel}</label>
-          <input id="wiz-signup-name" type="text" autoComplete="name" placeholder={t.namePlaceholder} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
-          {fieldErrors.name && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.name}</p>}
+          <input id="wiz-signup-name" type="text" autoComplete="name" placeholder={t.namePlaceholder} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-name', fieldErrors.name)} />
+          {fieldErrors.name && <p id="wiz-signup-name-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.name}</p>}
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
           <label htmlFor="wiz-signup-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}</label>
-          <input id="wiz-signup-email" type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
-          {fieldErrors.email && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
+          <input id="wiz-signup-email" type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-email', fieldErrors.email)} />
+          {fieldErrors.email && <p id="wiz-signup-email-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
           <label htmlFor="wiz-signup-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}</label>
-          <input id="wiz-signup-password" type="password" autoComplete="new-password" placeholder={t.passwordPlaceholder} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
-          {fieldErrors.password && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
+          <input id="wiz-signup-password" type="password" autoComplete="new-password" placeholder={t.passwordPlaceholder} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-password', fieldErrors.password)} />
+          {fieldErrors.password && <p id="wiz-signup-password-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
         </div>
 
         {extraFields.map((field) => (
           <div key={field.name} className={cls('wiz-auth-field', classNames?.field)}>
             <label htmlFor={`wiz-signup-${field.name}`} className={cls('wiz-auth-label', classNames?.label)}>{field.label}</label>
-            <input id={`wiz-signup-${field.name}`} type={field.type ?? 'text'} placeholder={field.placeholder} value={form[field.name] ?? ''} onChange={(e) => setForm({ ...form, [field.name]: e.target.value })} required={field.required} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} />
+            <input id={`wiz-signup-${field.name}`} type={field.type ?? 'text'} placeholder={field.placeholder} value={form[field.name] ?? ''} onChange={(e) => setForm({ ...form, [field.name]: e.target.value })} required={field.required} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y(`wiz-signup-${field.name}`, fieldErrors[field.name])} />
+            {fieldErrors[field.name] && <p id={`wiz-signup-${field.name}-error`} className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors[field.name]}</p>}
           </div>
         ))}
 
@@ -164,7 +177,7 @@ export function SignupForm({
 
       {showLoginLink && (
         <p className={cls('wiz-auth-footer', classNames?.footer)}>
-          {t.alreadyHaveAccount} <a href="/login" className={cls('wiz-auth-link', classNames?.link)}>{t.signIn}</a>
+          {t.alreadyHaveAccount} <a href={loginUrl} className={cls('wiz-auth-link', classNames?.link)}>{t.signIn}</a>
         </p>
       )}
 

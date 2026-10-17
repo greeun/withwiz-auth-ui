@@ -7,7 +7,9 @@ import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { cx } from '../utils/class-names';
 import { safeRedirectTarget } from '../utils/safe-redirect';
-import type { LoginFormProps } from '../types';
+import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
+import { pickFieldErrors, formLevelText, fieldErrorA11y } from '../utils/form-errors';
+import type { AuthErrorInfo, LoginFormProps } from '../types';
 
 export function LoginForm({
   providers = [],
@@ -27,6 +29,9 @@ export function LoginForm({
   hooks,
   onOAuthClick,
   apiBasePath = '/api/auth',
+  forgotPasswordUrl = '/forgot-password',
+  signupUrl = '/signup',
+  magicLinkUrl = '/auth/magic-link',
 }: LoginFormProps) {
   const t = { ...getMessages(locale).login, ...messageOverrides };
   const [form, setForm] = useState({ email: '', password: '' });
@@ -38,6 +43,14 @@ export function LoginForm({
     email: z.string().email({ message: t.invalidEmail }),
     password: z.string().min(6, { message: t.passwordTooShort }),
   });
+
+  /** Shows a failure (form-level and per-field) and reports it through `hooks.onError`. */
+  const fail = (info: AuthErrorInfo) => {
+    const shown = pickFieldErrors(info, ['email', 'password']);
+    setFieldErrors(shown);
+    setError(formLevelText(info, shown));
+    hooks?.onError?.(info.text, info);
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -60,20 +73,18 @@ export function LoginForm({
     setLoading(true);
     try {
       const res = await authPost(`${apiBasePath}/login`, parsed.data);
-      const data = await res.json();
+      const data = await readJsonSafely(res);
 
       if (!res.ok) {
-        const msg = data.code === 'EMAIL_NOT_VERIFIED' ? t.emailNotVerified : (data.error ?? t.invalidCredentials);
-        setError(msg);
-        hooks?.onError?.(msg);
+        const info = readAuthError(res.status, data, t.invalidCredentials);
+        fail(info.key === 'EMAIL_NOT_VERIFIED' ? { ...info, text: t.emailNotVerified } : info);
         return;
       }
 
-      hooks?.onSuccess?.(data.user);
+      hooks?.onSuccess?.((data as { user?: unknown } | null)?.user);
       window.location.href = safeRedirectTarget(redirectAfterLogin);
     } catch {
-      setError(t.networkError);
-      hooks?.onError?.(t.networkError);
+      fail(networkAuthError(t.networkError));
     } finally {
       setLoading(false);
     }
@@ -102,6 +113,8 @@ export function LoginForm({
               providers={providers}
               mode="login"
               onOAuthClick={onOAuthClick}
+              onError={fail}
+              locale={locale}
               apiBasePath={apiBasePath}
               classNames={{ root: classNames?.oauth, button: classNames?.oauthButton }}
             />
@@ -126,8 +139,9 @@ export function LoginForm({
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             disabled={loading}
             className={cls('wiz-auth-input', classNames?.input)}
+            {...fieldErrorA11y('wiz-login-email', fieldErrors.email)}
           />
-          {fieldErrors.email && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
+          {fieldErrors.email && <p id="wiz-login-email-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
@@ -141,8 +155,9 @@ export function LoginForm({
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             disabled={loading}
             className={cls('wiz-auth-input', classNames?.input)}
+            {...fieldErrorA11y('wiz-login-password', fieldErrors.password)}
           />
-          {fieldErrors.password && <p className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
+          {fieldErrors.password && <p id="wiz-login-password-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
         </div>
 
         {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
@@ -154,14 +169,14 @@ export function LoginForm({
 
       {showForgotPassword && (
         <p className={cls('wiz-auth-forgot')}>
-          <a href="/forgot-password" className={cls('wiz-auth-link', classNames?.link)}>{t.forgotPassword}</a>
+          <a href={forgotPasswordUrl} className={cls('wiz-auth-link', classNames?.link)}>{t.forgotPassword}</a>
         </p>
       )}
 
       {showMagicLink && (
         <button
           type="button"
-          onClick={() => { window.location.href = '/auth/magic-link'; }}
+          onClick={() => { window.location.href = magicLinkUrl; }}
           className={cls('wiz-auth-secondary', classNames?.secondaryButton)}
         >
           {t.continueWithMagicLink}
@@ -170,7 +185,7 @@ export function LoginForm({
 
       {showSignupLink && (
         <p className={cls('wiz-auth-footer', classNames?.footer)}>
-          {t.noAccount} <a href="/signup" className={cls('wiz-auth-link', classNames?.link)}>{t.signUp}</a>
+          {t.noAccount} <a href={signupUrl} className={cls('wiz-auth-link', classNames?.link)}>{t.signUp}</a>
         </p>
       )}
 

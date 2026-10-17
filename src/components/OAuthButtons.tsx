@@ -2,12 +2,34 @@
 
 import { useState } from 'react';
 import { authPost } from '../utils/api-client';
-import type { OAuthButtonsProps, OAuthProvider } from '../types';
+import type { AuthMessages, OAuthButtonsProps, OAuthProvider } from '../types';
 import { cx } from '../utils/class-names';
 import { isHttpUrl } from '../utils/safe-redirect';
+import { getMessages } from '../i18n';
+import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
 
-export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthClick, disabled, className, classNames, apiBasePath = '/api/auth' }: OAuthButtonsProps) {
+export function OAuthButtons({
+  providers,
+  mode = 'login',
+  onOAuthStart,
+  onOAuthClick,
+  onError,
+  disabled,
+  className,
+  classNames,
+  apiBasePath = '/api/auth',
+  // Standalone buttons rendered English labels before 0.7; keep that default.
+  // Forms pass their own locale.
+  locale = 'en',
+  messages: messageOverrides,
+}: OAuthButtonsProps) {
   const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
+  const base = getMessages(locale).oauth;
+  const t: AuthMessages['oauth'] = {
+    ...base,
+    ...messageOverrides,
+    providers: { ...base.providers, ...messageOverrides?.providers },
+  };
 
   const handleOAuth = async (provider: OAuthProvider) => {
     setLoadingProvider(provider);
@@ -18,14 +40,21 @@ export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthC
         return;
       }
       const res = await authPost(`${apiBasePath}/oauth/login`, { provider });
-      if (res.ok) {
-        const data = await res.json();
-        // The provider's authorize URL is cross-origin by nature, so only the
-        // scheme is pinned here: never `javascript:`/`data:`.
-        if (isHttpUrl(data.loginUrl)) {
-          window.location.href = data.loginUrl;
-        }
+      const data = await readJsonSafely(res);
+      if (!res.ok) {
+        onError?.(readAuthError(res.status, data, t.failed));
+        return;
       }
+      const loginUrl = (data as { loginUrl?: unknown } | null)?.loginUrl;
+      // The provider's authorize URL is cross-origin by nature, so only the
+      // scheme is pinned here: never `javascript:`/`data:`.
+      if (isHttpUrl(loginUrl)) {
+        window.location.href = loginUrl;
+      } else {
+        onError?.(readAuthError(res.status, null, t.failed));
+      }
+    } catch {
+      onError?.(networkAuthError(t.failed));
     } finally {
       setLoadingProvider(null);
     }
@@ -44,16 +73,16 @@ export function OAuthButtons({ providers, mode = 'login', onOAuthStart, onOAuthC
           className={cx('wiz-oauth-btn', classNames?.button)}
         >
           <span className="wiz-oauth-icon">{getProviderIcon(provider)}</span>
-          {loadingProvider === provider ? '...' : getProviderLabel(provider, mode)}
+          {loadingProvider === provider ? '...' : providerLabel(t, provider, mode)}
         </button>
       ))}
     </div>
   );
 }
 
-function getProviderLabel(provider: OAuthProvider, mode: 'login' | 'signup'): string {
-  const labels: Record<OAuthProvider, string> = { google: 'Google', github: 'GitHub', kakao: 'Kakao' };
-  return `Continue with ${labels[provider]}`;
+function providerLabel(t: AuthMessages['oauth'], provider: OAuthProvider, mode: 'login' | 'signup'): string {
+  const template = mode === 'signup' ? t.signUpWith : t.continueWith;
+  return template.replace('{provider}', t.providers[provider] ?? provider);
 }
 
 function getProviderIcon(provider: OAuthProvider) {
@@ -77,6 +106,21 @@ function getProviderIcon(provider: OAuthProvider) {
       return (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="#191919">
           <path d="M12 3c-5.523 0-10 3.582-10 8 0 2.817 1.862 5.29 4.66 6.696l-.994 3.638c-.07.258.1.518.36.518a.5.5 0 00.312-.11l4.206-2.803c.474.046.958.07 1.456.07 5.523 0 10-3.582 10-8s-4.477-8-10-8z"/>
+        </svg>
+      );
+    case 'meta':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0866FF" strokeWidth="2.4" strokeLinecap="round">
+          <path d="M3 15.5c0-4.5 2.2-8 4.6-8 3.6 0 5.2 9 8.8 9 1.9 0 3.6-1.7 3.6-4.6 0-3.4-1.8-6.4-4.2-6.4-3.4 0-5.2 9-8.6 9C4.9 14.5 3 15.5 3 15.5z" />
+        </svg>
+      );
+    case 'microsoft':
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <rect x="2" y="2" width="9.5" height="9.5" fill="#F25022" />
+          <rect x="12.5" y="2" width="9.5" height="9.5" fill="#7FBA00" />
+          <rect x="2" y="12.5" width="9.5" height="9.5" fill="#00A4EF" />
+          <rect x="12.5" y="12.5" width="9.5" height="9.5" fill="#FFB900" />
         </svg>
       );
   }

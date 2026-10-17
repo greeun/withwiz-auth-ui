@@ -1,6 +1,35 @@
 import type { ReactNode } from 'react';
 
-export type OAuthProvider = 'google' | 'github' | 'kakao';
+export type OAuthProvider = 'google' | 'github' | 'kakao' | 'meta' | 'microsoft';
+
+/**
+ * Normalized failure information handed to `hooks.onError` (second argument).
+ * Built from either response shape the server may send — the standard envelope
+ * (`error: { code, key, userMessage, details }`) or the string form (`error: "…"`, `code`).
+ */
+export interface AuthErrorInfo {
+  /** Text shown to the user */
+  text: string;
+  /** Machine key for branching: `error.key` (standard) or `code` (string form) */
+  key?: string;
+  /** Numeric code of the standard envelope (e.g. 40305) */
+  code?: number;
+  /** First reason per field, from `details.fieldErrors` */
+  fieldErrors: Record<string, string>;
+  /** HTTP status; 0 when no response was received */
+  status: number;
+  /** True when the request never got a response (network failure) */
+  network: boolean;
+}
+
+/** Lifecycle hooks shared by the forms. */
+export interface AuthFormHooks<TSubmit, TSuccess = unknown> {
+  /** Return false to cancel the submission. */
+  onBeforeSubmit?: (data: TSubmit) => Promise<boolean>;
+  onSuccess?: (result: TSuccess) => void;
+  /** `message` is the text the form shows; `info` carries the structured failure (since 0.7). */
+  onError?: (message: string, info: AuthErrorInfo) => void;
+}
 
 export type ColorScheme = 'light' | 'dark';
 
@@ -131,6 +160,8 @@ export interface AuthMessages {
     submitting: string;
     success: string;
     backToLogin: string;
+    failed: string;
+    networkError: string;
   };
   resetPassword: {
     title: string;
@@ -143,6 +174,8 @@ export interface AuthMessages {
     submitting: string;
     success: string;
     passwordMismatch: string;
+    failed: string;
+    networkError: string;
   };
   emailVerification: {
     title: string;
@@ -155,6 +188,14 @@ export interface AuthMessages {
     networkError: string;
     loginButton: string;
     resendLink: string;
+  };
+  oauth: {
+    /** `{provider}` is replaced with the provider's display name */
+    continueWith: string;
+    /** Used when `mode="signup"`; `{provider}` placeholder as above */
+    signUpWith: string;
+    failed: string;
+    providers: Record<OAuthProvider, string>;
   };
 }
 
@@ -196,13 +237,15 @@ export interface LoginFormProps {
     beforeForm?: ReactNode;
     afterForm?: ReactNode;
   };
-  hooks?: {
-    onBeforeSubmit?: (data: { email: string; password: string }) => Promise<boolean>;
-    onSuccess?: (user: unknown) => void;
-    onError?: (error: string) => void;
-  };
+  hooks?: AuthFormHooks<{ email: string; password: string }>;
   onOAuthClick?: (provider: OAuthProvider) => void;
   apiBasePath?: string;
+  /** Link target of "forgot password". Default `/forgot-password` */
+  forgotPasswordUrl?: string;
+  /** Link target of "sign up". Default `/signup` */
+  signupUrl?: string;
+  /** Where the magic-link button goes. Default `/auth/magic-link` */
+  magicLinkUrl?: string;
 }
 
 export interface SignupFormProps {
@@ -229,13 +272,11 @@ export interface SignupFormProps {
     beforeForm?: ReactNode;
     afterForm?: ReactNode;
   };
-  hooks?: {
-    onBeforeSubmit?: (data: Record<string, string>) => Promise<boolean>;
-    onSuccess?: (user: unknown) => void;
-    onError?: (error: string) => void;
-  };
+  hooks?: AuthFormHooks<Record<string, string>>;
   onOAuthClick?: (provider: OAuthProvider) => void;
   apiBasePath?: string;
+  /** Link target of "sign in". Default `/login` */
+  loginUrl?: string;
 }
 
 export interface OAuthButtonsProps {
@@ -247,6 +288,10 @@ export interface OAuthButtonsProps {
   className?: string;
   classNames?: OAuthButtonsClassNames;
   apiBasePath?: string;
+  locale?: 'ko' | 'en' | 'ja';
+  messages?: Partial<Omit<AuthMessages['oauth'], 'providers'>> & { providers?: Partial<Record<OAuthProvider, string>> };
+  /** Called when starting the OAuth flow fails (non-2xx response or no `loginUrl`). */
+  onError?: (info: AuthErrorInfo) => void;
 }
 
 export interface AuthProviderProps {
@@ -273,6 +318,7 @@ export interface ForgotPasswordFormProps {
   classNames?: AuthFormClassNames;
   forceColorScheme?: ColorScheme;
   unstyled?: boolean;
+  hooks?: AuthFormHooks<{ email: string }, void>;
 }
 
 export interface ResetPasswordFormProps {
@@ -290,6 +336,7 @@ export interface ResetPasswordFormProps {
   classNames?: AuthFormClassNames;
   forceColorScheme?: ColorScheme;
   unstyled?: boolean;
+  hooks?: AuthFormHooks<{ password: string }, void>;
 }
 
 export interface EmailVerificationFormProps {
@@ -308,6 +355,8 @@ export interface EmailVerificationFormProps {
   classNames?: AuthStatusClassNames;
   forceColorScheme?: ColorScheme;
   unstyled?: boolean;
+  /** Verification runs on mount, so only the outcome hooks apply. */
+  hooks?: Pick<AuthFormHooks<never, void>, 'onSuccess' | 'onError'>;
 }
 
 export interface LoginPageProps
