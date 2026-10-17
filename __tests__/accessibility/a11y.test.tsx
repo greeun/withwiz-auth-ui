@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { LoginForm } from '../../src/components/LoginForm';
 import { SignupForm } from '../../src/components/SignupForm';
 import { ForgotPasswordForm } from '../../src/components/ForgotPasswordForm';
@@ -157,5 +157,21 @@ describe('OAuthButtons accessibility', () => {
     buttons.forEach((btn) => {
       expect(btn).toHaveAttribute('type', 'button');
     });
+  });
+});
+
+describe('field error wiring (0.7)', () => {
+  it('a client-side validation error marks the input invalid and points at the message', async () => {
+    render(<LoginForm locale="ko" />);
+    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'not-an-email' } });
+    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'password123' } });
+    // submit directly: a button click lets jsdom's native type=email validation block the submission
+    fireEvent.submit(screen.getByRole('button', { name: '로그인' }).closest('form')!);
+
+    const message = await screen.findByText('유효한 이메일을 입력하세요');
+    const input = screen.getByLabelText('이메일');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).toHaveAttribute('aria-describedby', message.id);
+    expect(screen.getByLabelText('비밀번호')).not.toHaveAttribute('aria-invalid');
   });
 });

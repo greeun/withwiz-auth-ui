@@ -58,6 +58,8 @@ export const ja: AuthMessages = {
     submitting: '送信中...',
     success: 'リセットリンクをメールに送信しました',
     backToLogin: 'ログインに戻る',
+    failed: 'リクエストを処理できませんでした',
+    networkError: 'ネットワークエラーが発生しました',
   },
   resetPassword: {
     title: 'パスワードリセット',
@@ -70,6 +72,8 @@ export const ja: AuthMessages = {
     submitting: '変更中...',
     success: 'パスワードが変更されました',
     passwordMismatch: 'パスワードが一致しません',
+    failed: 'パスワードを変更できませんでした',
+    networkError: 'ネットワークエラーが発生しました',
   },
   emailVerification: {
     title: 'メール認証',
@@ -82,5 +86,17 @@ export const ja: AuthMessages = {
     networkError: 'ネットワークエラーが発生しました',
     loginButton: 'ログイン',
     resendLink: '認証メールを再送信',
+  },
+  oauth: {
+    continueWith: '{provider}で続ける',
+    signUpWith: '{provider}で登録する',
+    failed: 'ソーシャルログインを開始できませんでした',
+    providers: {
+      google: 'Google',
+      github: 'GitHub',
+      kakao: 'Kakao',
+      meta: 'Meta',
+      microsoft: 'Microsoft',
+    },
   },
 };

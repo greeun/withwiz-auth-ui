@@ -4,3 +4,4 @@ export * from './types';
 export * from './pages';
 export * from './screens';
 export { getMessages, mergeMessages } from './i18n';
+export { AuthError } from './utils/auth-error';

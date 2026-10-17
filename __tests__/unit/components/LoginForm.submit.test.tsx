@@ -137,7 +137,7 @@ describe('LoginForm submit behavior', () => {
     submitForm();
 
     await waitFor(() => {
-      expect(onError).toHaveBeenCalledWith('잘못된 인증 정보');
+      expect(onError).toHaveBeenCalledWith('잘못된 인증 정보', expect.objectContaining({ text: '잘못된 인증 정보', network: false }));
     });
   });
 

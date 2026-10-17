@@ -19,9 +19,10 @@ afterEach(() => {
 
 describe('LoginPage composition', () => {
   it('passes providers through to LoginForm which renders OAuthButtons', () => {
+    // OAuth labels follow the form's locale (default ko) since 0.7
     render(<LoginPage providers={['google', 'github']} />);
-    expect(screen.getByText('Continue with Google')).toBeInTheDocument();
-    expect(screen.getByText('Continue with GitHub')).toBeInTheDocument();
+    expect(screen.getByText('Google 계정으로 계속하기')).toBeInTheDocument();
+    expect(screen.getByText('GitHub 계정으로 계속하기')).toBeInTheDocument();
   });
 
   it('passes locale through to LoginForm', () => {
@@ -51,8 +52,9 @@ describe('SignupPage composition', () => {
   });
 
   it('passes providers through to SignupForm which renders OAuthButtons', () => {
+    // mode="signup" uses the sign-up wording
     render(<SignupPage providers={['google']} />);
-    expect(screen.getByText('Continue with Google')).toBeInTheDocument();
+    expect(screen.getByText('Google 계정으로 가입하기')).toBeInTheDocument();
   });
 
   it('accepts and forwards layout props (pattern, backgroundColor)', () => {

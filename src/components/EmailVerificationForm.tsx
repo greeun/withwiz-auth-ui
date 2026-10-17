@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { emailFromLink } from '../utils/link-email';
 import { cx } from '../utils/class-names';
-import type { EmailVerificationFormProps } from '../types';
+import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
+import type { AuthErrorInfo, EmailVerificationFormProps } from '../types';
 
 export function EmailVerificationForm({
   token,
@@ -19,34 +20,43 @@ export function EmailVerificationForm({
   classNames,
   forceColorScheme,
   unstyled = false,
+  hooks,
 }: EmailVerificationFormProps) {
   const t = { ...getMessages(locale).emailVerification, ...messageOverrides };
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+  // Verification runs once per token; reading hooks through a ref keeps a new hooks
+  // object on every render from re-sending the request.
+  const hooksRef = useRef(hooks);
+  // Declared before the verification effect, so it runs first on every commit.
+  useEffect(() => { hooksRef.current = hooks; });
 
   useEffect(() => {
     let cancelled = false;
 
     async function verify() {
+      // Only the request runs inside the try; hooks are called afterwards so an exception
+      // thrown by the consumer's hook is never reported as a network error.
+      let failure: AuthErrorInfo | null = null;
       try {
         // The endpoint matches token **and** email; sending the token alone is rejected
         // as malformed before the token is ever checked.
         const account = email ?? emailFromLink();
         const res = await authPost(`${apiBasePath}/verify-email`, account ? { email: account, token } : { token });
-        const data = await res.json();
+        const data = await readJsonSafely(res);
 
-        if (cancelled) return;
-
-        if (res.ok) {
-          setStatus('success');
-        } else {
-          setStatus('error');
-          setErrorMessage(data.error ?? t.errorInvalid);
-        }
+        if (!res.ok) failure = readAuthError(res.status, data, t.errorInvalid);
       } catch {
-        if (cancelled) return;
+        failure = networkAuthError(t.networkError);
+      }
+      if (cancelled) return;
+      if (failure) {
         setStatus('error');
-        setErrorMessage(t.networkError);
+        setErrorMessage(failure.text);
+        hooksRef.current?.onError?.(failure.text, failure);
+      } else {
+        setStatus('success');
+        hooksRef.current?.onSuccess?.();
       }
     }
 

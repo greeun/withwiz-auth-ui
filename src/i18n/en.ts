@@ -58,6 +58,8 @@ export const en: AuthMessages = {
     submitting: 'Sending...',
     success: 'Reset link sent to your email',
     backToLogin: 'Back to login',
+    failed: 'We could not process your request',
+    networkError: 'A network error occurred',
   },
   resetPassword: {
     title: 'Reset Password',
@@ -70,6 +72,8 @@ export const en: AuthMessages = {
     submitting: 'Changing...',
     success: 'Password has been changed',
     passwordMismatch: 'Passwords do not match',
+    failed: 'We could not change your password',
+    networkError: 'A network error occurred',
   },
   emailVerification: {
     title: 'Email Verification',
@@ -82,5 +86,17 @@ export const en: AuthMessages = {
     networkError: 'A network error occurred',
     loginButton: 'Go to Login',
     resendLink: 'Resend verification email',
+  },
+  oauth: {
+    continueWith: 'Continue with {provider}',
+    signUpWith: 'Sign up with {provider}',
+    failed: 'Could not start social sign-in',
+    providers: {
+      google: 'Google',
+      github: 'GitHub',
+      kakao: 'Kakao',
+      meta: 'Meta',
+      microsoft: 'Microsoft',
+    },
   },
 };
