@@ -143,7 +143,7 @@ describe('SignupForm submit', () => {
     submitForm();
 
     await waitFor(() => {
-      expect(onError).toHaveBeenCalledWith('Server error');
+      expect(onError).toHaveBeenCalledWith('Server error', expect.objectContaining({ text: 'Server error', network: false }));
     });
   });
 

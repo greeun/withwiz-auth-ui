@@ -5,10 +5,11 @@ Customizable authentication UI components for React / Next.js projects.
 ## Features
 
 - Login, Signup, Forgot Password, Reset Password, Email Verification forms
-- OAuth support (Google, GitHub, Kakao)
+- OAuth support (Google, GitHub, Kakao, Meta, Microsoft)
 - i18n (Korean, English, Japanese)
 - Slot-based layout customization
-- Lifecycle hooks (onBeforeSubmit, onSuccess, onError)
+- Lifecycle hooks (onBeforeSubmit, onSuccess, onError) on every form
+- Reads both error response shapes and shows per-field server errors (see [Error handling](#error-handling))
 - AuthProvider context with session management
 - Zod-based form validation
 - Unstyled mode for full CSS control (all five forms)
@@ -320,13 +321,16 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   unstyled={false}
   onOAuthClick={(provider) => {}}  // Override default OAuth redirect
   apiBasePath="/api/auth"
+  forgotPasswordUrl="/forgot-password"  // defaults shown
+  signupUrl="/signup"
+  magicLinkUrl="/auth/magic-link"
   title="Welcome back"
   subtitle="Sign in to your account"
   messages={{ submitButton: 'Log In' }}  // Partial override
   hooks={{
     onBeforeSubmit: async (data) => true,
     onSuccess: (user) => console.log(user),
-    onError: (error) => console.error(error),
+    onError: (message, info) => console.error(message, info.key),
   }}
   slots={{
     header: <MyCustomHeader />,
@@ -454,10 +458,13 @@ Standalone OAuth button group.
 
 ```tsx
 <OAuthButtons
-  providers={['google', 'github', 'kakao']}
-  mode="login"                   // 'login' | 'signup'
+  providers={['google', 'github', 'kakao', 'meta', 'microsoft']}
+  mode="login"                   // 'login' | 'signup' — picks "Continue with" / "Sign up with"
+  locale="en"                    // default 'en' when used standalone; forms pass their own locale
+  messages={{ providers: { meta: 'Facebook' } }}  // override labels or provider display names
   onOAuthStart={(provider) => {}}
   onOAuthClick={(provider) => {}}  // Override default redirect
+  onError={(info) => {}}         // start request failed or returned no loginUrl
   disabled={false}
   apiBasePath="/api/auth"
 />
@@ -566,6 +573,65 @@ The components expect these server-side endpoints:
 | POST | `/api/auth/oauth/login` | Start OAuth flow (returns `{ loginUrl }`) |
 
 All endpoints are prefixed with `apiBasePath` (default: `/api/auth`).
+
+## Error handling
+
+Failed responses are read in either of two shapes:
+
+```jsonc
+// standard
+{ "success": false, "error": { "code": 40011, "key": "PASSWORD_TOO_WEAK", "message": "…",
+  "userMessage": { "description": "Shown to the user" },
+  "details": { "fieldErrors": { "password": ["Shown under the password input"] } } } }
+
+// string form
+{ "success": false, "error": "Shown to the user", "code": "EMAIL_NOT_VERIFIED",
+  "details": { "fieldErrors": { "email": ["Shown under the email input"] } } }
+```
+
+- The form-level text is `userMessage.description` (standard) or `error` (string form), falling
+  back to the form's localized message. The standard `message` is for developers and is never shown.
+- `details.fieldErrors` entries for inputs the form renders appear under those inputs, wired with
+  `aria-invalid` / `aria-describedby`. When the form-level text repeats a field error it is not shown twice.
+- `key` (`error.key`, or `code` in the string form) drives branching — e.g. `EMAIL_NOT_VERIFIED`
+  makes `LoginForm` show `messages.emailNotVerified`.
+- A non-JSON failure (an HTML error page) is treated as a failed request, not as a network error.
+
+Every form calls `hooks.onError(message, info)` on any failure. `info` is an `AuthErrorInfo`:
+
+```ts
+interface AuthErrorInfo {
+  text: string;                         // what the form shows
+  key?: string;                         // machine key
+  code?: number;                        // numeric code (standard shape)
+  fieldErrors: Record<string, string>;  // first reason per field
+  status: number;                       // HTTP status, 0 on network failure
+  network: boolean;
+}
+```
+
+`useAuth().login` throws `AuthError` (an `Error` whose `message` is `info.text`) with the same `info`.
+
+## Migration
+
+### 0.7
+
+Additive: existing code keeps working. Things to check:
+
+- `OAuthProvider` now also includes `'meta' | 'microsoft'`. An exhaustive `switch` over it needs two more cases.
+- Inside forms, OAuth button labels follow the form's `locale` (Korean/Japanese labels instead of the
+  previous English-only "Continue with …"); override them with the form's `oauthMessages` prop.
+  Standalone `<OAuthButtons>` keeps English by default, but `mode="signup"` now reads "Sign up with …".
+- `AuthMessages` has new required keys: `forgotPassword.failed` / `networkError`,
+  `resetPassword.failed` / `networkError`, and the `oauth` section. A dictionary typed as the full
+  `AuthMessages` must add them; `mergeMessages` overrides stay partial (including per-provider names).
+- `hooks.onError` receives a second argument; one-argument handlers are unaffected. `SignupForm`
+  now also calls it on network errors, and its first argument is always a string.
+- A 2xx login/signup response whose body is not JSON is treated as a failure instead of a success.
+- `magicLinkUrl` goes through the same same-origin check as the redirect props.
+- `ForgotPasswordForm` / `ResetPasswordForm` / `EmailVerificationForm` accept `hooks`.
+- `ForgotPasswordForm` and `ResetPasswordForm` no longer show the hard-coded English `Failed` /
+  `Network error`; the texts come from `messages` (`failed`, `networkError`).
 
 ## Security Notes
 
