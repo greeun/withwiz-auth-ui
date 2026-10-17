@@ -11,3 +11,5 @@
 allowBuilds:
   esbuild: true
   sharp: true
+minimumReleaseAgeExclude:
+  - '@withwiz/toolkit@0.21.0'
