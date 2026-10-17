@@ -34,11 +34,17 @@ export function OAuthButtons({
   const handleOAuth = async (provider: OAuthProvider) => {
     setLoadingProvider(provider);
     onOAuthStart?.(provider);
-    try {
-      if (onOAuthClick) {
+    if (onOAuthClick) {
+      // The consumer owns this path; its exceptions are not network failures, so they
+      // propagate as before 0.7.
+      try {
         onOAuthClick(provider);
-        return;
+      } finally {
+        setLoadingProvider(null);
       }
+      return;
+    }
+    try {
       const res = await authPost(`${apiBasePath}/oauth/login`, { provider });
       const data = await readJsonSafely(res);
       if (!res.ok) {
@@ -51,7 +57,7 @@ export function OAuthButtons({
       if (isHttpUrl(loginUrl)) {
         window.location.href = loginUrl;
       } else {
-        onError?.(readAuthError(res.status, null, t.failed));
+        onError?.({ ...readAuthError(res.status, null, t.failed), key: 'OAUTH_LOGIN_URL_MISSING' });
       }
     } catch {
       onError?.(networkAuthError(t.failed));

@@ -230,3 +230,122 @@ describe('AuthProvider.login', () => {
     expect((caught as AuthError).info.key).toBe('INVALID_CREDENTIALS');
   });
 });
+
+describe('리뷰 보강', () => {
+  const originalLocation = window.location;
+  beforeEach(() => {
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: { href: 'https://app.example.com/login', origin: 'https://app.example.com', search: '' },
+    });
+  });
+  afterEach(() => {
+    Object.defineProperty(window, 'location', { writable: true, value: originalLocation });
+  });
+
+  it('magicLinkUrl 로 이동하고, 다른 출처·javascript: 값은 기본 경로로 대체한다', () => {
+    const { unmount } = render(<LoginForm showMagicLink magicLinkUrl="/login/magic" />);
+    fireEvent.click(screen.getByRole('button', { name: '이메일 링크로 로그인' }));
+    expect(window.location.href).toBe('/login/magic');
+    unmount();
+    render(<LoginForm showMagicLink magicLinkUrl="javascript:alert(1)" />);
+    fireEvent.click(screen.getByRole('button', { name: '이메일 링크로 로그인' }));
+    expect(window.location.href).toBe('/auth/magic-link');
+  });
+
+  it('2xx 인데 본문이 JSON 이 아니면 로그인 성공으로 보지 않는다', async () => {
+    stubFetch({ ok: true, status: 200, nonJson: true });
+    const onSuccess = vi.fn();
+    const onError = vi.fn();
+    render(<LoginForm redirectAfterLogin="/dashboard" hooks={{ onSuccess, onError }} />);
+    submitLogin();
+    await waitFor(() => expect(onError).toHaveBeenCalledTimes(1));
+    expect(onError).toHaveBeenCalledWith('네트워크 오류가 발생했습니다', expect.objectContaining({ status: 200, network: false }));
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(window.location.href).toBe('https://app.example.com/login');
+  });
+
+  it('로그인 실패에서 onError 는 정확히 한 번 호출된다', async () => {
+    stubFetch({ ok: false, status: 401, body: legacy('잘못된 인증 정보') });
+    const onError = vi.fn();
+    render(<LoginForm hooks={{ onError }} />);
+    submitLogin();
+    await waitFor(() => expect(onError).toHaveBeenCalled());
+    expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it('SignupForm 은 네트워크 오류에서도 onError(network) 를 부른다', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+    const onError = vi.fn();
+    render(<SignupForm hooks={{ onError }} />);
+    fireEvent.change(screen.getByLabelText('이름'), { target: { value: '홍길동' } });
+    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'longenough1' } });
+    fireEvent.click(screen.getByRole('button', { name: '회원가입' }));
+    await waitFor(() => expect(onError).toHaveBeenCalledTimes(1));
+    expect(onError).toHaveBeenCalledWith('네트워크 오류가 발생했습니다', expect.objectContaining({ network: true }));
+  });
+
+  it('ResetPasswordForm 은 성공하면 onSuccess 를 한 번 부르고 onError 는 부르지 않는다', async () => {
+    stubFetch({ ok: true, status: 200, body: { success: true } });
+    const onSuccess = vi.fn();
+    const onError = vi.fn();
+    render(<ResetPasswordForm token="t" hooks={{ onSuccess, onError }} />);
+    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'longenough1' } });
+    fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  it('EmailVerificationForm 은 성공하면 onSuccess 를 한 번 부른다', async () => {
+    stubFetch({ ok: true, status: 200, body: { success: true } });
+    const onSuccess = vi.fn();
+    render(<EmailVerificationForm token="t" hooks={{ onSuccess }} />);
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
+  });
+
+  it('onOAuthClick 을 주면 서버에 요청하지 않고 버튼 로딩 상태를 되돌린다', async () => {
+    const fetchFn = stubFetch();
+    const onOAuthClick = vi.fn();
+    render(<OAuthButtons providers={['google']} onOAuthClick={onOAuthClick} />);
+    fireEvent.click(screen.getByTestId('oauth-google-btn'));
+    await waitFor(() => expect(onOAuthClick).toHaveBeenCalledWith('google'));
+    expect(fetchFn).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByTestId('oauth-google-btn')).not.toBeDisabled());
+  });
+
+  it('loginUrl 이 없는 응답은 OAUTH_LOGIN_URL_MISSING 으로 구분한다', async () => {
+    stubFetch({ ok: true, status: 200, body: {} });
+    const onError = vi.fn();
+    render(<OAuthButtons providers={['google']} onError={onError} />);
+    fireEvent.click(screen.getByTestId('oauth-google-btn'));
+    await waitFor(() => expect(onError).toHaveBeenCalledWith(expect.objectContaining({ key: 'OAUTH_LOGIN_URL_MISSING', status: 200 })));
+  });
+
+  it('단독 버튼의 mode="signup" 영문 라벨은 Sign up with 이다', () => {
+    render(<OAuthButtons providers={['google']} mode="signup" />);
+    expect(screen.getByText('Sign up with Google')).toBeInTheDocument();
+  });
+
+  it('폼의 oauthMessages 로 버튼 표시명과 실패 문구를 바꾼다', async () => {
+    stubFetch({ ok: false, status: 500, nonJson: true });
+    const onError = vi.fn();
+    render(<LoginForm providers={['meta']} oauthMessages={{ providers: { meta: 'Facebook' }, failed: '소셜 로그인 실패' }} hooks={{ onError }} />);
+    fireEvent.click(screen.getByText('Facebook 계정으로 계속하기'));
+    expect(await screen.findByText('소셜 로그인 실패')).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it('OAuth 시작 실패는 입력 아래의 클라이언트 검증 메시지를 지우지 않는다', async () => {
+    stubFetch({ ok: false, status: 500, nonJson: true });
+    render(<LoginForm providers={['github']} />);
+    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'not-an-email' } });
+    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'password123' } });
+    fireEvent.submit(screen.getByRole('button', { name: '로그인' }).closest('form')!);
+    expect(await screen.findByText('유효한 이메일을 입력하세요')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('oauth-github-btn'));
+    expect(await screen.findByText('소셜 로그인을 시작하지 못했습니다')).toBeInTheDocument();
+    expect(screen.getByText('유효한 이메일을 입력하세요')).toBeInTheDocument();
+  });
+});

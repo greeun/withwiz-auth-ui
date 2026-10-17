@@ -30,18 +30,22 @@ export function ForgotPasswordForm({ locale = 'ko', messages: messageOverrides, 
     setFieldErrors({});
     if (hooks?.onBeforeSubmit && !(await hooks.onBeforeSubmit({ email }))) return;
     setLoading(true);
+    // Only the request runs inside the try; hooks are called afterwards so an exception
+    // thrown by the consumer's hook is never reported as a network error.
+    let failure: AuthErrorInfo | null = null;
     try {
       const res = await authPost(`${apiBasePath}/forgot-password`, { email });
-      if (res.ok) {
-        setSuccess(true);
-        hooks?.onSuccess?.();
-      } else {
-        fail(readAuthError(res.status, await readJsonSafely(res), t.failed));
-      }
+      if (!res.ok) failure = readAuthError(res.status, await readJsonSafely(res), t.failed);
     } catch {
-      fail(networkAuthError(t.networkError));
+      failure = networkAuthError(t.networkError);
     } finally {
       setLoading(false);
+    }
+    if (failure) {
+      fail(failure);
+    } else {
+      setSuccess(true);
+      hooks?.onSuccess?.();
     }
   };
 

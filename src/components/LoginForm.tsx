@@ -28,6 +28,7 @@ export function LoginForm({
   slots,
   hooks,
   onOAuthClick,
+  oauthMessages,
   apiBasePath = '/api/auth',
   forgotPasswordUrl = '/forgot-password',
   signupUrl = '/signup',
@@ -49,6 +50,12 @@ export function LoginForm({
     const shown = pickFieldErrors(info, ['email', 'password']);
     setFieldErrors(shown);
     setError(formLevelText(info, shown));
+    hooks?.onError?.(info.text, info);
+  };
+
+  /** OAuth start failure: form-level text only — client validation messages on the inputs stay. */
+  const failOAuth = (info: AuthErrorInfo) => {
+    setError(info.text);
     hooks?.onError?.(info.text, info);
   };
 
@@ -78,6 +85,11 @@ export function LoginForm({
       if (!res.ok) {
         const info = readAuthError(res.status, data, t.invalidCredentials);
         fail(info.key === 'EMAIL_NOT_VERIFIED' ? { ...info, text: t.emailNotVerified } : info);
+        return;
+      }
+      // A 2xx whose body is not JSON (e.g. a proxy's HTML page) is not a confirmed login.
+      if (data === null) {
+        fail(readAuthError(res.status, null, t.networkError));
         return;
       }
 
@@ -113,8 +125,9 @@ export function LoginForm({
               providers={providers}
               mode="login"
               onOAuthClick={onOAuthClick}
-              onError={fail}
+              onError={failOAuth}
               locale={locale}
+              messages={oauthMessages}
               apiBasePath={apiBasePath}
               classNames={{ root: classNames?.oauth, button: classNames?.oauthButton }}
             />
@@ -176,7 +189,7 @@ export function LoginForm({
       {showMagicLink && (
         <button
           type="button"
-          onClick={() => { window.location.href = magicLinkUrl; }}
+          onClick={() => { window.location.href = safeRedirectTarget(magicLinkUrl, '/auth/magic-link'); }}
           className={cls('wiz-auth-secondary', classNames?.secondaryButton)}
         >
           {t.continueWithMagicLink}

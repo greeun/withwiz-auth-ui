@@ -63,6 +63,9 @@ export function ResetPasswordForm({
     if (hooks?.onBeforeSubmit && !(await hooks.onBeforeSubmit({ password: parsed.data.password }))) return;
 
     setLoading(true);
+    // Only the request runs inside the try; hooks are called afterwards so an exception
+    // thrown by the consumer's hook is never reported as a network error.
+    let failure: AuthErrorInfo | null = null;
     try {
       // The endpoint matches token **and** email; sending the token alone is rejected
       // as malformed before the token is ever checked.
@@ -70,16 +73,17 @@ export function ResetPasswordForm({
       const payload = { token, password: parsed.data.password };
       const res = await authPost(`${apiBasePath}/reset-password`, account ? { email: account, ...payload } : payload);
 
-      if (!res.ok) {
-        fail(readAuthError(res.status, await readJsonSafely(res), t.failed));
-        return;
-      }
-      setSuccess(true);
-      hooks?.onSuccess?.();
+      if (!res.ok) failure = readAuthError(res.status, await readJsonSafely(res), t.failed);
     } catch {
-      fail(networkAuthError(t.networkError));
+      failure = networkAuthError(t.networkError);
     } finally {
       setLoading(false);
+    }
+    if (failure) {
+      fail(failure);
+    } else {
+      setSuccess(true);
+      hooks?.onSuccess?.();
     }
   };
 

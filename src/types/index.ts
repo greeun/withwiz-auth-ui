@@ -199,6 +199,16 @@ export interface AuthMessages {
   };
 }
 
+/** OAuth label overrides; provider display names may be overridden one by one. */
+export type OAuthMessagesOverride = Partial<Omit<AuthMessages['oauth'], 'providers'>> & {
+  providers?: Partial<Record<OAuthProvider, string>>;
+};
+
+/** Partial overrides for `mergeMessages`, one level deep (and per provider for `oauth`). */
+export type AuthMessagesOverrides = {
+  [K in Exclude<keyof AuthMessages, 'oauth'>]?: Partial<AuthMessages[K]>;
+} & { oauth?: OAuthMessagesOverride };
+
 export interface AuthLayoutProps {
   children: ReactNode;
   logo?: ReactNode;
@@ -239,6 +249,8 @@ export interface LoginFormProps {
   };
   hooks?: AuthFormHooks<{ email: string; password: string }>;
   onOAuthClick?: (provider: OAuthProvider) => void;
+  /** Label overrides for the built-in OAuth buttons (they follow `locale` otherwise). */
+  oauthMessages?: OAuthMessagesOverride;
   apiBasePath?: string;
   /** Link target of "forgot password". Default `/forgot-password` */
   forgotPasswordUrl?: string;
@@ -274,6 +286,8 @@ export interface SignupFormProps {
   };
   hooks?: AuthFormHooks<Record<string, string>>;
   onOAuthClick?: (provider: OAuthProvider) => void;
+  /** Label overrides for the built-in OAuth buttons (they follow `locale` otherwise). */
+  oauthMessages?: OAuthMessagesOverride;
   apiBasePath?: string;
   /** Link target of "sign in". Default `/login` */
   loginUrl?: string;
@@ -289,7 +303,7 @@ export interface OAuthButtonsProps {
   classNames?: OAuthButtonsClassNames;
   apiBasePath?: string;
   locale?: 'ko' | 'en' | 'ja';
-  messages?: Partial<Omit<AuthMessages['oauth'], 'providers'>> & { providers?: Partial<Record<OAuthProvider, string>> };
+  messages?: OAuthMessagesOverride;
   /** Called when starting the OAuth flow fails (non-2xx response or no `loginUrl`). */
   onError?: (info: AuthErrorInfo) => void;
 }

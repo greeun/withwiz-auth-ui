@@ -25,6 +25,7 @@ export function SignupForm({
   slots,
   hooks,
   onOAuthClick,
+  oauthMessages,
   apiBasePath = '/api/auth',
   loginUrl = '/login',
 }: SignupFormProps) {
@@ -46,6 +47,12 @@ export function SignupForm({
     const shown = pickFieldErrors(info, ['name', 'email', 'password', ...extraFields.map((f) => f.name)]);
     setFieldErrors(shown);
     setError(formLevelText(info, shown));
+    hooks?.onError?.(info.text, info);
+  };
+
+  /** OAuth start failure: form-level text only — client validation messages on the inputs stay. */
+  const failOAuth = (info: AuthErrorInfo) => {
+    setError(info.text);
     hooks?.onError?.(info.text, info);
   };
 
@@ -81,6 +88,11 @@ export function SignupForm({
 
       if (!res.ok) {
         fail(readAuthError(res.status, data, t.registrationFailed));
+        return;
+      }
+      // A 2xx whose body is not JSON (e.g. a proxy's HTML page) is not a confirmed signup.
+      if (data === null) {
+        fail(readAuthError(res.status, null, t.networkError));
         return;
       }
 
@@ -127,8 +139,9 @@ export function SignupForm({
               providers={providers}
               mode="signup"
               onOAuthClick={onOAuthClick}
-              onError={fail}
+              onError={failOAuth}
               locale={locale}
+              messages={oauthMessages}
               apiBasePath={apiBasePath}
               classNames={{ root: classNames?.oauth, button: classNames?.oauthButton }}
             />

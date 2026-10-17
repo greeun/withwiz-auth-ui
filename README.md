@@ -620,8 +620,15 @@ Additive: existing code keeps working. Things to check:
 
 - `OAuthProvider` now also includes `'meta' | 'microsoft'`. An exhaustive `switch` over it needs two more cases.
 - Inside forms, OAuth button labels follow the form's `locale` (Korean/Japanese labels instead of the
-  previous English-only "Continue with …"). Standalone `<OAuthButtons>` keeps English by default.
-- `hooks.onError` receives a second argument; one-argument handlers are unaffected.
+  previous English-only "Continue with …"); override them with the form's `oauthMessages` prop.
+  Standalone `<OAuthButtons>` keeps English by default, but `mode="signup"` now reads "Sign up with …".
+- `AuthMessages` has new required keys: `forgotPassword.failed` / `networkError`,
+  `resetPassword.failed` / `networkError`, and the `oauth` section. A dictionary typed as the full
+  `AuthMessages` must add them; `mergeMessages` overrides stay partial (including per-provider names).
+- `hooks.onError` receives a second argument; one-argument handlers are unaffected. `SignupForm`
+  now also calls it on network errors, and its first argument is always a string.
+- A 2xx login/signup response whose body is not JSON is treated as a failure instead of a success.
+- `magicLinkUrl` goes through the same same-origin check as the redirect props.
 - `ForgotPasswordForm` / `ResetPasswordForm` / `EmailVerificationForm` accept `hooks`.
 - `ForgotPasswordForm` and `ResetPasswordForm` no longer show the hard-coded English `Failed` /
   `Network error`; the texts come from `messages` (`failed`, `networkError`).
