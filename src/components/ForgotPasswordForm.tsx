@@ -71,7 +71,7 @@ export function ForgotPasswordForm({ locale = 'ko', messages: messageOverrides, 
           <input id="wiz-forgot-email" type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-forgot-email', fieldErrors.email)} />
           {fieldErrors.email && <p id="wiz-forgot-email-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
         </div>
-        {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
+        {error && <div role="alert" className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
         <button type="submit" disabled={loading} className={cls('wiz-auth-submit', classNames?.submitButton)}>
           {loading ? t.submitting : t.submitButton}
         </button>

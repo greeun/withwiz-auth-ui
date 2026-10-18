@@ -200,7 +200,7 @@ export function SignupForm({
           </div>
         ))}
 
-        {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
+        {error && <div role="alert" className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
 
         <button type="submit" disabled={loading} className={cls('wiz-auth-submit', classNames?.submitButton)}>
           {loading ? t.submitting : t.submitButton}

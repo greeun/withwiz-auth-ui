@@ -137,7 +137,7 @@ export function ResetPasswordForm({
           {fieldErrors.confirm && <p id="wiz-reset-confirm-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.confirm}</p>}
         </div>
 
-        {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
+        {error && <div role="alert" className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
 
         <button
           type="submit"

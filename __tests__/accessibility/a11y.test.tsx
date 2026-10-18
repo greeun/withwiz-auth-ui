@@ -175,3 +175,28 @@ describe('field error wiring (0.7)', () => {
     expect(screen.getByLabelText('비밀번호')).not.toHaveAttribute('aria-invalid');
   });
 });
+
+describe('form-level errors are announced', () => {
+  beforeEach(() => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({ success: false, error: { code: 40101, key: 'UNAUTHORIZED', message: 'x', userMessage: { description: '로그인 정보가 올바르지 않습니다' } } }),
+    }) as never;
+  });
+
+  it('LoginForm renders the server error with role="alert"', async () => {
+    render(<LoginForm locale="ko" />);
+    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: '로그인' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('로그인 정보가 올바르지 않습니다');
+  });
+
+  it('ForgotPasswordForm renders the server error with role="alert"', async () => {
+    render(<ForgotPasswordForm locale="ko" />);
+    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
+    fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('로그인 정보가 올바르지 않습니다');
+  });
+});
