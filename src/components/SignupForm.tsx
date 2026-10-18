@@ -165,30 +165,33 @@ export function SignupForm({
               classNames={{ root: classNames?.oauth, button: classNames?.oauthButton }}
             />
           )}
-          <div className={cls('wiz-auth-divider', classNames?.divider)}>
-            <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
-            <span className={cls('wiz-auth-divider-text', classNames?.dividerText)}>{t.orDivider}</span>
-            <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
-          </div>
+          {/* `oauthSection = null` hides the OAuth area, so the "or" divider goes with it. */}
+          {slots?.oauthSection !== null && (
+            <div className={cls('wiz-auth-divider', classNames?.divider)}>
+              <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
+              <span className={cls('wiz-auth-divider-text', classNames?.dividerText)}>{t.orDivider}</span>
+              <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
+            </div>
+          )}
         </>
       )}
 
       <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>
         <div className={cls('wiz-auth-field', classNames?.field)}>
           <label htmlFor="wiz-signup-name" className={cls('wiz-auth-label', classNames?.label)}>{t.nameLabel}</label>
-          <input id="wiz-signup-name" type="text" autoComplete="name" placeholder={t.namePlaceholder} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-name', fieldErrors.name)} />
+          <input id="wiz-signup-name" aria-required type="text" autoComplete="name" placeholder={t.namePlaceholder} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-name', fieldErrors.name)} />
           {fieldErrors.name && <p id="wiz-signup-name-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.name}</p>}
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
           <label htmlFor="wiz-signup-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}</label>
-          <input id="wiz-signup-email" type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-email', fieldErrors.email)} />
+          <input id="wiz-signup-email" aria-required type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-email', fieldErrors.email)} />
           {fieldErrors.email && <p id="wiz-signup-email-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
           <label htmlFor="wiz-signup-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}</label>
-          <input id="wiz-signup-password" type="password" autoComplete="new-password" placeholder={t.passwordPlaceholder} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-password', fieldErrors.password)} />
+          <input id="wiz-signup-password" aria-required type="password" autoComplete="new-password" placeholder={t.passwordPlaceholder} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-password', fieldErrors.password)} />
           {fieldErrors.password && <p id="wiz-signup-password-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
         </div>
 

@@ -29,6 +29,7 @@ coverage/
 
 # debug logs
 *.log
+logs/
 npm-debug.log*
 pnpm-debug.log*
 

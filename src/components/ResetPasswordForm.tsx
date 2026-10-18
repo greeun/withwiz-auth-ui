@@ -112,6 +112,7 @@ export function ResetPasswordForm({
           <label htmlFor="wiz-reset-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}</label>
           <input
             id="wiz-reset-password"
+            aria-required
             type="password"
             autoComplete="new-password"
             placeholder={t.passwordPlaceholder}
@@ -128,6 +129,7 @@ export function ResetPasswordForm({
           <label htmlFor="wiz-reset-confirm" className={cls('wiz-auth-label', classNames?.label)}>{t.confirmLabel}</label>
           <input
             id="wiz-reset-confirm"
+            aria-required
             type="password"
             autoComplete="new-password"
             placeholder={t.confirmPlaceholder}
