@@ -39,4 +39,22 @@ describe('SignupForm', () => {
     render(<SignupForm providers={[]} />);
     expect(screen.queryByTestId('oauth-google-btn')).not.toBeInTheDocument();
   });
+
+  describe('slots.header', () => {
+    it('should render the default heading when no slots are given', () => {
+      render(<SignupForm />);
+      expect(screen.getByRole('heading', { name: '회원가입' })).toBeInTheDocument();
+    });
+
+    it('should hide the header when slots.header is null', () => {
+      render(<SignupForm slots={{ header: null }} />);
+      expect(screen.queryByRole('heading', { name: '회원가입' })).not.toBeInTheDocument();
+    });
+
+    it('should replace the header when slots.header is a node', () => {
+      render(<SignupForm slots={{ header: <h2>직접 만든 제목</h2> }} />);
+      expect(screen.getByRole('heading', { name: '직접 만든 제목' })).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: '회원가입' })).not.toBeInTheDocument();
+    });
+  });
 });

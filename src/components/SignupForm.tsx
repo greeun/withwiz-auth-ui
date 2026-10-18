@@ -142,7 +142,7 @@ export function SignupForm({
 
   return (
     <div className={cls('wiz-auth-form', cx(className, classNames?.root))} data-wiz-scheme={forceColorScheme}>
-      {slots?.header ?? (
+      {slots?.header !== undefined ? slots.header : (
         <div className={cls('wiz-auth-header', classNames?.header)}>
           <h1 className={cls('wiz-auth-title', classNames?.title)}>{t.title}</h1>
           <p className={cls('wiz-auth-subtitle', classNames?.subtitle)}>{t.subtitle}</p>
@@ -153,7 +153,7 @@ export function SignupForm({
 
       {providers.length > 0 && (
         <>
-          {slots?.oauthSection ?? (
+          {slots?.oauthSection !== undefined ? slots.oauthSection : (
             <OAuthButtons
               providers={providers}
               mode="signup"
