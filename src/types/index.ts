@@ -24,7 +24,7 @@ export interface AuthErrorInfo {
 
 /** `hooks.onSuccess` 의 두 번째 인자 (since 0.8). */
 export interface AuthSuccessContext {
-  /** 성공 응답 본문 전체. 본문이 없거나 JSON 이 아니면 null. */
+  /** LoginForm·SignupForm 은 파싱한 성공 응답 본문 전체를 넘긴다. 그 밖의 폼은 항상 null. */
   body: unknown;
 }
 
@@ -36,12 +36,16 @@ export interface AuthFormHooks<TSubmit, TSuccess = unknown> {
    * Called after a successful response.
    *
    * `LoginForm` and `SignupForm` await it (since 0.8):
-   * - return a string to redirect there instead of `redirectAfterLogin` / `redirectAfterSignup`
-   *   (it goes through the same same-origin check);
-   * - throw to stay on the page — the error's `message` is shown and `onError` is called.
-   * The other forms ignore the return value.
+   * - return a path (a string starting with `/`, or an http(s) URL) to redirect there instead of
+   *   `redirectAfterLogin` / `redirectAfterSignup`; it goes through the same same-origin check.
+   *   Any other return value (empty string, a toast id, a non-string) is ignored and the
+   *   default redirect applies;
+   * - throw an `Error` with a message to stay on the page — the message is shown and `onError`
+   *   is called (other thrown values show the form's generic fallback text).
+   * The other forms ignore the return value. The return type is `unknown` so handlers written
+   * for 0.7 that returned values (e.g. `() => toast('hi')`) still compile.
    */
-  onSuccess?: (result: TSuccess, context: AuthSuccessContext) => void | string | Promise<void | string>;
+  onSuccess?: (result: TSuccess, context: AuthSuccessContext) => unknown;
   /** `message` is the text the form shows; `info` carries the structured failure (since 0.7). */
   onError?: (message: string, info: AuthErrorInfo) => void;
 }

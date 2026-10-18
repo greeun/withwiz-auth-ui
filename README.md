@@ -329,8 +329,8 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   messages={{ submitButton: 'Log In' }}  // Partial override
   hooks={{
     onBeforeSubmit: async (data) => true,
-    // Awaited (0.8+). Return a path to redirect there; throw to stay with the error shown.
-    onSuccess: async (user, { body }) => (user?.role === 'ADMIN' ? '/admin' : undefined),
+    // Awaited (0.8+). Return a path ('/…' or http(s) URL) to redirect there; throw an Error to stay with its message shown.
+    onSuccess: async (user) => ((user as { role?: string } | undefined)?.role === 'ADMIN' ? '/admin' : undefined),
     onError: (message, info) => console.error(message, info.key),
   }}
   slots={{
@@ -379,6 +379,7 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   apiBasePath="/api/auth"
   loginUrl="/login"
   messages={{ title: 'Reset Password' }}
+  slots={{ header: null }}  // hide the built-in title (0.8+)
 />
 ```
 
@@ -393,6 +394,7 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   apiBasePath="/api/auth"
   loginUrl="/login"
   messages={{ title: '비밀번호 재설정' }}
+  slots={{ header: null }}  // hide the built-in title (0.8+)
 />
 ```
 
@@ -620,11 +622,18 @@ interface AuthErrorInfo {
 
 Additive: existing code keeps working. Things to check:
 
-- `LoginForm` / `SignupForm` await `hooks.onSuccess`. Returning a string redirects there (same-origin
-  check applies); throwing keeps the user on the form with the error shown (`info.key` is
-  `SUCCESS_HOOK_FAILED`). Handlers that return nothing behave as before.
+- `LoginForm` / `SignupForm` await `hooks.onSuccess`. Returning a path redirects there (same-origin
+  check applies); throwing an `Error` with a message keeps the user on the form with that message
+  shown (`info.key` is `SUCCESS_HOOK_FAILED`; other thrown values show the form's generic fallback
+  text). Handlers that return nothing behave as before.
+- Only a string starting with `/` or an http(s) URL is used as the redirect target. Other return
+  values (e.g. a toast id) are ignored and the default redirect applies.
+- Async `onSuccess` handlers now delay the redirect until they settle, and a rejection keeps the user
+  on the form. Catch errors of fire-and-forget work such as analytics inside the handler.
 - `onSuccess` receives a second argument `{ body }` — the whole success body. Tests asserting
-  `toHaveBeenCalledWith(user)` need the second argument.
+  `toHaveBeenCalledWith(user)` need the second argument, and code that calls `hooks.onSuccess` itself
+  must pass `{ body }`.
+- The return type is `unknown`, so 0.7 handlers that returned values still compile.
 - `SignupForm` shows its success screen after `onSuccess` settles (it used to show it right before the call).
 - Success bodies shaped `{ success: true, data: { user, loginUrl } }` are read as well as flat ones
   (forms, `OAuthButtons`, `useAuth`).

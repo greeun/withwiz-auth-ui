@@ -206,7 +206,23 @@ describe('LoginForm submit behavior', () => {
       await waitFor(() => expect(window.location.href).toBe('/admin/dashboard'));
     });
 
-    it.each(['//evil.example', 'javascript:alert(1)', 'https://evil.example/x'])(
+    it('ignores a returned value that is not a path (e.g. a toast id) and uses redirectAfterLogin', async () => {
+      respondOk();
+      render(<LoginForm hooks={{ onSuccess: () => '1' }} redirectAfterLogin="/home" />);
+      fillForm('test@example.com', 'password123');
+      submitForm();
+      await waitFor(() => expect(window.location.href).toBe('/home'));
+    });
+
+    it('does not treat a javascript: return as a path and uses redirectAfterLogin', async () => {
+      respondOk();
+      render(<LoginForm hooks={{ onSuccess: () => 'javascript:alert(1)' }} redirectAfterLogin="/home" />);
+      fillForm('test@example.com', 'password123');
+      submitForm();
+      await waitFor(() => expect(window.location.href).toBe('/home'));
+    });
+
+    it.each(['//evil.example', 'https://evil.example/x'])(
       'replaces an unsafe returned target %s with /',
       async (target) => {
         respondOk();

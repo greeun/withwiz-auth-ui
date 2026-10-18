@@ -6,7 +6,7 @@ import { OAuthButtons } from './OAuthButtons';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { cx } from '../utils/class-names';
-import { safeRedirectTarget } from '../utils/safe-redirect';
+import { safeRedirectTarget, pickRedirectTarget } from '../utils/safe-redirect';
 import { readAuthError, networkAuthError, readJsonSafely, hookFailure } from '../utils/read-auth-error';
 import { readSuccessField } from '../utils/read-success-body';
 import { pickFieldErrors, formLevelText, fieldErrorA11y } from '../utils/form-errors';
@@ -103,14 +103,14 @@ export function LoginForm({
 
       // The consumer decides what happens next (since 0.8): a returned string is the
       // redirect target, a throw keeps the user here with the error shown.
-      let target: void | string;
+      let target: unknown;
       try {
         target = await hooks?.onSuccess?.(readSuccessField(data, 'user'), { body: data });
       } catch (err) {
         fail(hookFailure(err, t.networkError, res.status));
         return;
       }
-      window.location.href = safeRedirectTarget(typeof target === 'string' ? target : redirectAfterLogin);
+      window.location.href = safeRedirectTarget(pickRedirectTarget(target, redirectAfterLogin));
     } finally {
       setLoading(false);
     }

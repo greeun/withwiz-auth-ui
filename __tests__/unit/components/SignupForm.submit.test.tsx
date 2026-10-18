@@ -233,6 +233,25 @@ describe('SignupForm submit', () => {
       }
     });
 
+    it('uses redirectAfterSignup when the hook returns an empty string', async () => {
+      const original = window.location;
+      Object.defineProperty(window, 'location', { value: { href: '' }, writable: true, configurable: true });
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      try {
+        mockFetch({ ok: true, json: async () => ({ user: { id: '1' } }) });
+        const onSuccess = vi.fn(async () => '');
+        render(<SignupForm hooks={{ onSuccess }} redirectAfterSignup="/x" />);
+        fillFormById({ name: '홍길동' });
+        submitForm();
+        await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+        await act(async () => { vi.advanceTimersByTime(3000); });
+        expect(window.location.href).toBe('/x');
+      } finally {
+        vi.useRealTimers();
+        Object.defineProperty(window, 'location', { value: original, writable: true, configurable: true });
+      }
+    });
+
     it('shows the hook error instead of the success screen when the hook throws', async () => {
       mockFetch({ ok: true, json: async () => ({ user: { id: '1' } }) });
       render(<SignupForm hooks={{ onSuccess: async () => { throw new Error('후처리 실패'); } }} />);
