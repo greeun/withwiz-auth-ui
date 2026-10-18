@@ -22,11 +22,30 @@ export interface AuthErrorInfo {
   network: boolean;
 }
 
+/** `hooks.onSuccess` 의 두 번째 인자 (since 0.8). */
+export interface AuthSuccessContext {
+  /** LoginForm·SignupForm 은 파싱한 성공 응답 본문 전체를 넘긴다. 그 밖의 폼은 항상 null. */
+  body: unknown;
+}
+
 /** Lifecycle hooks shared by the forms. */
 export interface AuthFormHooks<TSubmit, TSuccess = unknown> {
   /** Return false to cancel the submission. */
   onBeforeSubmit?: (data: TSubmit) => Promise<boolean>;
-  onSuccess?: (result: TSuccess) => void;
+  /**
+   * Called after a successful response.
+   *
+   * `LoginForm` and `SignupForm` await it (since 0.8):
+   * - return a path (a string starting with `/`, or an http(s) URL) to redirect there instead of
+   *   `redirectAfterLogin` / `redirectAfterSignup`; it goes through the same same-origin check.
+   *   Any other return value (empty string, a toast id, a non-string) is ignored and the
+   *   default redirect applies;
+   * - throw an `Error` with a message to stay on the page — the message is shown and `onError`
+   *   is called (other thrown values show the form's generic fallback text).
+   * The other forms ignore the return value. The return type is `unknown` so handlers written
+   * for 0.7 that returned values (e.g. `() => toast('hi')`) still compile.
+   */
+  onSuccess?: (result: TSuccess, context: AuthSuccessContext) => unknown;
   /** `message` is the text the form shows; `info` carries the structured failure (since 0.7). */
   onError?: (message: string, info: AuthErrorInfo) => void;
 }
@@ -277,6 +296,13 @@ export interface SignupFormProps {
     required?: boolean;
     placeholder?: string;
   }>;
+  /**
+   * Values sent with the signup request without rendering an input (since 0.8),
+   * e.g. `{ language: locale }`. The validated name/email/password and the
+   * `extraFields` values always win over keys of the same name. Allow-list what
+   * you persist on the server.
+   */
+  extraPayload?: Record<string, unknown>;
   slots?: {
     header?: ReactNode;
     footer?: ReactNode;
@@ -324,6 +350,8 @@ export interface AuthContextValue {
 }
 
 export interface ForgotPasswordFormProps {
+  /** `header`: undefined → built-in title, null → hidden, node → replaces it (since 0.8). */
+  slots?: { header?: ReactNode };
   locale?: 'ko' | 'en' | 'ja';
   messages?: Partial<AuthMessages['forgotPassword']>;
   apiBasePath?: string;
@@ -336,6 +364,8 @@ export interface ForgotPasswordFormProps {
 }
 
 export interface ResetPasswordFormProps {
+  /** `header`: undefined → built-in title, null → hidden, node → replaces it (since 0.8). */
+  slots?: { header?: ReactNode };
   token: string;
   /**
    * Account the link was issued for. Falls back to the link's `?email=` query when

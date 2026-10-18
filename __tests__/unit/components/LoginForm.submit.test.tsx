@@ -121,7 +121,7 @@ describe('LoginForm submit behavior', () => {
     submitForm();
 
     await waitFor(() => {
-      expect(onSuccess).toHaveBeenCalledWith(mockUser);
+      expect(onSuccess).toHaveBeenCalledWith(mockUser, { body: { user: mockUser } });
     });
   });
 
@@ -179,5 +179,89 @@ describe('LoginForm submit behavior', () => {
   it('shows magic link button when showMagicLink is true', () => {
     render(<LoginForm showMagicLink={true} />);
     expect(screen.getByRole('button', { name: '이메일 링크로 로그인' })).toBeInTheDocument();
+  });
+
+  describe('onSuccess (0.8)', () => {
+    const okBody = { success: true, data: { user: { id: 'u1', role: 'ADMIN' }, preferences: { language: 'en' } } };
+
+    function respondOk(body: unknown = okBody) {
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: async () => body });
+    }
+
+    it('passes the user from the { success, data } envelope and the whole body', async () => {
+      respondOk();
+      const onSuccess = vi.fn();
+      render(<LoginForm hooks={{ onSuccess }} redirectAfterLogin="/home" />);
+      fillForm('test@example.com', 'password123');
+      submitForm();
+      await waitFor(() => expect(window.location.href).toBe('/home'));
+      expect(onSuccess).toHaveBeenCalledWith({ id: 'u1', role: 'ADMIN' }, { body: okBody });
+    });
+
+    it('redirects to the string the hook resolves to', async () => {
+      respondOk();
+      render(<LoginForm hooks={{ onSuccess: async () => '/admin/dashboard' }} redirectAfterLogin="/home" />);
+      fillForm('test@example.com', 'password123');
+      submitForm();
+      await waitFor(() => expect(window.location.href).toBe('/admin/dashboard'));
+    });
+
+    it('ignores a returned value that is not a path (e.g. a toast id) and uses redirectAfterLogin', async () => {
+      respondOk();
+      render(<LoginForm hooks={{ onSuccess: () => '1' }} redirectAfterLogin="/home" />);
+      fillForm('test@example.com', 'password123');
+      submitForm();
+      await waitFor(() => expect(window.location.href).toBe('/home'));
+    });
+
+    it('does not treat a javascript: return as a path and uses redirectAfterLogin', async () => {
+      respondOk();
+      render(<LoginForm hooks={{ onSuccess: () => 'javascript:alert(1)' }} redirectAfterLogin="/home" />);
+      fillForm('test@example.com', 'password123');
+      submitForm();
+      await waitFor(() => expect(window.location.href).toBe('/home'));
+    });
+
+    it.each(['//evil.example', 'https://evil.example/x'])(
+      'replaces an unsafe returned target %s with /',
+      async (target) => {
+        respondOk();
+        render(<LoginForm hooks={{ onSuccess: () => target }} redirectAfterLogin="/home" />);
+        fillForm('test@example.com', 'password123');
+        submitForm();
+        await waitFor(() => expect(window.location.href).toBe('/'));
+      },
+    );
+
+    it('stays on the page and shows the message when the hook throws', async () => {
+      respondOk();
+      const onError = vi.fn();
+      render(
+        <LoginForm
+          hooks={{ onSuccess: async () => { throw new Error('링크를 가져오지 못했습니다'); }, onError }}
+          redirectAfterLogin="/home"
+        />,
+      );
+      fillForm('test@example.com', 'password123');
+      submitForm();
+      expect(await screen.findByText('링크를 가져오지 못했습니다')).toBeInTheDocument();
+      expect(window.location.href).toBe('');
+      expect(onError).toHaveBeenCalledWith(
+        '링크를 가져오지 못했습니다',
+        expect.objectContaining({ key: 'SUCCESS_HOOK_FAILED', network: false }),
+      );
+    });
+
+    it('keeps the submit button busy while the hook is pending', async () => {
+      respondOk();
+      let release!: (v: string) => void;
+      const pending = new Promise<string>((r) => { release = r; });
+      render(<LoginForm hooks={{ onSuccess: () => pending }} />);
+      fillForm('test@example.com', 'password123');
+      submitForm();
+      await waitFor(() => expect(screen.getByRole('button', { name: '로그인 중...' })).toBeDisabled());
+      await act(async () => { release('/next'); });
+      await waitFor(() => expect(window.location.href).toBe('/next'));
+    });
   });
 });

@@ -53,6 +53,7 @@ jobs:
       # between a bad commit and the registry.
       - run: pnpm run build
       - run: pnpm test
+      - run: pnpm run test:types
 
       # npm publish, not pnpm publish: OIDC trusted publishing is an npm CLI
       # feature and this is the path npm documents.

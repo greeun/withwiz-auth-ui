@@ -6,8 +6,9 @@ import { OAuthButtons } from './OAuthButtons';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { cx } from '../utils/class-names';
-import { safeRedirectTarget } from '../utils/safe-redirect';
-import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
+import { safeRedirectTarget, pickRedirectTarget } from '../utils/safe-redirect';
+import { readAuthError, networkAuthError, readJsonSafely, hookFailure } from '../utils/read-auth-error';
+import { readSuccessField } from '../utils/read-success-body';
 import { pickFieldErrors, formLevelText, fieldErrorA11y } from '../utils/form-errors';
 import type { AuthErrorInfo, SignupFormProps } from '../types';
 
@@ -22,6 +23,7 @@ export function SignupForm({
   unstyled = false,
   forceColorScheme,
   extraFields = [],
+  extraPayload,
   slots,
   hooks,
   onOAuthClick,
@@ -71,20 +73,30 @@ export function SignupForm({
 
     // Only the validated core fields plus the declared extra fields reach the
     // server — never the raw state object, so stray keys cannot ride along.
-    const payload: Record<string, string> = { ...parsed.data };
+    const fields: Record<string, string> = { ...parsed.data };
     for (const field of extraFields) {
-      payload[field.name] = form[field.name] ?? '';
+      fields[field.name] = form[field.name] ?? '';
     }
 
     if (hooks?.onBeforeSubmit) {
-      const proceed = await hooks.onBeforeSubmit(payload);
+      const proceed = await hooks.onBeforeSubmit(fields);
       if (!proceed) return;
     }
 
+    // extraPayload goes first so the form's own values always win.
+    const payload: Record<string, unknown> = { ...extraPayload, ...fields };
+
     setLoading(true);
     try {
-      const res = await authPost(`${apiBasePath}/signup`, payload);
-      const data = await readJsonSafely(res);
+      let res: Response;
+      let data: unknown;
+      try {
+        res = await authPost(`${apiBasePath}/signup`, payload);
+        data = await readJsonSafely(res);
+      } catch {
+        fail(networkAuthError(t.networkError));
+        return;
+      }
 
       if (!res.ok) {
         fail(readAuthError(res.status, data, t.registrationFailed));
@@ -96,14 +108,21 @@ export function SignupForm({
         return;
       }
 
-      setSuccess(true);
-      hooks?.onSuccess?.((data as { user?: unknown } | null)?.user);
-
-      if (redirectAfterSignup) {
-        setTimeout(() => { window.location.href = safeRedirectTarget(redirectAfterSignup); }, 3000);
+      // The consumer decides what happens next (since 0.8): a returned string is the
+      // redirect target, a throw keeps the user on the form with the error shown.
+      let target: unknown;
+      try {
+        target = await hooks?.onSuccess?.(readSuccessField(data, 'user'), { body: data });
+      } catch (err) {
+        fail(hookFailure(err, t.registrationFailed, res.status));
+        return;
       }
-    } catch {
-      fail(networkAuthError(t.networkError));
+
+      setSuccess(true);
+      const next = pickRedirectTarget(target, redirectAfterSignup);
+      if (next) {
+        setTimeout(() => { window.location.href = safeRedirectTarget(next); }, 3000);
+      }
     } finally {
       setLoading(false);
     }
@@ -181,7 +200,7 @@ export function SignupForm({
           </div>
         ))}
 
-        {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
+        {error && <div role="alert" className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
 
         <button type="submit" disabled={loading} className={cls('wiz-auth-submit', classNames?.submitButton)}>
           {loading ? t.submitting : t.submitButton}

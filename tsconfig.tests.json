@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "noEmit": true, "emitDeclarationOnly": false },
+  "include": ["__tests__/unit/types/hooks-compat.test.ts"],
+  "exclude": ["node_modules", "dist"]
+}

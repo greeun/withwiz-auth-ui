@@ -8,7 +8,7 @@ import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-a
 import { pickFieldErrors, formLevelText, fieldErrorA11y } from '../utils/form-errors';
 import type { AuthErrorInfo, ForgotPasswordFormProps } from '../types';
 
-export function ForgotPasswordForm({ locale = 'ko', messages: messageOverrides, apiBasePath = '/api/auth', className, classNames, unstyled = false, forceColorScheme, loginUrl = '/login', hooks }: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({ locale = 'ko', messages: messageOverrides, apiBasePath = '/api/auth', className, classNames, unstyled = false, forceColorScheme, loginUrl = '/login', hooks, slots }: ForgotPasswordFormProps) {
   const t = { ...getMessages(locale).forgotPassword, ...messageOverrides };
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ export function ForgotPasswordForm({ locale = 'ko', messages: messageOverrides, 
       fail(failure);
     } else {
       setSuccess(true);
-      hooks?.onSuccess?.();
+      hooks?.onSuccess?.(undefined, { body: null });
     }
   };
 
@@ -63,7 +63,9 @@ export function ForgotPasswordForm({ locale = 'ko', messages: messageOverrides, 
 
   return (
     <div className={cls('wiz-auth-form', cx(className, classNames?.root))} data-wiz-scheme={forceColorScheme}>
-      <h1 className={cls('wiz-auth-title', classNames?.title)}>{t.title}</h1>
+      {slots?.header !== undefined
+        ? slots.header
+        : <h1 className={cls('wiz-auth-title', classNames?.title)}>{t.title}</h1>}
       <p className={cls('wiz-auth-subtitle', classNames?.subtitle)}>{t.subtitle}</p>
       <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>
         <div className={cls('wiz-auth-field', classNames?.field)}>
@@ -71,7 +73,7 @@ export function ForgotPasswordForm({ locale = 'ko', messages: messageOverrides, 
           <input id="wiz-forgot-email" type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-forgot-email', fieldErrors.email)} />
           {fieldErrors.email && <p id="wiz-forgot-email-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
         </div>
-        {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
+        {error && <div role="alert" className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
         <button type="submit" disabled={loading} className={cls('wiz-auth-submit', classNames?.submitButton)}>
           {loading ? t.submitting : t.submitButton}
         </button>

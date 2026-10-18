@@ -22,6 +22,20 @@ export function isHttpUrl(value: unknown): value is string {
   }
 }
 
+/**
+ * hooks.onSuccess 의 반환값을 이동 경로로 쓸지 정한다.
+ * '/' 로 시작하는 경로나 http(s) 절대 URL 문자열만 경로로 인정하고, 그 밖의 값
+ * (빈 문자열·toast id 같은 우연한 반환값·문자열이 아닌 값)은 fallback 을 쓴다.
+ * 반환된 경로도 이후 safeRedirectTarget 의 같은 출처 검사를 거친다.
+ */
+export function pickRedirectTarget(returned: unknown, fallback: string | undefined): string | undefined {
+  if (typeof returned === 'string') {
+    const value = returned.trim();
+    if (value.startsWith('/') || /^https?:\/\//i.test(value)) return value;
+  }
+  return fallback;
+}
+
 export function safeRedirectTarget(target: string | undefined | null, fallback = '/'): string {
   if (typeof target !== 'string') return fallback;
   const value = target.trim();

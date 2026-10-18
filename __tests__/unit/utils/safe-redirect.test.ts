@@ -1,4 +1,4 @@
-import { safeRedirectTarget, isHttpUrl } from '../../../src/utils/safe-redirect';
+import { safeRedirectTarget, isHttpUrl, pickRedirectTarget } from '../../../src/utils/safe-redirect';
 
 describe('safeRedirectTarget', () => {
   const originalLocation = window.location;
@@ -68,5 +68,23 @@ describe('isHttpUrl', () => {
     expect(isHttpUrl('')).toBe(false);
     expect(isHttpUrl(undefined)).toBe(false);
     expect(isHttpUrl(42)).toBe(false);
+  });
+});
+
+describe('pickRedirectTarget', () => {
+  it.each([
+    ['/a', '/a'],
+    ['  /a  ', '/a'],
+    ['https://x', 'https://x'],
+  ])('keeps path-like %j', (input, expected) => {
+    expect(pickRedirectTarget(input, '/fb')).toBe(expected);
+  });
+
+  it.each(['', '1', 'Saved', 42, undefined, null, true])('falls back for %j', (input) => {
+    expect(pickRedirectTarget(input, '/fb')).toBe('/fb');
+  });
+
+  it('passes an undefined fallback through', () => {
+    expect(pickRedirectTarget('Saved', undefined)).toBeUndefined();
   });
 });

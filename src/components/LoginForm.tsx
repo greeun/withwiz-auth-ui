@@ -6,8 +6,9 @@ import { OAuthButtons } from './OAuthButtons';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { cx } from '../utils/class-names';
-import { safeRedirectTarget } from '../utils/safe-redirect';
-import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
+import { safeRedirectTarget, pickRedirectTarget } from '../utils/safe-redirect';
+import { readAuthError, networkAuthError, readJsonSafely, hookFailure } from '../utils/read-auth-error';
+import { readSuccessField } from '../utils/read-success-body';
 import { pickFieldErrors, formLevelText, fieldErrorA11y } from '../utils/form-errors';
 import type { AuthErrorInfo, LoginFormProps } from '../types';
 
@@ -79,8 +80,15 @@ export function LoginForm({
 
     setLoading(true);
     try {
-      const res = await authPost(`${apiBasePath}/login`, parsed.data);
-      const data = await readJsonSafely(res);
+      let res: Response;
+      let data: unknown;
+      try {
+        res = await authPost(`${apiBasePath}/login`, parsed.data);
+        data = await readJsonSafely(res);
+      } catch {
+        fail(networkAuthError(t.networkError));
+        return;
+      }
 
       if (!res.ok) {
         const info = readAuthError(res.status, data, t.invalidCredentials);
@@ -93,10 +101,16 @@ export function LoginForm({
         return;
       }
 
-      hooks?.onSuccess?.((data as { user?: unknown } | null)?.user);
-      window.location.href = safeRedirectTarget(redirectAfterLogin);
-    } catch {
-      fail(networkAuthError(t.networkError));
+      // The consumer decides what happens next (since 0.8): a returned string is the
+      // redirect target, a throw keeps the user here with the error shown.
+      let target: unknown;
+      try {
+        target = await hooks?.onSuccess?.(readSuccessField(data, 'user'), { body: data });
+      } catch (err) {
+        fail(hookFailure(err, t.networkError, res.status));
+        return;
+      }
+      window.location.href = safeRedirectTarget(pickRedirectTarget(target, redirectAfterLogin));
     } finally {
       setLoading(false);
     }
@@ -173,7 +187,7 @@ export function LoginForm({
           {fieldErrors.password && <p id="wiz-login-password-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
         </div>
 
-        {error && <div className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
+        {error && <div role="alert" className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
 
         <button type="submit" disabled={loading} className={cls('wiz-auth-submit', classNames?.submitButton)}>
           {loading ? t.submitting : t.submitButton}

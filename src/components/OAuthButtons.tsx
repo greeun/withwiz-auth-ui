@@ -6,6 +6,7 @@ import type { AuthMessages, OAuthButtonsProps, OAuthProvider } from '../types';
 import { cx } from '../utils/class-names';
 import { isHttpUrl } from '../utils/safe-redirect';
 import { getMessages } from '../i18n';
+import { readSuccessField } from '../utils/read-success-body';
 import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
 
 export function OAuthButtons({
@@ -51,7 +52,7 @@ export function OAuthButtons({
         onError?.(readAuthError(res.status, data, t.failed));
         return;
       }
-      const loginUrl = (data as { loginUrl?: unknown } | null)?.loginUrl;
+      const loginUrl = readSuccessField(data, 'loginUrl');
       // The provider's authorize URL is cross-origin by nature, so only the
       // scheme is pinned here: never `javascript:`/`data:`.
       if (isHttpUrl(loginUrl)) {
