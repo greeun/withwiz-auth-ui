@@ -23,6 +23,16 @@ describe('OAuthButtons interaction', () => {
     global.fetch = vi.fn().mockResolvedValue(response);
   }
 
+  it('follows loginUrl inside a { success, data } envelope', async () => {
+    mockFetch({
+      ok: true,
+      json: async () => ({ success: true, data: { loginUrl: 'https://accounts.example.com/auth' } }),
+    });
+    render(<OAuthButtons providers={['google']} />);
+    fireEvent.click(screen.getByTestId('oauth-google-btn'));
+    await waitFor(() => expect(window.location.href).toBe('https://accounts.example.com/auth'));
+  });
+
   it('calls onOAuthStart callback with provider name on click', async () => {
     mockFetch({ ok: true, json: async () => ({ loginUrl: 'https://oauth.example.com' }) });
 

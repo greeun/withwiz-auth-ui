@@ -10,6 +10,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { createAuthHandlers } from '@withwiz/toolkit/next/auth-handlers';
 import { TokenGenerator } from '@withwiz/toolkit/core/auth/email/token-generator';
+import type { IApiResponse } from '@withwiz/toolkit/core/types/api';
 import type { AuthHandlerOptions } from '@withwiz/toolkit/next/auth-types/handler-types';
 import { LoginForm } from '../../src/components/LoginForm';
 import { SignupForm } from '../../src/components/SignupForm';
@@ -130,7 +131,7 @@ describe.each(['legacy', 'standard'] as const)('toolkit 계약 — errorFormat %
     const onSuccess = vi.fn();
     render(<SignupForm hooks={{ onSuccess }} />);
     fillSignup('new@example.com', 'password123');
-    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ email: 'new@example.com' })), { timeout: 10000 });
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ email: 'new@example.com' }), { body: expect.anything() }), { timeout: 10000 });
     expect(backend.users.get('new@example.com')).toBeDefined();
     const response: Response = await backend.fetchImpl.mock.results[0].value;
     expect(response.status).toBe(201);
@@ -231,5 +232,25 @@ describe.each(['legacy', 'standard'] as const)('toolkit 계약 — errorFormat %
     await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1), { timeout: 10000 });
     expect(backend.users.get('verify@example.com').emailVerified).toBeInstanceOf(Date);
     expect(backend.tokens.some((t) => t.token === TokenGenerator.hash(token))).toBe(false);
+  });
+});
+
+describe('contract: toolkit IApiResponse success envelope', () => {
+  const user = { id: 'u1', email: 'a@example.com', role: 'user' };
+
+  beforeEach(() => {
+    Object.defineProperty(window, 'location', { writable: true, value: { href: '', origin: 'http://localhost' } });
+  });
+
+  it('LoginForm hands the enveloped user and body to onSuccess', async () => {
+    const body: IApiResponse<{ user: typeof user }> = { success: true, data: { user } };
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body }) as never;
+    const onSuccess = vi.fn(async () => '/after');
+    render(<LoginForm hooks={{ onSuccess }} />);
+    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: '로그인' }));
+    await waitFor(() => expect(window.location.href).toBe('/after'));
+    expect(onSuccess).toHaveBeenCalledWith(user, { body });
   });
 });

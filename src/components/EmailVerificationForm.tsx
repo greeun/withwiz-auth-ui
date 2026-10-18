@@ -56,7 +56,7 @@ export function EmailVerificationForm({
         hooksRef.current?.onError?.(failure.text, failure);
       } else {
         setStatus('success');
-        hooksRef.current?.onSuccess?.();
+        hooksRef.current?.onSuccess?.(undefined, { body: null });
       }
     }
 

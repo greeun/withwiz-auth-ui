@@ -115,4 +115,9 @@ describe('ResetPasswordForm', () => {
     const loginLink = screen.getByRole('link');
     expect(loginLink).toHaveAttribute('href', '/login');
   });
+
+  it('hides the title with slots.header = null', () => {
+    render(<ResetPasswordForm token="t" slots={{ header: null }} />);
+    expect(screen.queryByRole('heading', { name: '비밀번호 재설정' })).not.toBeInTheDocument();
+  });
 });

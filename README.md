@@ -329,7 +329,8 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   messages={{ submitButton: 'Log In' }}  // Partial override
   hooks={{
     onBeforeSubmit: async (data) => true,
-    onSuccess: (user) => console.log(user),
+    // Awaited (0.8+). Return a path ('/…' or http(s) URL) to redirect there; throw an Error to stay with its message shown.
+    onSuccess: async (user) => ((user as { role?: string } | undefined)?.role === 'ADMIN' ? '/admin' : undefined),
     onError: (message, info) => console.error(message, info.key),
   }}
   slots={{
@@ -358,6 +359,7 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   extraFields={[
     { name: 'company', label: 'Company', required: true, placeholder: 'Acme Inc.' },
   ]}
+  extraPayload={{ language: 'ko' }}   // sent without an input; form fields win on conflicts
   hooks={{
     onBeforeSubmit: async (data) => true,
     onSuccess: (user) => {},
@@ -377,6 +379,7 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   apiBasePath="/api/auth"
   loginUrl="/login"
   messages={{ title: 'Reset Password' }}
+  slots={{ header: null }}  // hide the built-in title (0.8+)
 />
 ```
 
@@ -391,6 +394,7 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   apiBasePath="/api/auth"
   loginUrl="/login"
   messages={{ title: '비밀번호 재설정' }}
+  slots={{ header: null }}  // hide the built-in title (0.8+)
 />
 ```
 
@@ -614,6 +618,30 @@ interface AuthErrorInfo {
 
 ## Migration
 
+### 0.8
+
+Additive: existing code keeps working. Things to check:
+
+- `LoginForm` / `SignupForm` await `hooks.onSuccess`. Returning a path redirects there (same-origin
+  check applies); throwing an `Error` with a message keeps the user on the form with that message
+  shown (`info.key` is `SUCCESS_HOOK_FAILED`; other thrown values show the form's generic fallback
+  text). Handlers that return nothing behave as before.
+- Only a string starting with `/` or an http(s) URL is used as the redirect target. Other return
+  values (e.g. a toast id) are ignored and the default redirect applies.
+- Async `onSuccess` handlers now delay the redirect until they settle, and a rejection keeps the user
+  on the form. Catch errors of fire-and-forget work such as analytics inside the handler.
+- `onSuccess` receives a second argument `{ body }` — the whole success body. Tests asserting
+  `toHaveBeenCalledWith(user)` need the second argument, and code that calls `hooks.onSuccess` itself
+  must pass `{ body }`.
+- The return type is `unknown`, so 0.7 handlers that returned values still compile.
+- `SignupForm` shows its success screen after `onSuccess` settles (it used to show it right before the call).
+- Success bodies shaped `{ success: true, data: { user, loginUrl } }` are read as well as flat ones
+  (forms, `OAuthButtons`, `useAuth`).
+- `SignupForm` accepts `extraPayload`.
+- `ForgotPasswordForm` / `ResetPasswordForm` accept `slots.header` (`null` hides the title).
+- Form-level errors carry `role="alert"`, so screen readers announce them. A test that used
+  `getByRole('alert')` for another element on the same screen may now match two elements.
+
 ### 0.7
 
 Additive: existing code keeps working. Things to check:
@@ -646,9 +674,10 @@ so feeding them from a `?next=` query cannot become an open redirect. The
 `loginUrl` returned by `/oauth/login` must be an `http(s)` URL; anything else
 is ignored.
 
-**Signup payload.** Only the validated `name` / `email` / `password` plus the
-fields you declare in `extraFields` are sent. Still allow-list the fields you
-persist server-side.
+**Signup payload.** Only the validated `name` / `email` / `password`, the
+fields you declare in `extraFields`, and the values you pass in `extraPayload`
+are sent; form values win over `extraPayload` keys of the same name. Still
+allow-list the fields you persist server-side.
 
 **Cookies and CSRF.** Requests are sent with `credentials: 'include'` and
 `Content-Type: application/json`. The JSON content type forces a CORS

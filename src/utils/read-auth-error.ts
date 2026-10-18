@@ -55,6 +55,15 @@ export function networkAuthError(text: string): AuthErrorInfo {
   return { text, fieldErrors: {}, status: 0, network: true };
 }
 
+/**
+ * 성공 응답 뒤 소비자 훅(`hooks.onSuccess`)이 던진 예외를 오류 정보로 바꾼다.
+ * 폼은 이 정보로 오류를 표시하고 이동하지 않는다. 네트워크 실패가 아니므로 network 는 false.
+ */
+export function hookFailure(error: unknown, fallback: string, status: number): AuthErrorInfo {
+  const text = error instanceof Error && error.message ? error.message : fallback;
+  return { text, key: 'SUCCESS_HOOK_FAILED', fieldErrors: {}, status, network: false };
+}
+
 /** `res.json()` 이 실패해도(HTML 오류 페이지 등) 예외 대신 null 을 돌려준다. */
 export async function readJsonSafely(res: Response): Promise<unknown> {
   try {
