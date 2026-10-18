@@ -65,14 +65,19 @@ no tailwind-merge.
 
 If your own CSS is itself layered — Tailwind v4's `@import "tailwindcss"`
 emits `@layer theme, base, components, utilities;` — layer precedence is
-decided by which layer is *declared* first, not by import order, so your
-layered utilities can otherwise end up losing to `wiz-auth`. Declare the
-layer order yourself before importing Tailwind:
+decided by which layer is *declared* first, not by import order. Declare the
+layer order yourself before importing Tailwind, placing `wiz-auth` after
+`base` and before `components`/`utilities`:
 
 ```css
-@layer wiz-auth, theme, base, components, utilities;  /* before @import "tailwindcss" */
+@layer theme, base, wiz-auth, components, utilities;  /* before @import "tailwindcss" */
 @import "tailwindcss";
 ```
+
+`wiz-auth` goes after `base` so the package styles (input borders, etc.) beat
+Tailwind's preflight resets; putting it first would let preflight (`border: 0
+solid`, input resets) strip them. It goes before `components`/`utilities` so
+your own component and utility classes still win over the package styles.
 
 `classNames` targets the form; `layoutClassNames` targets the surrounding
 `AuthLayout`. They are separate because `title` and `subtitle` exist on both.
@@ -617,6 +622,18 @@ interface AuthErrorInfo {
 `useAuth().login` throws `AuthError` (an `Error` whose `message` is `info.text`) with the same `info`.
 
 ## Migration
+
+### 0.8.1
+
+Bug fixes; no API changes.
+
+- `slots.header = null` now hides the header in `LoginForm` / `SignupForm`, as documented (it was
+  ignored before and the built-in title/subtitle still rendered). `undefined` keeps the built-in
+  header; a node replaces it. `slots.oauthSection = null` now likewise renders nothing in place of
+  the built-in OAuth buttons.
+- Corrected layer-order guidance. If you copied `@layer wiz-auth, theme, base, …` from the README,
+  change it to `@layer theme, base, wiz-auth, components, utilities;`. Symptom of the old order:
+  inputs without borders under Tailwind v4, because preflight in `base` overrode the package styles.
 
 ### 0.8
 
