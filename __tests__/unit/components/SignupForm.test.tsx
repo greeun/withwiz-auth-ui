@@ -57,4 +57,23 @@ describe('SignupForm', () => {
       expect(screen.queryByRole('heading', { name: '회원가입' })).not.toBeInTheDocument();
     });
   });
+
+  describe('slots.oauthSection', () => {
+    it('should show the "or" divider with the built-in OAuth buttons', () => {
+      const { container } = render(<SignupForm providers={['google']} />);
+      expect(container.querySelector('.wiz-auth-divider')).toBeTruthy();
+    });
+
+    it('should hide the OAuth buttons and the divider when slots.oauthSection is null', () => {
+      const { container } = render(<SignupForm providers={['google']} slots={{ oauthSection: null }} />);
+      expect(screen.queryByTestId('oauth-google-btn')).not.toBeInTheDocument();
+      expect(container.querySelector('.wiz-auth-divider')).toBeNull();
+    });
+
+    it('should keep the divider when slots.oauthSection is a node', () => {
+      const { container } = render(<SignupForm providers={['google']} slots={{ oauthSection: <div>직접 만든 OAuth</div> }} />);
+      expect(screen.getByText('직접 만든 OAuth')).toBeInTheDocument();
+      expect(container.querySelector('.wiz-auth-divider')).toBeTruthy();
+    });
+  });
 });

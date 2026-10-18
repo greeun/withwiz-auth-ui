@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { LoginForm } from '../../src/components/LoginForm';
 import { SignupForm } from '../../src/components/SignupForm';
 import { ForgotPasswordForm } from '../../src/components/ForgotPasswordForm';
+import { ResetPasswordForm } from '../../src/components/ResetPasswordForm';
 import { OAuthButtons } from '../../src/components/OAuthButtons';
 
 // Mock fetch to prevent network errors in components that call API on submit
@@ -198,5 +199,41 @@ describe('form-level errors are announced', () => {
     fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('로그인 정보가 올바르지 않습니다');
+  });
+});
+
+describe('required inputs expose aria-required', () => {
+  it('LoginForm marks email and password as required', () => {
+    render(<LoginForm locale="ko" />);
+    expect(screen.getByLabelText('이메일')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('비밀번호')).toHaveAttribute('aria-required', 'true');
+  });
+
+  it('SignupForm marks name, email and password as required, extra fields only when declared', () => {
+    render(
+      <SignupForm
+        locale="ko"
+        extraFields={[
+          { name: 'company', label: '회사', required: true },
+          { name: 'nickname', label: '별명' },
+        ]}
+      />,
+    );
+    expect(screen.getByLabelText('이름')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('이메일')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('비밀번호')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('회사')).toBeRequired();
+    expect(screen.getByLabelText('별명')).not.toBeRequired();
+  });
+
+  it('ResetPasswordForm marks both password inputs as required', () => {
+    render(<ResetPasswordForm token="t" locale="ko" />);
+    expect(screen.getByLabelText('새 비밀번호')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('비밀번호 확인')).toHaveAttribute('aria-required', 'true');
+  });
+
+  it('ForgotPasswordForm marks email as required', () => {
+    render(<ForgotPasswordForm locale="ko" />);
+    expect(screen.getByLabelText('이메일')).toBeRequired();
   });
 });
