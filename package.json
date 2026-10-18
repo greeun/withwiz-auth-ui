@@ -44,7 +44,8 @@
     "prepublishOnly": "rm -rf dist && npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:types": "tsc -p tsconfig.tests.json"
   },
   "peerDependencies": {
     "next": ">=15",
