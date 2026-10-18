@@ -30,6 +30,20 @@ describe('safeRedirectTarget', () => {
     expect(safeRedirectTarget('///evil.com')).toBe('/');
   });
 
+  it.each(['/\t/evil.com', '/\n/evil.com', '/\r//evil.com', '/\u0000/x', '/a\u007Fb', 'https://app.example.com/\t/x'])(
+    'rejects control characters the URL parser would strip: %j',
+    (input) => {
+      expect(safeRedirectTarget(input)).toBe('/');
+    },
+  );
+
+  it('keeps dot segments and percent-encoded tabs on the same origin', () => {
+    // Assigned as-is, these resolve against the current origin.
+    expect(safeRedirectTarget('/.//evil.com')).toBe('/.//evil.com');
+    expect(new URL('/.//evil.com', 'https://app.example.com').origin).toBe('https://app.example.com');
+    expect(safeRedirectTarget('/%09/evil.com')).toBe('/%09/evil.com');
+  });
+
   it('rejects foreign origins and dangerous schemes', () => {
     expect(safeRedirectTarget('https://evil.com/phish')).toBe('/');
     expect(safeRedirectTarget('http://app.example.com/home')).toBe('/');
