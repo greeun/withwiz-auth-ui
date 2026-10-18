@@ -623,6 +623,15 @@ interface AuthErrorInfo {
 
 ## Migration
 
+### 0.8.3
+
+Bug fixes; no API changes.
+
+- `LoginForm` / `SignupForm` / `ResetPasswordForm` mark their required inputs with `aria-required="true"`,
+  so screen readers announce them as required. Validation is unchanged (the forms still validate on
+  submit; no native `required` popups were added).
+- `slots.oauthSection = null` now also hides the "or" divider. A node in `oauthSection` keeps it.
+
 ### 0.8.1
 
 Bug fixes; no API changes.

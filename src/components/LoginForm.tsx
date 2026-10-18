@@ -146,11 +146,14 @@ export function LoginForm({
               classNames={{ root: classNames?.oauth, button: classNames?.oauthButton }}
             />
           )}
-          <div className={cls('wiz-auth-divider', classNames?.divider)}>
-            <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
-            <span className={cls('wiz-auth-divider-text', classNames?.dividerText)}>{t.orDivider}</span>
-            <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
-          </div>
+          {/* `oauthSection = null` hides the OAuth area, so the "or" divider goes with it. */}
+          {slots?.oauthSection !== null && (
+            <div className={cls('wiz-auth-divider', classNames?.divider)}>
+              <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
+              <span className={cls('wiz-auth-divider-text', classNames?.dividerText)}>{t.orDivider}</span>
+              <hr className={cls('wiz-auth-divider-line', classNames?.dividerLine)} />
+            </div>
+          )}
         </>
       )}
 
@@ -159,6 +162,7 @@ export function LoginForm({
           <label htmlFor="wiz-login-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}</label>
           <input
             id="wiz-login-email"
+            aria-required
             type="email"
             autoComplete="email"
             placeholder={t.emailPlaceholder}
@@ -175,6 +179,7 @@ export function LoginForm({
           <label htmlFor="wiz-login-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}</label>
           <input
             id="wiz-login-password"
+            aria-required
             type="password"
             autoComplete="current-password"
             placeholder={t.passwordPlaceholder}
