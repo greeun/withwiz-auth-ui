@@ -346,6 +346,8 @@ export interface AuthContextValue {
 }
 
 export interface ForgotPasswordFormProps {
+  /** `header`: undefined → built-in title, null → hidden, node → replaces it (since 0.8). */
+  slots?: { header?: ReactNode };
   locale?: 'ko' | 'en' | 'ja';
   messages?: Partial<AuthMessages['forgotPassword']>;
   apiBasePath?: string;
@@ -358,6 +360,8 @@ export interface ForgotPasswordFormProps {
 }
 
 export interface ResetPasswordFormProps {
+  /** `header`: undefined → built-in title, null → hidden, node → replaces it (since 0.8). */
+  slots?: { header?: ReactNode };
   token: string;
   /**
    * Account the link was issued for. Falls back to the link's `?email=` query when

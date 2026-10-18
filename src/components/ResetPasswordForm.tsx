@@ -22,6 +22,7 @@ export function ResetPasswordForm({
   forceColorScheme,
   loginUrl = '/login',
   hooks,
+  slots,
 }: ResetPasswordFormProps) {
   const allMessages = getMessages(locale);
   const t = { ...allMessages.resetPassword, ...messageOverrides };
@@ -101,7 +102,9 @@ export function ResetPasswordForm({
 
   return (
     <div className={cls('wiz-auth-form', cx(className, classNames?.root))} data-wiz-scheme={forceColorScheme}>
-      <h1 className={cls('wiz-auth-title', classNames?.title)}>{t.title}</h1>
+      {slots?.header !== undefined
+        ? slots.header
+        : <h1 className={cls('wiz-auth-title', classNames?.title)}>{t.title}</h1>}
       <p className={cls('wiz-auth-subtitle', classNames?.subtitle)}>{t.subtitle}</p>
 
       <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>

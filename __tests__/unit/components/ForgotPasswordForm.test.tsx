@@ -106,4 +106,12 @@ describe('ForgotPasswordForm', () => {
     const { container } = render(<ForgotPasswordForm className="my-custom-class" />);
     expect(container.firstChild).toHaveClass('my-custom-class');
   });
+
+  it('hides the title with slots.header = null and replaces it with a node', () => {
+    const { rerender } = render(<ForgotPasswordForm slots={{ header: null }} />);
+    expect(screen.queryByRole('heading', { name: '비밀번호 찾기' })).not.toBeInTheDocument();
+    rerender(<ForgotPasswordForm slots={{ header: <h2>직접 만든 제목</h2> }} />);
+    expect(screen.getByRole('heading', { name: '직접 만든 제목' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: '비밀번호 찾기' })).not.toBeInTheDocument();
+  });
 });
