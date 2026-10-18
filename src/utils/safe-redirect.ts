@@ -41,6 +41,11 @@ export function safeRedirectTarget(target: string | undefined | null, fallback =
   const value = target.trim();
   if (value === '') return fallback;
 
+  // The URL parser strips tab/CR/LF anywhere in the input, so `/\t/evil.com`
+  // would become the protocol-relative `//evil.com`. Reject control characters
+  // outright instead of trying to normalise them.
+  if (/[\u0000-\u001F\u007F]/.test(value)) return fallback;
+
   // Relative path: must start with exactly one slash. Backslashes are
   // normalised to slashes by browsers, so `/\evil.com` is treated as `//`.
   if (value.startsWith('/')) {
