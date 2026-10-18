@@ -48,4 +48,22 @@ describe('LoginForm', () => {
     render(<LoginForm showSignupLink={false} />);
     expect(screen.queryByText('회원가입')).not.toBeInTheDocument();
   });
+
+  describe('slots.header', () => {
+    it('should render the default heading when no slots are given', () => {
+      render(<LoginForm />);
+      expect(screen.getByRole('heading', { name: '로그인' })).toBeInTheDocument();
+    });
+
+    it('should hide the header when slots.header is null', () => {
+      render(<LoginForm slots={{ header: null }} />);
+      expect(screen.queryByRole('heading', { name: '로그인' })).not.toBeInTheDocument();
+    });
+
+    it('should replace the header when slots.header is a node', () => {
+      render(<LoginForm slots={{ header: <h2>직접 만든 제목</h2> }} />);
+      expect(screen.getByRole('heading', { name: '직접 만든 제목' })).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: '로그인' })).not.toBeInTheDocument();
+    });
+  });
 });
