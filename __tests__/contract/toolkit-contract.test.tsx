@@ -130,7 +130,7 @@ describe.each(['legacy', 'standard'] as const)('toolkit 계약 — errorFormat %
     const onSuccess = vi.fn();
     render(<SignupForm hooks={{ onSuccess }} />);
     fillSignup('new@example.com', 'password123');
-    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ email: 'new@example.com' })), { timeout: 10000 });
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith(expect.objectContaining({ email: 'new@example.com' }), { body: expect.anything() }), { timeout: 10000 });
     expect(backend.users.get('new@example.com')).toBeDefined();
     const response: Response = await backend.fetchImpl.mock.results[0].value;
     expect(response.status).toBe(201);

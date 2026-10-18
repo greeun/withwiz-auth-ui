@@ -97,7 +97,7 @@ export function SignupForm({
       }
 
       setSuccess(true);
-      hooks?.onSuccess?.((data as { user?: unknown } | null)?.user);
+      hooks?.onSuccess?.((data as { user?: unknown } | null)?.user, { body: data });
 
       if (redirectAfterSignup) {
         setTimeout(() => { window.location.href = safeRedirectTarget(redirectAfterSignup); }, 3000);

@@ -45,7 +45,7 @@ export function ForgotPasswordForm({ locale = 'ko', messages: messageOverrides, 
       fail(failure);
     } else {
       setSuccess(true);
-      hooks?.onSuccess?.();
+      hooks?.onSuccess?.(undefined, { body: null });
     }
   };
 

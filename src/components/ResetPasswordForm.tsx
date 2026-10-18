@@ -83,7 +83,7 @@ export function ResetPasswordForm({
       fail(failure);
     } else {
       setSuccess(true);
-      hooks?.onSuccess?.();
+      hooks?.onSuccess?.(undefined, { body: null });
     }
   };
 

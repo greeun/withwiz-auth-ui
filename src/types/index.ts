@@ -22,11 +22,26 @@ export interface AuthErrorInfo {
   network: boolean;
 }
 
+/** `hooks.onSuccess` 의 두 번째 인자 (since 0.8). */
+export interface AuthSuccessContext {
+  /** 성공 응답 본문 전체. 본문이 없거나 JSON 이 아니면 null. */
+  body: unknown;
+}
+
 /** Lifecycle hooks shared by the forms. */
 export interface AuthFormHooks<TSubmit, TSuccess = unknown> {
   /** Return false to cancel the submission. */
   onBeforeSubmit?: (data: TSubmit) => Promise<boolean>;
-  onSuccess?: (result: TSuccess) => void;
+  /**
+   * Called after a successful response.
+   *
+   * `LoginForm` and `SignupForm` await it (since 0.8):
+   * - return a string to redirect there instead of `redirectAfterLogin` / `redirectAfterSignup`
+   *   (it goes through the same same-origin check);
+   * - throw to stay on the page — the error's `message` is shown and `onError` is called.
+   * The other forms ignore the return value.
+   */
+  onSuccess?: (result: TSuccess, context: AuthSuccessContext) => void | string | Promise<void | string>;
   /** `message` is the text the form shows; `info` carries the structured failure (since 0.7). */
   onError?: (message: string, info: AuthErrorInfo) => void;
 }

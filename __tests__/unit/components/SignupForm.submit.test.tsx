@@ -130,7 +130,7 @@ describe('SignupForm submit', () => {
     submitForm();
 
     await waitFor(() => {
-      expect(onSuccess).toHaveBeenCalledWith(userData);
+      expect(onSuccess).toHaveBeenCalledWith(userData, { body: { user: userData } });
     });
   });
 

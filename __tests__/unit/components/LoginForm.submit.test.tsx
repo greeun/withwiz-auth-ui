@@ -121,7 +121,7 @@ describe('LoginForm submit behavior', () => {
     submitForm();
 
     await waitFor(() => {
-      expect(onSuccess).toHaveBeenCalledWith(mockUser);
+      expect(onSuccess).toHaveBeenCalledWith(mockUser, { body: { user: mockUser } });
     });
   });
 

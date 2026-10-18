@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readAuthError, networkAuthError } from '../../../src/utils/read-auth-error';
+import { readAuthError, networkAuthError, hookFailure } from '../../../src/utils/read-auth-error';
 
 const FALLBACK = '요청에 실패했습니다';
 
@@ -78,5 +78,23 @@ describe('readAuthError — 형태 불명', () => {
 describe('networkAuthError', () => {
   it('status 0, network true 와 기본 문구를 돌려준다', () => {
     expect(networkAuthError('네트워크 오류')).toEqual({ text: '네트워크 오류', fieldErrors: {}, status: 0, network: true });
+  });
+});
+
+describe('hookFailure', () => {
+  it('uses the thrown Error message', () => {
+    expect(hookFailure(new Error('링크 이전 실패'), 'fallback', 200)).toEqual({
+      text: '링크 이전 실패',
+      key: 'SUCCESS_HOOK_FAILED',
+      fieldErrors: {},
+      status: 200,
+      network: false,
+    });
+  });
+
+  it('falls back for non-Error values and empty messages', () => {
+    expect(hookFailure('boom', 'fallback', 201).text).toBe('fallback');
+    expect(hookFailure(new Error(''), 'fallback', 200).text).toBe('fallback');
+    expect(hookFailure(undefined, 'fallback', 200).text).toBe('fallback');
   });
 });

@@ -93,7 +93,7 @@ export function LoginForm({
         return;
       }
 
-      hooks?.onSuccess?.((data as { user?: unknown } | null)?.user);
+      hooks?.onSuccess?.((data as { user?: unknown } | null)?.user, { body: data });
       window.location.href = safeRedirectTarget(redirectAfterLogin);
     } catch {
       fail(networkAuthError(t.networkError));
