@@ -292,6 +292,13 @@ export interface SignupFormProps {
     required?: boolean;
     placeholder?: string;
   }>;
+  /**
+   * Values sent with the signup request without rendering an input (since 0.8),
+   * e.g. `{ language: locale }`. The validated name/email/password and the
+   * `extraFields` values always win over keys of the same name. Allow-list what
+   * you persist on the server.
+   */
+  extraPayload?: Record<string, unknown>;
   slots?: {
     header?: ReactNode;
     footer?: ReactNode;

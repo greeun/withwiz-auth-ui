@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { SignupForm } from '../../../src/components/SignupForm';
 
 describe('SignupForm submit', () => {
@@ -188,5 +188,58 @@ describe('SignupForm submit', () => {
     expect(body.name).toBe('TestUser');
     expect(body.email).toBe('test@example.com');
     expect(body.password).toBe('password123');
+  });
+
+  describe('0.8', () => {
+    it('sends extraPayload but never lets it override form fields', async () => {
+      mockFetch({ ok: true, json: async () => ({ user: { id: '1' } }) });
+      render(
+        <SignupForm
+          extraFields={[{ name: 'company', label: '회사' }]}
+          extraPayload={{ language: 'ja', email: 'evil@example.com', password: 'x', name: 'x', company: 'x' }}
+        />,
+      );
+      fillFormById({ name: '홍길동', email: 'user@example.com', password: 'password123' });
+      fireEvent.change(document.getElementById('wiz-signup-company') as HTMLInputElement, { target: { value: 'Acme' } });
+      submitForm();
+      await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+      const sent = JSON.parse((global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+      expect(sent).toEqual({
+        language: 'ja',
+        name: '홍길동',
+        email: 'user@example.com',
+        password: 'password123',
+        company: 'Acme',
+      });
+    });
+
+    it('passes the envelope user and redirects to the returned path', async () => {
+      const original = window.location;
+      Object.defineProperty(window, 'location', { value: { href: '' }, writable: true, configurable: true });
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      try {
+        const body = { success: true, data: { user: { id: '9' } } };
+        mockFetch({ ok: true, json: async () => body });
+        const onSuccess = vi.fn(async () => '/welcome');
+        render(<SignupForm hooks={{ onSuccess }} redirectAfterSignup="/default" />);
+        fillFormById({ name: '홍길동' });
+        submitForm();
+        await waitFor(() => expect(onSuccess).toHaveBeenCalledWith({ id: '9' }, { body }));
+        await act(async () => { vi.advanceTimersByTime(3000); });
+        expect(window.location.href).toBe('/welcome');
+      } finally {
+        vi.useRealTimers();
+        Object.defineProperty(window, 'location', { value: original, writable: true, configurable: true });
+      }
+    });
+
+    it('shows the hook error instead of the success screen when the hook throws', async () => {
+      mockFetch({ ok: true, json: async () => ({ user: { id: '1' } }) });
+      render(<SignupForm hooks={{ onSuccess: async () => { throw new Error('후처리 실패'); } }} />);
+      fillFormById({ name: '홍길동' });
+      submitForm();
+      expect(await screen.findByText('후처리 실패')).toBeInTheDocument();
+      expect(screen.queryByText('가입 완료!')).not.toBeInTheDocument();
+    });
   });
 });
