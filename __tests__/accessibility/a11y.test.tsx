@@ -24,13 +24,13 @@ describe('LoginForm accessibility', () => {
   });
 
   it('email input is associated with its label via htmlFor', () => {
-    const emailInput = screen.getByLabelText('이메일');
+    const emailInput = screen.getByLabelText('이메일 *');
     expect(emailInput).toBeInTheDocument();
     expect(emailInput).toHaveAttribute('id', 'wiz-login-email');
   });
 
   it('password input is associated with its label via htmlFor', () => {
-    const passwordInput = screen.getByLabelText('비밀번호');
+    const passwordInput = screen.getByLabelText('비밀번호 *');
     expect(passwordInput).toBeInTheDocument();
     expect(passwordInput).toHaveAttribute('id', 'wiz-login-password');
   });
@@ -47,12 +47,12 @@ describe('LoginForm accessibility', () => {
   });
 
   it('email input has type="email"', () => {
-    const emailInput = screen.getByLabelText('이메일');
+    const emailInput = screen.getByLabelText('이메일 *');
     expect(emailInput).toHaveAttribute('type', 'email');
   });
 
   it('password input has type="password"', () => {
-    const passwordInput = screen.getByLabelText('비밀번호');
+    const passwordInput = screen.getByLabelText('비밀번호 *');
     expect(passwordInput).toHaveAttribute('type', 'password');
   });
 });
@@ -70,9 +70,9 @@ describe('SignupForm accessibility', () => {
   });
 
   it('all 3 inputs (name, email, password) are labeled correctly', () => {
-    const nameInput = screen.getByLabelText('이름');
-    const emailInput = screen.getByLabelText('이메일');
-    const passwordInput = screen.getByLabelText('비밀번호');
+    const nameInput = screen.getByLabelText('이름 *');
+    const emailInput = screen.getByLabelText('이메일 *');
+    const passwordInput = screen.getByLabelText('비밀번호 *');
 
     expect(nameInput).toHaveAttribute('id', 'wiz-signup-name');
     expect(emailInput).toHaveAttribute('id', 'wiz-signup-email');
@@ -86,17 +86,17 @@ describe('SignupForm accessibility', () => {
   });
 
   it('name input has type="text"', () => {
-    const nameInput = screen.getByLabelText('이름');
+    const nameInput = screen.getByLabelText('이름 *');
     expect(nameInput).toHaveAttribute('type', 'text');
   });
 
   it('email input has type="email"', () => {
-    const emailInput = screen.getByLabelText('이메일');
+    const emailInput = screen.getByLabelText('이메일 *');
     expect(emailInput).toHaveAttribute('type', 'email');
   });
 
   it('password input has type="password"', () => {
-    const passwordInput = screen.getByLabelText('비밀번호');
+    const passwordInput = screen.getByLabelText('비밀번호 *');
     expect(passwordInput).toHaveAttribute('type', 'password');
   });
 });
@@ -107,7 +107,7 @@ describe('ForgotPasswordForm accessibility', () => {
   });
 
   it('email input is associated with label', () => {
-    const emailInput = screen.getByLabelText('이메일');
+    const emailInput = screen.getByLabelText('이메일 *');
     expect(emailInput).toBeInTheDocument();
     expect(emailInput).toHaveAttribute('id', 'wiz-forgot-email');
   });
@@ -119,7 +119,7 @@ describe('ForgotPasswordForm accessibility', () => {
   });
 
   it('email input has type="email"', () => {
-    const emailInput = screen.getByLabelText('이메일');
+    const emailInput = screen.getByLabelText('이메일 *');
     expect(emailInput).toHaveAttribute('type', 'email');
   });
 
@@ -164,16 +164,16 @@ describe('OAuthButtons accessibility', () => {
 describe('field error wiring (0.7)', () => {
   it('a client-side validation error marks the input invalid and points at the message', async () => {
     render(<LoginForm locale="ko" />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'not-an-email' } });
-    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'not-an-email' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: 'password123' } });
     // submit directly: a button click lets jsdom's native type=email validation block the submission
     fireEvent.submit(screen.getByRole('button', { name: '로그인' }).closest('form')!);
 
     const message = await screen.findByText('유효한 이메일을 입력하세요');
-    const input = screen.getByLabelText('이메일');
+    const input = screen.getByLabelText('이메일 *');
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input).toHaveAttribute('aria-describedby', message.id);
-    expect(screen.getByLabelText('비밀번호')).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByLabelText('비밀번호 *')).not.toHaveAttribute('aria-invalid');
   });
 });
 
@@ -188,15 +188,15 @@ describe('form-level errors are announced', () => {
 
   it('LoginForm renders the server error with role="alert"', async () => {
     render(<LoginForm locale="ko" />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
-    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: 'password123' } });
     fireEvent.click(screen.getByRole('button', { name: '로그인' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('로그인 정보가 올바르지 않습니다');
   });
 
   it('ForgotPasswordForm renders the server error with role="alert"', async () => {
     render(<ForgotPasswordForm locale="ko" />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'a@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('로그인 정보가 올바르지 않습니다');
   });
@@ -205,8 +205,8 @@ describe('form-level errors are announced', () => {
 describe('required inputs expose aria-required', () => {
   it('LoginForm marks email and password as required', () => {
     render(<LoginForm locale="ko" />);
-    expect(screen.getByLabelText('이메일')).toHaveAttribute('aria-required', 'true');
-    expect(screen.getByLabelText('비밀번호')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('이메일 *')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('비밀번호 *')).toHaveAttribute('aria-required', 'true');
   });
 
   it('SignupForm marks name, email and password as required, extra fields only when declared', () => {
@@ -219,21 +219,67 @@ describe('required inputs expose aria-required', () => {
         ]}
       />,
     );
-    expect(screen.getByLabelText('이름')).toHaveAttribute('aria-required', 'true');
-    expect(screen.getByLabelText('이메일')).toHaveAttribute('aria-required', 'true');
-    expect(screen.getByLabelText('비밀번호')).toHaveAttribute('aria-required', 'true');
-    expect(screen.getByLabelText('회사')).toBeRequired();
+    expect(screen.getByLabelText('이름 *')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('이메일 *')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('비밀번호 *')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('회사 *')).toBeRequired();
     expect(screen.getByLabelText('별명')).not.toBeRequired();
   });
 
   it('ResetPasswordForm marks both password inputs as required', () => {
     render(<ResetPasswordForm token="t" locale="ko" />);
-    expect(screen.getByLabelText('새 비밀번호')).toHaveAttribute('aria-required', 'true');
-    expect(screen.getByLabelText('비밀번호 확인')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('새 비밀번호 *')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByLabelText('비밀번호 확인 *')).toHaveAttribute('aria-required', 'true');
   });
 
   it('ForgotPasswordForm marks email as required', () => {
     render(<ForgotPasswordForm locale="ko" />);
-    expect(screen.getByLabelText('이메일')).toBeRequired();
+    expect(screen.getByLabelText('이메일 *')).toBeRequired();
+  });
+});
+
+describe('required fields show a visible mark (0.8.4)', () => {
+  it('every required input label carries a hidden-from-AT `*`, optional ones do not', () => {
+    const { container } = render(
+      <SignupForm
+        locale="ko"
+        extraFields={[
+          { name: 'company', label: '회사', required: true },
+          { name: 'nickname', label: '별명' },
+        ]}
+      />,
+    );
+    for (const input of container.querySelectorAll('input')) {
+      const label = container.querySelector(`label[for="${input.id}"]`)!;
+      const mark = label.querySelector('.wiz-auth-required');
+      const required = input.required || input.getAttribute('aria-required') === 'true';
+      expect(Boolean(mark), input.id).toBe(required);
+      if (mark) expect(mark).toHaveAttribute('aria-hidden', 'true');
+    }
+  });
+
+  it('the mark stays out of the accessible name', () => {
+    render(<LoginForm locale="ko" />);
+    expect(screen.getByRole('textbox', { name: '이메일' })).toHaveAttribute('aria-required', 'true');
+  });
+
+  it('requiredMark={false} hides the mark on every form', () => {
+    const { container } = render(
+      <>
+        <LoginForm locale="ko" requiredMark={false} />
+        <SignupForm locale="ko" requiredMark={false} extraFields={[{ name: 'company', label: '회사', required: true }]} />
+        <ForgotPasswordForm locale="ko" requiredMark={false} />
+        <ResetPasswordForm token="t" locale="ko" requiredMark={false} />
+      </>,
+    );
+    expect(container.querySelector('[aria-hidden="true"]')).toBeNull();
+    expect(screen.getByLabelText('회사')).toBeRequired();
+  });
+
+  it('classNames.requiredMark is applied, and unstyled drops the built-in class', () => {
+    const { container } = render(<ForgotPasswordForm locale="ko" unstyled classNames={{ requiredMark: 'text-red-600' }} />);
+    const mark = container.querySelector('label span')!;
+    expect(mark).toHaveClass('text-red-600');
+    expect(mark).not.toHaveClass('wiz-auth-required');
   });
 });

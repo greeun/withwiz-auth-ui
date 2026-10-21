@@ -9,8 +9,8 @@ describe('ResetPasswordForm', () => {
   it('renders title and two password fields in default locale (ko)', () => {
     render(<ResetPasswordForm token="valid-token" />);
     expect(screen.getByRole('heading', { name: '비밀번호 재설정' })).toBeInTheDocument();
-    expect(screen.getByLabelText('새 비밀번호')).toBeInTheDocument();
-    expect(screen.getByLabelText('비밀번호 확인')).toBeInTheDocument();
+    expect(screen.getByLabelText('새 비밀번호 *')).toBeInTheDocument();
+    expect(screen.getByLabelText('비밀번호 확인 *')).toBeInTheDocument();
   });
 
   it('renders in English when locale="en"', () => {
@@ -21,8 +21,8 @@ describe('ResetPasswordForm', () => {
 
   it('shows validation error when passwords do not match', async () => {
     render(<ResetPasswordForm token="valid-token" />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'password123' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'different123' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'different123' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 
     await waitFor(() => {
@@ -32,8 +32,8 @@ describe('ResetPasswordForm', () => {
 
   it('shows validation error for short password', async () => {
     render(<ResetPasswordForm token="valid-token" locale="en" />);
-    fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'short' } });
-    fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'short' } });
+    fireEvent.change(screen.getByLabelText('New password *'), { target: { value: 'short' } });
+    fireEvent.change(screen.getByLabelText('Confirm password *'), { target: { value: 'short' } });
     fireEvent.click(screen.getByRole('button', { name: 'Change Password' }));
 
     await waitFor(() => {
@@ -48,8 +48,8 @@ describe('ResetPasswordForm', () => {
     }));
 
     render(<ResetPasswordForm token="valid-token" />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword123' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword123' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 
     await waitFor(() => {
@@ -69,8 +69,8 @@ describe('ResetPasswordForm', () => {
     }));
 
     render(<ResetPasswordForm token="expired-token" />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword123' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword123' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 
     await waitFor(() => {
@@ -84,8 +84,8 @@ describe('ResetPasswordForm', () => {
     vi.stubGlobal('fetch', vi.fn().mockReturnValue(pendingPromise));
 
     render(<ResetPasswordForm token="valid-token" />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword123' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword123' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 
     await waitFor(() => {
@@ -105,8 +105,8 @@ describe('ResetPasswordForm', () => {
     }));
 
     render(<ResetPasswordForm token="valid-token" />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword123' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword123' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 
     await waitFor(() => {

@@ -14,7 +14,7 @@ describe('ForgotPasswordForm', () => {
 
   it('renders email input with correct label and placeholder', () => {
     render(<ForgotPasswordForm />);
-    const input = screen.getByLabelText('이메일');
+    const input = screen.getByLabelText('이메일 *');
     expect(input).toHaveAttribute('id', 'wiz-forgot-email');
     expect(input).toHaveAttribute('type', 'email');
     expect(input).toHaveAttribute('placeholder', 'name@example.com');
@@ -31,7 +31,7 @@ describe('ForgotPasswordForm', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
 
     render(<ForgotPasswordForm />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'test@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
 
     await waitFor(() => {
@@ -49,7 +49,7 @@ describe('ForgotPasswordForm', () => {
     }));
 
     render(<ForgotPasswordForm />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'bad@example.com' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'bad@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
 
     await waitFor(() => {
@@ -61,7 +61,7 @@ describe('ForgotPasswordForm', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Failed to fetch')));
 
     render(<ForgotPasswordForm />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'test@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
 
     await waitFor(() => {
@@ -75,13 +75,13 @@ describe('ForgotPasswordForm', () => {
     vi.stubGlobal('fetch', vi.fn().mockReturnValue(pendingPromise));
 
     render(<ForgotPasswordForm />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'test@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: '보내는 중...' })).toBeInTheDocument();
     });
-    expect(screen.getByLabelText('이메일')).toBeDisabled();
+    expect(screen.getByLabelText('이메일 *')).toBeDisabled();
 
     resolveRequest!({ ok: true } as Response);
     await waitFor(() => {
@@ -93,7 +93,7 @@ describe('ForgotPasswordForm', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
 
     render(<ForgotPasswordForm loginUrl="/auth/login" />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'test@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
 
     await waitFor(() => {

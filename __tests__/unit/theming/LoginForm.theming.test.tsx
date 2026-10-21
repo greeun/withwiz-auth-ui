@@ -69,7 +69,7 @@ describe('LoginForm theming', () => {
 
     const { container } = render(<LoginForm classNames={{ error: 'slot-error' }} />);
     const email = screen.getByPlaceholderText('name@example.com');
-    const password = screen.getByLabelText('비밀번호');
+    const password = screen.getByLabelText('비밀번호 *');
     const { fireEvent, waitFor } = await import('@testing-library/react');
 
     fireEvent.change(email, { target: { value: 'a@b.com' } });

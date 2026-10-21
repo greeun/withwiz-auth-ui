@@ -6,6 +6,7 @@ import { OAuthButtons } from './OAuthButtons';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { cx } from '../utils/class-names';
+import { RequiredMark } from './RequiredMark';
 import { safeRedirectTarget, pickRedirectTarget } from '../utils/safe-redirect';
 import { readAuthError, networkAuthError, readJsonSafely, hookFailure } from '../utils/read-auth-error';
 import { readSuccessField } from '../utils/read-success-body';
@@ -25,6 +26,7 @@ export function LoginForm({
   className,
   classNames,
   unstyled = false,
+  requiredMark = true,
   forceColorScheme,
   slots,
   hooks,
@@ -159,7 +161,7 @@ export function LoginForm({
 
       <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>
         <div className={cls('wiz-auth-field', classNames?.field)}>
-          <label htmlFor="wiz-login-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}</label>
+          <label htmlFor="wiz-login-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}<RequiredMark show={requiredMark} unstyled={unstyled} className={classNames?.requiredMark} /></label>
           <input
             id="wiz-login-email"
             aria-required
@@ -176,7 +178,7 @@ export function LoginForm({
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
-          <label htmlFor="wiz-login-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}</label>
+          <label htmlFor="wiz-login-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}<RequiredMark show={requiredMark} unstyled={unstyled} className={classNames?.requiredMark} /></label>
           <input
             id="wiz-login-password"
             aria-required

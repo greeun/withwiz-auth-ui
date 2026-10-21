@@ -26,13 +26,13 @@ describe('ResetPasswordForm accessibility', () => {
   });
 
   it('password field has associated label via htmlFor', () => {
-    const passwordInput = screen.getByLabelText('새 비밀번호');
+    const passwordInput = screen.getByLabelText('새 비밀번호 *');
     expect(passwordInput).toBeInTheDocument();
     expect(passwordInput).toHaveAttribute('id', 'wiz-reset-password');
   });
 
   it('confirm field has associated label via htmlFor', () => {
-    const confirmInput = screen.getByLabelText('비밀번호 확인');
+    const confirmInput = screen.getByLabelText('비밀번호 확인 *');
     expect(confirmInput).toBeInTheDocument();
     expect(confirmInput).toHaveAttribute('id', 'wiz-reset-confirm');
   });
@@ -50,12 +50,12 @@ describe('ResetPasswordForm accessibility', () => {
   });
 
   it('password input has type="password"', () => {
-    const passwordInput = screen.getByLabelText('새 비밀번호');
+    const passwordInput = screen.getByLabelText('새 비밀번호 *');
     expect(passwordInput).toHaveAttribute('type', 'password');
   });
 
   it('confirm input has type="password"', () => {
-    const confirmInput = screen.getByLabelText('비밀번호 확인');
+    const confirmInput = screen.getByLabelText('비밀번호 확인 *');
     expect(confirmInput).toHaveAttribute('type', 'password');
   });
 });
