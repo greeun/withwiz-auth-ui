@@ -4,14 +4,14 @@ import { SignupForm } from '../../../src/components/SignupForm';
 describe('SignupForm', () => {
   it('should render name, email, and password inputs', () => {
     render(<SignupForm />);
-    expect(screen.getByLabelText('이름')).toBeInTheDocument();
+    expect(screen.getByLabelText('이름 *')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('name@example.com')).toBeInTheDocument();
-    expect(screen.getByLabelText('비밀번호')).toBeInTheDocument();
+    expect(screen.getByLabelText('비밀번호 *')).toBeInTheDocument();
   });
 
   it('should render extra fields when provided', () => {
     render(<SignupForm extraFields={[{ name: 'company', label: 'Company', required: true }]} />);
-    expect(screen.getByLabelText('Company')).toBeInTheDocument();
+    expect(screen.getByLabelText('Company *')).toBeInTheDocument();
   });
 
   it('should show login link when enabled', () => {

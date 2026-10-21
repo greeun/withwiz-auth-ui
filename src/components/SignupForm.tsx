@@ -6,6 +6,7 @@ import { OAuthButtons } from './OAuthButtons';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { cx } from '../utils/class-names';
+import { RequiredMark } from './RequiredMark';
 import { safeRedirectTarget, pickRedirectTarget } from '../utils/safe-redirect';
 import { readAuthError, networkAuthError, readJsonSafely, hookFailure } from '../utils/read-auth-error';
 import { readSuccessField } from '../utils/read-success-body';
@@ -21,6 +22,7 @@ export function SignupForm({
   className,
   classNames,
   unstyled = false,
+  requiredMark = true,
   forceColorScheme,
   extraFields = [],
   extraPayload,
@@ -178,26 +180,26 @@ export function SignupForm({
 
       <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>
         <div className={cls('wiz-auth-field', classNames?.field)}>
-          <label htmlFor="wiz-signup-name" className={cls('wiz-auth-label', classNames?.label)}>{t.nameLabel}</label>
+          <label htmlFor="wiz-signup-name" className={cls('wiz-auth-label', classNames?.label)}>{t.nameLabel}<RequiredMark show={requiredMark} unstyled={unstyled} className={classNames?.requiredMark} /></label>
           <input id="wiz-signup-name" aria-required type="text" autoComplete="name" placeholder={t.namePlaceholder} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-name', fieldErrors.name)} />
           {fieldErrors.name && <p id="wiz-signup-name-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.name}</p>}
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
-          <label htmlFor="wiz-signup-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}</label>
+          <label htmlFor="wiz-signup-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}<RequiredMark show={requiredMark} unstyled={unstyled} className={classNames?.requiredMark} /></label>
           <input id="wiz-signup-email" aria-required type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-email', fieldErrors.email)} />
           {fieldErrors.email && <p id="wiz-signup-email-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
-          <label htmlFor="wiz-signup-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}</label>
+          <label htmlFor="wiz-signup-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}<RequiredMark show={requiredMark} unstyled={unstyled} className={classNames?.requiredMark} /></label>
           <input id="wiz-signup-password" aria-required type="password" autoComplete="new-password" placeholder={t.passwordPlaceholder} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-signup-password', fieldErrors.password)} />
           {fieldErrors.password && <p id="wiz-signup-password-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.password}</p>}
         </div>
 
         {extraFields.map((field) => (
           <div key={field.name} className={cls('wiz-auth-field', classNames?.field)}>
-            <label htmlFor={`wiz-signup-${field.name}`} className={cls('wiz-auth-label', classNames?.label)}>{field.label}</label>
+            <label htmlFor={`wiz-signup-${field.name}`} className={cls('wiz-auth-label', classNames?.label)}>{field.label}<RequiredMark show={requiredMark && !!field.required} unstyled={unstyled} className={classNames?.requiredMark} /></label>
             <input id={`wiz-signup-${field.name}`} type={field.type ?? 'text'} placeholder={field.placeholder} value={form[field.name] ?? ''} onChange={(e) => setForm({ ...form, [field.name]: e.target.value })} required={field.required} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y(`wiz-signup-${field.name}`, fieldErrors[field.name])} />
             {fieldErrors[field.name] && <p id={`wiz-signup-${field.name}-error`} className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors[field.name]}</p>}
           </div>

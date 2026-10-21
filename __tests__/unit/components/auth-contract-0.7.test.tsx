@@ -32,8 +32,8 @@ function stubFetch(...responses: Array<{ ok: boolean; status: number; body?: unk
 }
 
 function submitLogin(email = 'a@example.com', password = 'password123') {
-  fireEvent.change(screen.getByLabelText('이메일'), { target: { value: email } });
-  fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: password } });
   fireEvent.click(screen.getByRole('button', { name: '로그인' }));
 }
 
@@ -88,14 +88,14 @@ describe('필드 오류 표시', () => {
   ])('%s 응답의 fieldErrors 를 해당 입력 아래에 aria 와 함께 표시한다', async (_l, body) => {
     stubFetch({ ok: false, status: 400, body });
     render(<SignupForm />);
-    fireEvent.change(screen.getByLabelText('이름'), { target: { value: '홍길동' } });
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
-    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('이름 *'), { target: { value: '홍길동' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: 'longenough1' } });
     fireEvent.click(screen.getByRole('button', { name: '회원가입' }));
 
     const reason = await screen.findByText('문자 3종 이상이어야 합니다');
     expect(reason).toHaveAttribute('id', 'wiz-signup-password-error');
-    const input = screen.getByLabelText('비밀번호');
+    const input = screen.getByLabelText('비밀번호 *');
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input).toHaveAttribute('aria-describedby', 'wiz-signup-password-error');
   });
@@ -103,8 +103,8 @@ describe('필드 오류 표시', () => {
   it('폼 단위 문구가 필드 오류와 같으면 한 번만 표시한다', async () => {
     stubFetch({ ok: false, status: 400, body: standard('PASSWORD_TOO_WEAK', '문자 3종 이상', { password: ['문자 3종 이상'] }) });
     render(<ResetPasswordForm token="t" />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'longenough1' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'longenough1' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
     await screen.findByText('문자 3종 이상');
     expect(screen.getAllByText('문자 3종 이상')).toHaveLength(1);
@@ -113,9 +113,9 @@ describe('필드 오류 표시', () => {
   it('extraFields 의 필드 오류도 표시하고, 폼에 없는 키는 무시한다', async () => {
     stubFetch({ ok: false, status: 400, body: legacy('Invalid input', undefined, { company: ['회사명이 필요합니다'], unknownField: ['무시'] }) });
     render(<SignupForm extraFields={[{ name: 'company', label: '회사' }]} />);
-    fireEvent.change(screen.getByLabelText('이름'), { target: { value: '홍길동' } });
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
-    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('이름 *'), { target: { value: '홍길동' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: 'longenough1' } });
     fireEvent.click(screen.getByRole('button', { name: '회원가입' }));
     expect(await screen.findByText('회사명이 필요합니다')).toBeInTheDocument();
     expect(screen.queryByText('무시')).not.toBeInTheDocument();
@@ -128,7 +128,7 @@ describe('훅 — 찾기·재설정·인증 폼', () => {
     const onBeforeSubmit = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
     const onSuccess = vi.fn();
     render(<ForgotPasswordForm hooks={{ onBeforeSubmit, onSuccess }} />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'a@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: '재설정 링크 보내기' }));
     await waitFor(() => expect(onBeforeSubmit).toHaveBeenCalledWith({ email: 'a@example.com' }));
     expect(fetchFn).not.toHaveBeenCalled();
@@ -140,8 +140,8 @@ describe('훅 — 찾기·재설정·인증 폼', () => {
     stubFetch({ ok: false, status: 400, body: legacy('Invalid or expired token', 'TOKEN_INVALID') });
     const onError = vi.fn();
     render(<ResetPasswordForm token="t" hooks={{ onError }} />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'longenough1' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'longenough1' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
     await waitFor(() => expect(onError).toHaveBeenCalledWith('Invalid or expired token', expect.objectContaining({ key: 'TOKEN_INVALID' })));
   });
@@ -278,9 +278,9 @@ describe('리뷰 보강', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
     const onError = vi.fn();
     render(<SignupForm hooks={{ onError }} />);
-    fireEvent.change(screen.getByLabelText('이름'), { target: { value: '홍길동' } });
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
-    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('이름 *'), { target: { value: '홍길동' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: 'longenough1' } });
     fireEvent.click(screen.getByRole('button', { name: '회원가입' }));
     await waitFor(() => expect(onError).toHaveBeenCalledTimes(1));
     expect(onError).toHaveBeenCalledWith('네트워크 오류가 발생했습니다', expect.objectContaining({ network: true }));
@@ -291,8 +291,8 @@ describe('리뷰 보강', () => {
     const onSuccess = vi.fn();
     const onError = vi.fn();
     render(<ResetPasswordForm token="t" hooks={{ onSuccess, onError }} />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'longenough1' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'longenough1' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'longenough1' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
     await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
     expect(onError).not.toHaveBeenCalled();
@@ -340,8 +340,8 @@ describe('리뷰 보강', () => {
   it('OAuth 시작 실패는 입력 아래의 클라이언트 검증 메시지를 지우지 않는다', async () => {
     stubFetch({ ok: false, status: 500, nonJson: true });
     render(<LoginForm providers={['github']} />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'not-an-email' } });
-    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'not-an-email' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: 'password123' } });
     fireEvent.submit(screen.getByRole('button', { name: '로그인' }).closest('form')!);
     expect(await screen.findByText('유효한 이메일을 입력하세요')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('oauth-github-btn'));

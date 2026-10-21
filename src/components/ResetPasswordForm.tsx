@@ -6,6 +6,7 @@ import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { emailFromLink } from '../utils/link-email';
 import { cx } from '../utils/class-names';
+import { RequiredMark } from './RequiredMark';
 import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
 import { pickFieldErrors, formLevelText, fieldErrorA11y } from '../utils/form-errors';
 import type { AuthErrorInfo, ResetPasswordFormProps } from '../types';
@@ -19,6 +20,7 @@ export function ResetPasswordForm({
   className,
   classNames,
   unstyled = false,
+  requiredMark = true,
   forceColorScheme,
   loginUrl = '/login',
   hooks,
@@ -109,7 +111,7 @@ export function ResetPasswordForm({
 
       <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>
         <div className={cls('wiz-auth-field', classNames?.field)}>
-          <label htmlFor="wiz-reset-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}</label>
+          <label htmlFor="wiz-reset-password" className={cls('wiz-auth-label', classNames?.label)}>{t.passwordLabel}<RequiredMark show={requiredMark} unstyled={unstyled} className={classNames?.requiredMark} /></label>
           <input
             id="wiz-reset-password"
             aria-required
@@ -126,7 +128,7 @@ export function ResetPasswordForm({
         </div>
 
         <div className={cls('wiz-auth-field', classNames?.field)}>
-          <label htmlFor="wiz-reset-confirm" className={cls('wiz-auth-label', classNames?.label)}>{t.confirmLabel}</label>
+          <label htmlFor="wiz-reset-confirm" className={cls('wiz-auth-label', classNames?.label)}>{t.confirmLabel}<RequiredMark show={requiredMark} unstyled={unstyled} className={classNames?.requiredMark} /></label>
           <input
             id="wiz-reset-confirm"
             aria-required

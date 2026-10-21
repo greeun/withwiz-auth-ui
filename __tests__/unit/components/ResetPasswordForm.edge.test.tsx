@@ -13,8 +13,8 @@ describe('ResetPasswordForm edge cases', () => {
     }));
 
     render(<ResetPasswordForm token="valid-token" loginUrl="/custom-login" />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword123' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword123' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 
     await waitFor(() => {
@@ -31,8 +31,8 @@ describe('ResetPasswordForm edge cases', () => {
     }));
 
     render(<ResetPasswordForm token="tok123" apiBasePath="/custom/api" />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword123' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword123' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 
     await waitFor(() => {
@@ -53,8 +53,8 @@ describe('ResetPasswordForm edge cases', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network failure')));
 
     render(<ResetPasswordForm token="tok" locale="en" />);
-    fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'newpassword123' } });
-    fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('New password *'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('Confirm password *'), { target: { value: 'newpassword123' } });
     fireEvent.click(screen.getByRole('button', { name: 'Change Password' }));
 
     await waitFor(() => {
@@ -68,13 +68,13 @@ describe('ResetPasswordForm edge cases', () => {
     vi.stubGlobal('fetch', vi.fn().mockReturnValue(pendingPromise));
 
     render(<ResetPasswordForm token="tok" />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword123' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword123' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword123' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 
     await waitFor(() => {
-      expect(screen.getByLabelText('새 비밀번호')).toBeDisabled();
-      expect(screen.getByLabelText('비밀번호 확인')).toBeDisabled();
+      expect(screen.getByLabelText('새 비밀번호 *')).toBeDisabled();
+      expect(screen.getByLabelText('비밀번호 확인 *')).toBeDisabled();
       expect(screen.getByRole('button', { name: '변경 중...' })).toBeDisabled();
     });
 

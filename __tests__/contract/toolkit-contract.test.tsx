@@ -110,15 +110,15 @@ afterEach(() => {
 });
 
 function fillSignup(email: string, password: string) {
-  fireEvent.change(screen.getByLabelText('이름'), { target: { value: '홍길동' } });
-  fireEvent.change(screen.getByLabelText('이메일'), { target: { value: email } });
-  fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText('이름 *'), { target: { value: '홍길동' } });
+  fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: password } });
   fireEvent.click(screen.getByRole('button', { name: '회원가입' }));
 }
 
 function fillLogin(email: string, password: string) {
-  fireEvent.change(screen.getByLabelText('이메일'), { target: { value: email } });
-  fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: password } });
+  fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: email } });
+  fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: password } });
   fireEvent.click(screen.getByRole('button', { name: '로그인' }));
 }
 
@@ -196,8 +196,8 @@ describe.each(['legacy', 'standard'] as const)('toolkit 계약 — errorFormat %
 
     const onSuccess = vi.fn();
     render(<ResetPasswordForm token={token} hooks={{ onSuccess }} />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword1' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword1' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword1' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword1' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
     await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1), { timeout: 10000 });
   });
@@ -206,8 +206,8 @@ describe.each(['legacy', 'standard'] as const)('toolkit 계약 — errorFormat %
     createBackend({ errorFormat });
     const onError = vi.fn();
     render(<ResetPasswordForm token={'f'.repeat(64)} hooks={{ onError }} />);
-    fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword1' } });
-    fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword1' } });
+    fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword1' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword1' } });
     fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
     await waitFor(() => expect(onError).toHaveBeenCalledTimes(1), { timeout: 10000 });
     const [message, info] = onError.mock.calls[0];
@@ -247,8 +247,8 @@ describe('contract: toolkit IApiResponse success envelope', () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body }) as never;
     const onSuccess = vi.fn(async () => '/after');
     render(<LoginForm hooks={{ onSuccess }} />);
-    fireEvent.change(screen.getByLabelText('이메일'), { target: { value: 'a@example.com' } });
-    fireEvent.change(screen.getByLabelText('비밀번호'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByLabelText('이메일 *'), { target: { value: 'a@example.com' } });
+    fireEvent.change(screen.getByLabelText('비밀번호 *'), { target: { value: 'password123' } });
     fireEvent.click(screen.getByRole('button', { name: '로그인' }));
     await waitFor(() => expect(window.location.href).toBe('/after'));
     expect(onSuccess).toHaveBeenCalledWith(user, { body });
