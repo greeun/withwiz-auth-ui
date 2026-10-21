@@ -23,8 +23,8 @@ describe('LoginPage', () => {
     const { container } = render(<LoginPage />);
     expect(container.querySelector('.wiz-auth-page')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '로그인' })).toBeInTheDocument();
-    expect(screen.getByLabelText('이메일')).toBeInTheDocument();
-    expect(screen.getByLabelText('비밀번호')).toBeInTheDocument();
+    expect(screen.getByLabelText('이메일 *')).toBeInTheDocument();
+    expect(screen.getByLabelText('비밀번호 *')).toBeInTheDocument();
   });
 
   it('passes layout props to AuthLayout', () => {
@@ -44,7 +44,7 @@ describe('SignupPage', () => {
     const { container } = render(<SignupPage />);
     expect(container.querySelector('.wiz-auth-page')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '회원가입' })).toBeInTheDocument();
-    expect(screen.getByLabelText('이름')).toBeInTheDocument();
+    expect(screen.getByLabelText('이름 *')).toBeInTheDocument();
   });
 });
 

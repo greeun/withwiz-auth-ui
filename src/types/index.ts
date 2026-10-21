@@ -65,6 +65,8 @@ export interface AuthFormClassNames {
   /** One label + input pair */
   field?: string;
   label?: string;
+  /** The `*` after a required field's label (since 0.8.4) */
+  requiredMark?: string;
   input?: string;
   /** Validation message under a field */
   fieldError?: string;
@@ -245,6 +247,8 @@ export interface AuthLayoutProps {
 }
 
 export interface LoginFormProps {
+  /** Show `*` after required field labels. Default `true` (since 0.8.4). */
+  requiredMark?: boolean;
   providers?: OAuthProvider[];
   redirectAfterLogin?: string;
   showMagicLink?: boolean;
@@ -280,6 +284,8 @@ export interface LoginFormProps {
 }
 
 export interface SignupFormProps {
+  /** Show `*` after required field labels. Default `true` (since 0.8.4). */
+  requiredMark?: boolean;
   providers?: OAuthProvider[];
   redirectAfterSignup?: string;
   showLoginLink?: boolean;
@@ -350,6 +356,8 @@ export interface AuthContextValue {
 }
 
 export interface ForgotPasswordFormProps {
+  /** Show `*` after required field labels. Default `true` (since 0.8.4). */
+  requiredMark?: boolean;
   /** `header`: undefined → built-in title, null → hidden, node → replaces it (since 0.8). */
   slots?: { header?: ReactNode };
   locale?: 'ko' | 'en' | 'ja';
@@ -364,6 +372,8 @@ export interface ForgotPasswordFormProps {
 }
 
 export interface ResetPasswordFormProps {
+  /** Show `*` after required field labels. Default `true` (since 0.8.4). */
+  requiredMark?: boolean;
   /** `header`: undefined → built-in title, null → hidden, node → replaces it (since 0.8). */
   slots?: { header?: ReactNode };
   token: string;

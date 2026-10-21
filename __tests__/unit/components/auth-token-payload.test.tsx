@@ -16,8 +16,8 @@ const body = (fetchMock: ReturnType<typeof vi.fn>) => JSON.parse(fetchMock.mock.
 const okFetch = () => vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({ success: true }) });
 
 async function submitReset() {
-  fireEvent.change(screen.getByLabelText('새 비밀번호'), { target: { value: 'newpassword123' } });
-  fireEvent.change(screen.getByLabelText('비밀번호 확인'), { target: { value: 'newpassword123' } });
+  fireEvent.change(screen.getByLabelText('새 비밀번호 *'), { target: { value: 'newpassword123' } });
+  fireEvent.change(screen.getByLabelText('비밀번호 확인 *'), { target: { value: 'newpassword123' } });
   fireEvent.click(screen.getByRole('button', { name: '비밀번호 변경' }));
 }
 

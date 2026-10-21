@@ -238,6 +238,10 @@
     margin-bottom: 4px;
   }
 
+  .wiz-auth-required {
+    color: var(--wiz-auth-error);
+  }
+
   .wiz-auth-input {
     width: 100%;
     height: var(--wiz-auth-field-height);

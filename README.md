@@ -324,6 +324,7 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   showForgotPassword={true}
   showSignupLink={true}
   unstyled={false}
+  requiredMark={true}            // `*` after required labels (all four forms); false hides it
   onOAuthClick={(provider) => {}}  // Override default OAuth redirect
   apiBasePath="/api/auth"
   forgotPasswordUrl="/forgot-password"  // defaults shown
@@ -622,6 +623,19 @@ interface AuthErrorInfo {
 `useAuth().login` throws `AuthError` (an `Error` whose `message` is `info.text`) with the same `info`.
 
 ## Migration
+
+### 0.8.4
+
+Visible change; no removals.
+
+- Required fields now show `*` after their label in `LoginForm` / `SignupForm` / `ForgotPasswordForm` /
+  `ResetPasswordForm` (and `extraFields` with `required: true`), so the requirement is not conveyed by
+  colour alone (WCAG 1.4.1). The mark is `aria-hidden`; the accessible name stays the bare label.
+- Opt out with `requiredMark={false}`. Restyle with `classNames.requiredMark` or the `.wiz-auth-required`
+  class (colour: `--wiz-auth-error`). `unstyled` drops the built-in class but keeps the mark.
+- Tests that find inputs by exact label text see the mark: `getByLabelText('Email')` no longer matches a
+  required field. Use `getByLabelText('Email *')`, `getByRole('textbox', { name: 'Email' })`, or
+  render with `requiredMark={false}`.
 
 ### 0.8.3
 

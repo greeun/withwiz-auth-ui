@@ -5,7 +5,7 @@ describe('LoginForm', () => {
   it('should render email and password inputs', () => {
     render(<LoginForm />);
     expect(screen.getByPlaceholderText('name@example.com')).toBeInTheDocument();
-    expect(screen.getByLabelText('비밀번호')).toBeInTheDocument();
+    expect(screen.getByLabelText('비밀번호 *')).toBeInTheDocument();
   });
 
   it('should render OAuth buttons when providers specified', () => {

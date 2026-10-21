@@ -68,8 +68,8 @@ describe('ResetPasswordPage composition', () => {
   it('passes token through to ResetPasswordForm', () => {
     render(<ResetPasswordPage token="reset-token-123" />);
     expect(screen.getByRole('heading', { name: '비밀번호 재설정' })).toBeInTheDocument();
-    expect(screen.getByLabelText('새 비밀번호')).toBeInTheDocument();
-    expect(screen.getByLabelText('비밀번호 확인')).toBeInTheDocument();
+    expect(screen.getByLabelText('새 비밀번호 *')).toBeInTheDocument();
+    expect(screen.getByLabelText('비밀번호 확인 *')).toBeInTheDocument();
   });
 
   it('passes locale through to ResetPasswordForm', () => {
