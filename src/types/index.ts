@@ -556,3 +556,35 @@ export interface MfaSetupInfo {
   secret: string;
   otpauthUri: string;
 }
+
+/** Account-settings screen that turns MFA on and off and manages recovery codes (since 0.10). Cookie auth only. */
+export interface MfaSettingsProps {
+  apiBasePath?: string;
+  /** Account label shown under the QR code (e.g. `"binder (me@example.com)"`). Not shown by default. */
+  issuerLabel?: string;
+  /** Replaces the built-in QR code. Receives the `otpauth://` URI. */
+  renderQr?: (otpauthUri: string) => ReactNode;
+  /** File name for the recovery-code download. Default `recovery-codes.txt` */
+  recoveryCodesFileName?: string;
+  locale?: 'ko' | 'en' | 'ja';
+  messages?: Partial<AuthMessages['mfa']>;
+  className?: string;
+  classNames?: AuthFormClassNames;
+  unstyled?: boolean;
+  forceColorScheme?: ColorScheme;
+  slots?: {
+    header?: ReactNode;
+    footer?: ReactNode;
+    /** Rendered instead of nothing when the server has MFA turned off (404 `MFA_NOT_CONFIGURED`). */
+    notConfigured?: ReactNode;
+  };
+  hooks?: {
+    onEnabled?(): void;
+    onDisabled?(): void;
+    onRecoveryCodesRegenerated?(): void;
+    /** Called for every failure shown, except 404 not-configured and 401 (see `onUnauthenticated`). */
+    onError?(text: string, info: AuthErrorInfo): void;
+    /** The session is missing or expired (401 that is not an MFA code error). */
+    onUnauthenticated?(): void;
+  };
+}

@@ -519,6 +519,97 @@
     margin-bottom: 24px;
   }
 
+  /* ------------------------------------------------------- MFA settings */
+
+  .wiz-auth-mfa-step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wiz-auth-field-gap);
+  }
+
+  .wiz-auth-mfa-step-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--wiz-auth-foreground);
+  }
+
+  .wiz-auth-mfa-step-title:focus { outline: none; }
+
+  .wiz-auth-mfa-text {
+    margin: 0;
+    font-size: 14px;
+    color: var(--wiz-auth-muted-foreground);
+  }
+
+  .wiz-auth-mfa-warning {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: var(--wiz-auth-radius);
+    font-size: 14px;
+    color: var(--wiz-auth-error);
+    background-color: var(--wiz-auth-error-background);
+  }
+
+  .wiz-auth-mfa-qr-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wiz-auth-mfa-qr {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .wiz-auth-mfa-secret {
+    flex: 1;
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid var(--wiz-auth-border);
+    border-radius: var(--wiz-auth-radius);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+    color: var(--wiz-auth-foreground);
+    background-color: var(--wiz-auth-input-background);
+  }
+
+  .wiz-auth-mfa-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wiz-auth-mfa-buttons > .wiz-auth-secondary {
+    flex: 1;
+    width: auto;
+    margin-top: 0;
+    padding: 0 12px;
+  }
+
+  .wiz-auth-mfa-codes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 16px;
+    margin: 0;
+    padding: 12px 12px 12px 32px;
+    border: 1px solid var(--wiz-auth-border);
+    border-radius: var(--wiz-auth-radius);
+    font-size: 14px;
+    color: var(--wiz-auth-foreground);
+  }
+
+  .wiz-auth-mfa-confirm {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--wiz-auth-foreground);
+  }
+
   /* QR must stay scannable in dark mode: dark modules on a light background */
   .wiz-auth-mfa-qr rect { fill: #fff; }
   .wiz-auth-mfa-qr path { fill: #000; }
