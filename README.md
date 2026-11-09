@@ -323,7 +323,7 @@ const { isAuthenticated, isLoading, user, login, verifyMfa, logout, refresh } = 
 | `isLoading` | `boolean` | Loading state during initial check |
 | `user` | `{ id, email, name?, role, mfaEnabled? }` | Current user or null. `mfaEnabled` is present when the server's `/me` reports it (0.10) |
 | `login(email, password)` | `Promise<void>` | Login method. For an MFA account it throws `AuthError` with `key === 'MFA_REQUIRED'`; in header/hybrid mode `err.mfaToken` holds the pending token (0.10) |
-| `verifyMfa(proof, opts?)` | `Promise<{ redirectTo?: string }>` | Second step: `proof` is `{ code }` or `{ recoveryCode }`; pass `{ mfaToken: err.mfaToken }` when you have one. On success the user state refreshes and `onAuthChange(true)` fires (0.10) |
+| `verifyMfa(proof, opts?)` | `Promise<{ redirectTo?: string }>` | Second step: `proof` is `{ code }` or `{ recoveryCode }`; pass `{ mfaToken: err.mfaToken }` when you have one. On success the user state refreshes and `onAuthChange(true)` fires. The returned `redirectTo` comes from the server unchecked: pass it through a same-origin check before navigating (0.10) |
 | `logout()` | `Promise<void>` | Logout method |
 | `refresh()` | `Promise<boolean>` | Refresh token |
 
@@ -452,7 +452,7 @@ answers `401 MFA_REQUIRED`; use it directly on the page that `urls.mfaChallenge`
   loginUrl="/login"              // target of "Start over"
   onRestart={() => {}}           // replaces the "Start over" link with a callback
   locale="en"
-  messages={{ submit: 'Verify' }}
+  messages={{ submitButton: 'Verify' }}
   hooks={{ onSuccess, onError }} // hooks.onSuccess may return a redirect path, like LoginForm
 />
 ```
@@ -501,7 +501,7 @@ Behavior to know:
 
 - **Cookie auth only.** Requests carry the access cookie (`credentials: 'include'`); there is no way to pass a bearer token. A header-only app cannot use it.
 - A `401` whose `key` starts with `MFA_` (e.g. `MFA_INVALID_CODE`) is a step error shown on the step. Any other `401` means the session is gone: `hooks.onUnauthenticated` is called and a sign-in message is shown.
-- The QR code is always black on white so authenticator apps can scan it, even in dark mode. Its element keeps the class `wiz-auth-mfa-qr` in `unstyled` mode too.
+- The QR code is always black on white so authenticator apps can scan it, even in dark mode. The colors are set as SVG `fill` attributes, so it stays scannable without the package stylesheet; the `wiz-auth-mfa-qr` rules in `auth.css` set the same colors. Its element keeps the class `wiz-auth-mfa-qr` in `unstyled` mode too.
 - `MfaSettings` does not update `useAuth().user.mfaEnabled`; refetch in `onEnabled` / `onDisabled` if you show it.
 - Recovery codes are shown once, held only in component state, offered as copy (hidden when `navigator.clipboard` is missing) and `.txt` download, and cleared when the user confirms "I saved them" and clicks Done.
 
@@ -729,15 +729,18 @@ Apps that do not use MFA see no change: nothing below happens unless the server 
 - New: `MfaChallengeForm`, `MfaSettings`, `MfaChallengeScreen`, `MfaChallengePage`, `useAuth().verifyMfa`,
   `AuthError.mfaToken`, `AuthErrorInfo.retryAfter`, `user.mfaEnabled`, `LoginForm` prop `mfaMessages`,
   and the `mfa` message group in ko/en/ja.
+- Types: `AuthContextValue.verifyMfa` and `AuthMessages.mfa` are new required fields. This only affects code that builds
+  these objects by hand (e.g. a typed `useAuth` mock or a full `AuthMessages` dictionary); add them there.
 - New runtime dependency: `uqr` (pinned `0.1.3`) for the QR code. It is `external` in the bundle, so your package manager installs it.
 - Server side: turn MFA on in toolkit 0.30's `createAuthHandlers` with its `mfa` option and set `urls.mfaChallenge` to the
-  page below; see the MFA section of the toolkit README for the option fields.
+  page below. The option fields are described in the toolkit design doc `docs/auth/2026-11-08-mfa-totp-design.md`
+  (in the withwiz-toolkit repository).
 
 ```ts
-// server (toolkit 0.30) — option details: toolkit README, MFA section
+// server (toolkit 0.30) — option details: withwiz-toolkit docs/auth/2026-11-08-mfa-totp-design.md
 createAuthHandlers({
   // ...your existing options
-  mfa: { /* see toolkit README */ },
+  mfa: { /* see the toolkit MFA design doc */ },
   urls: { baseUrl, mfaChallenge: '/mfa' },
 });
 ```
