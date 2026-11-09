@@ -98,3 +98,17 @@ describe('hookFailure', () => {
     expect(hookFailure(undefined, 'fallback', 200).text).toBe('fallback');
   });
 });
+
+describe('readAuthError — retryAfter', () => {
+  it('표준형·문자열형 모두 양의 유한수만 읽는다', () => {
+    expect(readAuthError(429, { error: { key: 'MFA_LOCKED' }, retryAfter: 600 }, FALLBACK).retryAfter).toBe(600);
+    expect(readAuthError(429, { error: '잠김', code: 'MFA_LOCKED', retryAfter: 600 }, FALLBACK).retryAfter).toBe(600);
+  });
+  it('문자열·음수·NaN 은 undefined, 키가 없으면 프로퍼티도 없다', () => {
+    for (const v of ['600', -1, NaN, 0]) {
+      expect(readAuthError(429, { error: { key: 'X' }, retryAfter: v }, FALLBACK).retryAfter).toBeUndefined();
+      expect(readAuthError(429, { error: 'x', retryAfter: v }, FALLBACK).retryAfter).toBeUndefined();
+    }
+    expect('retryAfter' in readAuthError(400, { error: { key: 'X' } }, FALLBACK)).toBe(false);
+  });
+});

@@ -5,6 +5,7 @@ import {
   ForgotPasswordPage,
   ResetPasswordPage,
   EmailVerificationPage,
+  MfaChallengePage,
 } from '../../../src/pages';
 
 beforeEach(() => {
@@ -68,5 +69,25 @@ describe('EmailVerificationPage', () => {
   it('renders AuthLayout with EmailVerificationForm', async () => {
     const { container } = render(<EmailVerificationPage token="abc" />);
     expect(container.querySelector('.wiz-auth-page')).toBeInTheDocument();
+  });
+});
+
+describe('MfaChallengePage', () => {
+  it('renders AuthLayout with MfaChallengeForm', () => {
+    const { container } = render(<MfaChallengePage mfaToken="tok" />);
+    expect(container.querySelector('.wiz-auth-page')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '2단계 인증' })).toBeInTheDocument();
+  });
+
+  it('passes layout props to AuthLayout', () => {
+    const { container } = render(<MfaChallengePage pattern="dots" backgroundColor="#ff0000" />);
+    const sidePanel = container.querySelector('.wiz-auth-side-panel') as HTMLElement;
+    expect(sidePanel.style.getPropertyValue('--wiz-auth-side-panel-background')).toBe('#ff0000');
+  });
+
+  it('passes form props through', () => {
+    const { container } = render(<MfaChallengePage locale="en" loginUrl="/custom-login" />);
+    expect(screen.getByRole('heading', { name: 'Two-factor authentication' })).toBeInTheDocument();
+    expect(container.querySelector('a[href="/custom-login"]')).toBeTruthy();
   });
 });

@@ -1,5 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { ResetPasswordForm } from '../../src/components/ResetPasswordForm';
+import { MfaChallengeForm } from '../../src/components/MfaChallengeForm';
+import { MfaSettings } from '../../src/components/MfaSettings';
 import { EmailVerificationForm } from '../../src/components/EmailVerificationForm';
 import {
   LoginPage,
@@ -137,5 +139,33 @@ describe('Pages accessibility - h1 heading within AuthLayout', () => {
       const heading = screen.getByRole('heading');
       expect(heading).toHaveTextContent('인증 완료');
     });
+  });
+});
+
+describe('MfaChallengeForm accessibility', () => {
+  it('code input is labelled, has h1 and a named submit button', () => {
+    render(<MfaChallengeForm locale="ko" />);
+    expect(screen.getByLabelText('인증 코드')).toHaveAttribute('id', 'wiz-mfa-code');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('2단계 인증');
+    expect(screen.getByRole('button', { name: '확인' })).toHaveAttribute('type', 'submit');
+  });
+});
+
+describe('MfaSettings accessibility', () => {
+  it('has h1, labelled code input on setup, and errors use role="alert"', async () => {
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ success: true, enabled: false, recoveryCodesRemaining: 0 }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ success: true, secret: 'S', otpauthUri: 'otpauth://totp/x?secret=S' }) })
+      .mockResolvedValueOnce({ ok: false, status: 409, json: () => Promise.resolve({ error: { key: 'CONFLICT', userMessage: { description: '충돌' } } }) }));
+    render(<MfaSettings locale="ko" />);
+    fireEvent.click(await screen.findByRole('button', { name: '2단계 인증 켜기' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('2단계 인증');
+    const input = await screen.findByLabelText('인증 코드');
+    expect(input).toHaveAttribute('id');
+    expect(screen.getByRole('img', { name: '인증 앱으로 스캔할 QR 코드' })).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: '123456' } });
+    fireEvent.click(screen.getByRole('button', { name: '켜기' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('충돌');
+    expect(screen.getByRole('button', { name: '켜기' })).toHaveAttribute('type', 'submit');
   });
 });

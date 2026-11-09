@@ -6,3 +6,5 @@ export { AuthLayout } from './AuthLayout';
 export { ForgotPasswordForm } from './ForgotPasswordForm';
 export { ResetPasswordForm } from './ResetPasswordForm';
 export { EmailVerificationForm } from './EmailVerificationForm';
+export { MfaChallengeForm } from './MfaChallengeForm';
+export { MfaSettings } from './MfaSettings';

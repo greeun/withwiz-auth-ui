@@ -6,6 +6,7 @@ import type {
   ForgotPasswordPageProps,
   ResetPasswordPageProps,
   EmailVerificationPageProps,
+  MfaChallengePageProps,
   AuthMessages,
 } from '../../../src/types';
 
@@ -47,6 +48,11 @@ describe('Type definitions exist', () => {
   it('EmailVerificationPageProps exists with required token', () => {
     const props: EmailVerificationPageProps = { token: 'abc' };
     expect(props.token).toBe('abc');
+  });
+
+  it('MfaChallengePageProps exists and accepts form props', () => {
+    const props: MfaChallengePageProps = { mfaToken: 'abc', loginUrl: '/login' };
+    expect(props.mfaToken).toBe('abc');
   });
 
   it('AuthMessages includes emailVerification key in its type', () => {

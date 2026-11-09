@@ -1,6 +1,6 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, fireEvent, screen } from '@testing-library/react';
 import {
-  AuthLayout, LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, OAuthButtons,
+  AuthLayout, LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, OAuthButtons, MfaChallengeForm, MfaSettings,
 } from '../../../src/components';
 import {
   LoginScreen, SignupScreen, ForgotPasswordScreen, ResetPasswordScreen, EmailVerificationScreen,
@@ -39,6 +39,21 @@ describe('no inline styles', () => {
 
   it('ResetPasswordForm renders none', () => {
     const { container } = render(<ResetPasswordForm token="tok" />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('MfaChallengeForm renders none', () => {
+    const { container } = render(<MfaChallengeForm onRestart={() => {}} />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('MfaSettings renders none (setup step with QR)', async () => {
+    globalThis.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ success: true, enabled: false, recoveryCodesRemaining: 0 }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ success: true, secret: 'S', otpauthUri: 'otpauth://totp/x?secret=S' }) }) as unknown as typeof fetch;
+    const { container } = render(<MfaSettings />);
+    fireEvent.click(await screen.findByRole('button', { name: '2단계 인증 켜기' }));
+    await screen.findByRole('img');
     expect(inlineStyled(container)).toEqual([]);
   });
 
