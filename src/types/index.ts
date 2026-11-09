@@ -20,6 +20,8 @@ export interface AuthErrorInfo {
   status: number;
   /** True when the request never got a response (network failure) */
   network: boolean;
+  /** Seconds until the lock ends; only when the body carries a positive finite top-level `retryAfter` (since 0.10) */
+  retryAfter?: number;
 }
 
 /** `hooks.onSuccess` 의 두 번째 인자 (since 0.8). */
@@ -217,6 +219,53 @@ export interface AuthMessages {
     signUpWith: string;
     failed: string;
     providers: Record<OAuthProvider, string>;
+  };
+  mfa: {
+    title: string;
+    subtitle: string;
+    codeLabel: string;
+    codePlaceholder: string;
+    recoveryCodeLabel: string;
+    recoveryCodePlaceholder: string;
+    useRecoveryCode: string;
+    useAuthenticatorCode: string;
+    submitButton: string;
+    submitting: string;
+    restart: string;
+    codeFormat: string;
+    recoveryCodeFormat: string;
+    invalidCode: string;
+    expired: string;
+    locked: string;
+    failed: string;
+    networkError: string;
+    settingsTitle: string;
+    loading: string;
+    statusEnabled: string;
+    statusDisabled: string;
+    enableButton: string;
+    disableButton: string;
+    regenerateButton: string;
+    setupInstructions: string;
+    qrLabel: string;
+    secretLabel: string;
+    copy: string;
+    copied: string;
+    enableSubmit: string;
+    cancel: string;
+    recoveryCodesTitle: string;
+    recoveryCodesInstructions: string;
+    download: string;
+    savedConfirm: string;
+    done: string;
+    recoveryCodesRemaining: string;
+    recoveryCodesLow: string;
+    disableInstructions: string;
+    disableSubmit: string;
+    regenerateInstructions: string;
+    regenerateSubmit: string;
+    unauthenticated: string;
+    retry: string;
   };
 }
 
@@ -451,4 +500,19 @@ export interface EmailVerificationPageProps
   className?: string;
   /** Class name slots for the surrounding AuthLayout */
   layoutClassNames?: AuthLayoutClassNames;
+}
+
+/** Proof for the second step: an authenticator code or a recovery code (since 0.10). */
+export type MfaProof = { code: string } | { recoveryCode: string };
+
+export type MfaInputMode = 'code' | 'recoveryCode';
+
+export interface MfaStatus {
+  enabled: boolean;
+  recoveryCodesRemaining: number;
+}
+
+export interface MfaSetupInfo {
+  secret: string;
+  otpauthUri: string;
 }

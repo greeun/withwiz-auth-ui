@@ -6,10 +6,13 @@ import type { AuthErrorInfo } from '../types';
  */
 export class AuthError extends Error {
   readonly info: AuthErrorInfo;
+  /** Token for the MFA second step; only present in bearer mode (since 0.10). */
+  readonly mfaToken?: string;
 
-  constructor(info: AuthErrorInfo) {
+  constructor(info: AuthErrorInfo, extra?: { mfaToken?: string }) {
     super(info.text);
     this.name = 'AuthError';
     this.info = info;
+    if (extra?.mfaToken !== undefined) this.mfaToken = extra.mfaToken;
   }
 }
