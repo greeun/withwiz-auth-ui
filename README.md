@@ -732,18 +732,38 @@ Apps that do not use MFA see no change: nothing below happens unless the server 
 - Types: `AuthContextValue.verifyMfa` and `AuthMessages.mfa` are new required fields. This only affects code that builds
   these objects by hand (e.g. a typed `useAuth` mock or a full `AuthMessages` dictionary); add them there.
 - New runtime dependency: `uqr` (pinned `0.1.3`) for the QR code. It is `external` in the bundle, so your package manager installs it.
-- Server side: turn MFA on in toolkit 0.30's `createAuthHandlers` with its `mfa` option and set `urls.mfaChallenge` to the
-  page below. The option fields are described in the toolkit design doc `docs/auth/2026-11-08-mfa-totp-design.md`
-  (in the withwiz-toolkit repository).
+- Server side: turn MFA on in toolkit 0.30's `createAuthHandlers` with its `mfa` option, set `urls.mfaChallenge` to the
+  page below, and route the six `mfa/*` paths to the new handlers. Option details: the "Optional: TOTP MFA (0.30)"
+  section of toolkit's `src/core/auth/README.md` and its `docs/auth/2026-11-08-mfa-totp-design.md`.
 
 ```ts
-// server (toolkit 0.30) — option details: withwiz-toolkit docs/auth/2026-11-08-mfa-totp-design.md
-createAuthHandlers({
+// server (toolkit 0.30)
+import { createAuthHandlers } from '@withwiz/toolkit/next/auth-handlers';
+import { PrismaMfaRepository } from '@withwiz/toolkit/prisma/auth-adapter';
+
+const handlers = createAuthHandlers({
   // ...your existing options
-  mfa: { /* see the toolkit MFA design doc */ },
+  mfa: {
+    enabled: true,
+    issuer: 'binder',                          // name shown in the authenticator app
+    encryptionKeys: [process.env.MFA_KEY!],    // base64, 32 bytes; first key encrypts, the rest only decrypt
+    repository: new PrismaMfaRepository(prisma),
+    attemptStore,                              // optional; use a shared cache when running several instances
+  },
   urls: { baseUrl, mfaChallenge: '/mfa' },
 });
+
+// dispatch route additions (under apiBasePath)
+//   POST mfa/verify         → handlers.mfaVerify
+//   GET  mfa                → handlers.mfaStatus
+//   POST mfa/setup          → handlers.mfaSetup
+//   POST mfa/enable         → handlers.mfaEnable
+//   POST mfa/disable        → handlers.mfaDisable
+//   POST mfa/recovery-codes → handlers.mfaRecoveryCodes
 ```
+
+Server limits the screens follow: a pending login allows 5 wrong codes before it must start over
+(`MFA_PENDING_EXPIRED`), and 10 wrong codes per user within 15 minutes lock code entry for 15 minutes (`MFA_LOCKED`).
 
 ```tsx
 // app/mfa/page.tsx — where OAuth logins of MFA accounts land
