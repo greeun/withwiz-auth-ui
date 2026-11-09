@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { z } from 'zod';
 import { OAuthButtons } from './OAuthButtons';
+import { MfaChallengeForm } from './MfaChallengeForm';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
 import { cx } from '../utils/class-names';
@@ -32,6 +33,7 @@ export function LoginForm({
   hooks,
   onOAuthClick,
   oauthMessages,
+  mfaMessages,
   apiBasePath = '/api/auth',
   forgotPasswordUrl = '/forgot-password',
   signupUrl = '/signup',
@@ -42,6 +44,8 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  /** Set once the server asks for a second factor; `token` only exists in header/hybrid delivery modes. */
+  const [mfa, setMfa] = useState<{ token?: string } | null>(null);
 
   const schema = z.object({
     email: z.string().email({ message: t.invalidEmail }),
@@ -94,6 +98,11 @@ export function LoginForm({
 
       if (!res.ok) {
         const info = readAuthError(res.status, data, t.invalidCredentials);
+        if (res.status === 401 && info.key === 'MFA_REQUIRED') {
+          const token = (data as { mfaToken?: unknown } | null)?.mfaToken;
+          setMfa({ token: typeof token === 'string' ? token : undefined });
+          return;
+        }
         fail(info.key === 'EMAIL_NOT_VERIFIED' ? { ...info, text: t.emailNotVerified } : info);
         return;
       }
@@ -120,6 +129,30 @@ export function LoginForm({
 
   /** Package class only when styled; consumer slot always. */
   const cls = (base: string, slot?: string) => cx(unstyled ? undefined : base, slot);
+
+  if (mfa) {
+    return (
+      <MfaChallengeForm
+        mfaToken={mfa.token}
+        apiBasePath={apiBasePath}
+        redirectAfterLogin={redirectAfterLogin}
+        locale={locale}
+        messages={mfaMessages}
+        className={className}
+        classNames={classNames}
+        unstyled={unstyled}
+        forceColorScheme={forceColorScheme}
+        slots={{ header: slots?.header, footer: slots?.footer }}
+        hooks={{ onSuccess: hooks?.onSuccess, onError: hooks?.onError }}
+        onRestart={() => {
+          setMfa(null);
+          setForm((f) => ({ ...f, password: '' }));
+          setError(null);
+          setFieldErrors({});
+        }}
+      />
+    );
+  }
 
   return (
     <div className={cls('wiz-auth-form', cx(className, classNames?.root))} data-wiz-scheme={forceColorScheme}>

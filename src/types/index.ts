@@ -323,6 +323,8 @@ export interface LoginFormProps {
   onOAuthClick?: (provider: OAuthProvider) => void;
   /** Label overrides for the built-in OAuth buttons (they follow `locale` otherwise). */
   oauthMessages?: OAuthMessagesOverride;
+  /** Text overrides for the second step shown when the server answers `MFA_REQUIRED` (since 0.10). */
+  mfaMessages?: Partial<AuthMessages['mfa']>;
   apiBasePath?: string;
   /** Link target of "forgot password". Default `/forgot-password` */
   forgotPasswordUrl?: string;
