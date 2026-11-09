@@ -518,4 +518,8 @@
   .wiz-auth-form > .wiz-auth-subtitle {
     margin-bottom: 24px;
   }
+
+  /* QR must stay scannable in dark mode: dark modules on a light background */
+  .wiz-auth-mfa-qr rect { fill: #fff; }
+  .wiz-auth-mfa-qr path { fill: #000; }
 }
