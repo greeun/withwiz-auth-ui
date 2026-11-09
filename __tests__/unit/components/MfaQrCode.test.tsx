@@ -40,6 +40,12 @@ describe('MfaQrCode', () => {
     expect(d(URI)).not.toBe(d(URI + 'x'));
   });
 
+  it('스타일시트 없이도 흰 바탕·검정 모듈이 되도록 fill 속성을 둔다', () => {
+    const { container } = render(<MfaQrCode value={URI} label="QR" />);
+    expect(container.querySelector('rect')!.getAttribute('fill')).toBe('#fff');
+    expect(container.querySelector('path')!.getAttribute('fill')).toBe('#000');
+  });
+
   it('인라인 style 이 없다', () => {
     const { container } = render(<MfaQrCode value={URI} label="QR" />);
     expect(container.querySelector('[style]')).toBeNull();
