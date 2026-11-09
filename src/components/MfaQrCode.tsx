@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo } from 'react';
 import { encode } from 'uqr';
 import { cx } from '../utils/class-names';
