@@ -539,6 +539,14 @@ export interface MfaChallengeFormProps {
   hooks?: AuthFormHooks<{ method: MfaInputMode }>;
 }
 
+export interface MfaChallengePageProps
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight' | 'forceColorScheme'>,
+    Omit<MfaChallengeFormProps, 'className' | 'forceColorScheme'> {
+  className?: string;
+  /** Class name slots for the surrounding AuthLayout */
+  layoutClassNames?: AuthLayoutClassNames;
+}
+
 export interface MfaStatus {
   enabled: boolean;
   recoveryCodesRemaining: number;
