@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { getMessages } from '../i18n';
 import { cx } from '../utils/class-names';
 import { safeRedirectTarget, pickRedirectTarget } from '../utils/safe-redirect';
@@ -36,6 +36,12 @@ export function MfaChallengeForm({
   const [fieldError, setFieldError] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // 값이 바뀔 때마다 입력란으로 포커스를 옮긴다(입력란이 비활성으로 바뀌며 포커스를 잃기 때문).
+  const [focusTick, setFocusTick] = useState(0);
+  useEffect(() => {
+    if (focusTick > 0) inputRef.current?.focus();
+  }, [focusTick]);
   const [blocked, setBlocked] = useState<'expired' | 'locked' | null>(null);
 
   const cls = (base: string, slot?: string) => cx(unstyled ? undefined : base, slot);
@@ -45,6 +51,7 @@ export function MfaChallengeForm({
     if (info.key === 'MFA_INVALID_CODE') {
       setFieldError(text);
       setValue('');
+      setFocusTick((n) => n + 1);
     } else {
       setError(text);
       if (info.key === 'MFA_PENDING_EXPIRED') setBlocked('expired');
@@ -57,6 +64,7 @@ export function MfaChallengeForm({
     setMode(next);
     setValue('');
     setFieldError(undefined);
+    setFocusTick((n) => n + 1);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -127,6 +135,7 @@ export function MfaChallengeForm({
           error={fieldError}
           disabled={loading || blocked !== null}
           autoFocus
+          inputRef={inputRef}
           t={t}
           cls={cls}
           classNames={classNames}

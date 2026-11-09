@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import type { Ref } from 'react';
 import { cx } from '../utils/class-names';
 import { fieldErrorA11y } from '../utils/form-errors';
 import type { AuthFormClassNames, AuthMessages, MfaInputMode } from '../types';
@@ -15,6 +15,8 @@ export interface MfaCodeFieldProps {
   error?: string;
   disabled?: boolean;
   autoFocus?: boolean;
+  /** 호출 쪽이 포커스를 옮길 수 있도록 입력란 ref 를 받는다. */
+  inputRef?: Ref<HTMLInputElement>;
   t: AuthMessages['mfa'];
   cls: (base: string, slot?: string) => string | undefined;
   classNames?: AuthFormClassNames;
@@ -22,20 +24,9 @@ export interface MfaCodeFieldProps {
 
 /** 인증 앱 6자리 코드 또는 복구 코드 입력란(내부용, 공개 export 아님). */
 export function MfaCodeField({
-  id, mode, value, onChange, onModeChange, error, disabled, autoFocus, t, cls, classNames,
+  id, mode, value, onChange, onModeChange, error, disabled, autoFocus, inputRef, t, cls, classNames,
 }: MfaCodeFieldProps) {
   const isCode = mode === 'code';
-  const inputRef = useRef<HTMLInputElement>(null);
-  const refocus = useRef(false);
-
-  // 전환 버튼을 누른 뒤에는 새 입력란으로 포커스를 옮긴다(버튼 포커스는 사라지지 않지만 입력이 다음 동작이다).
-  useEffect(() => {
-    if (refocus.current) {
-      refocus.current = false;
-      inputRef.current?.focus();
-    }
-  }, [mode]);
-
   return (
     <div className={cls('wiz-auth-field', classNames?.field)}>
       <label htmlFor={id} className={cls('wiz-auth-label', classNames?.label)}>
@@ -44,7 +35,6 @@ export function MfaCodeField({
       <input
         ref={inputRef}
         id={id}
-        key={mode}
         type="text"
         inputMode={isCode ? 'numeric' : undefined}
         autoComplete={isCode ? 'one-time-code' : 'off'}
@@ -63,7 +53,6 @@ export function MfaCodeField({
           type="button"
           disabled={disabled}
           onClick={() => {
-            refocus.current = true;
             onModeChange(isCode ? 'recoveryCode' : 'code');
           }}
           className={cls('wiz-auth-mfa-toggle', cx(classNames?.link))}

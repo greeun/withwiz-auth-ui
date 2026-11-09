@@ -125,6 +125,7 @@ describe('MfaChallengeForm', () => {
     submit();
     expect(await screen.findByText('코드가 올바르지 않습니다')).toBeInTheDocument();
     expect(screen.getByLabelText('인증 코드')).toHaveValue('');
+    expect(document.activeElement).toBe(screen.getByLabelText('인증 코드'));
     expect(screen.getByLabelText('인증 코드')).toHaveAttribute('aria-invalid', 'true');
     expect(submitBtn()).not.toBeDisabled();
   });
@@ -163,6 +164,7 @@ describe('MfaChallengeForm', () => {
     const onBeforeSubmit = vi.fn().mockResolvedValue(true);
     render(<MfaChallengeForm hooks={{ onBeforeSubmit }} />);
     fireEvent.click(screen.getByRole('button', { name: '복구 코드로 로그인' }));
+    expect(document.activeElement).toBe(screen.getByLabelText('복구 코드'));
     typeCode(' ABCD-1234 ', '복구 코드');
     submit();
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());
