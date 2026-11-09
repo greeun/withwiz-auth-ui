@@ -20,6 +20,8 @@ export interface AuthErrorInfo {
   status: number;
   /** True when the request never got a response (network failure) */
   network: boolean;
+  /** Seconds until the lock ends; only when the body carries a positive finite top-level `retryAfter` (since 0.10) */
+  retryAfter?: number;
 }
 
 /** `hooks.onSuccess` 의 두 번째 인자 (since 0.8). */
@@ -218,6 +220,53 @@ export interface AuthMessages {
     failed: string;
     providers: Record<OAuthProvider, string>;
   };
+  mfa: {
+    title: string;
+    subtitle: string;
+    codeLabel: string;
+    codePlaceholder: string;
+    recoveryCodeLabel: string;
+    recoveryCodePlaceholder: string;
+    useRecoveryCode: string;
+    useAuthenticatorCode: string;
+    submitButton: string;
+    submitting: string;
+    restart: string;
+    codeFormat: string;
+    recoveryCodeFormat: string;
+    invalidCode: string;
+    expired: string;
+    locked: string;
+    failed: string;
+    networkError: string;
+    settingsTitle: string;
+    loading: string;
+    statusEnabled: string;
+    statusDisabled: string;
+    enableButton: string;
+    disableButton: string;
+    regenerateButton: string;
+    setupInstructions: string;
+    qrLabel: string;
+    secretLabel: string;
+    copy: string;
+    copied: string;
+    enableSubmit: string;
+    cancel: string;
+    recoveryCodesTitle: string;
+    recoveryCodesInstructions: string;
+    download: string;
+    savedConfirm: string;
+    done: string;
+    recoveryCodesRemaining: string;
+    recoveryCodesLow: string;
+    disableInstructions: string;
+    disableSubmit: string;
+    regenerateInstructions: string;
+    regenerateSubmit: string;
+    unauthenticated: string;
+    retry: string;
+  };
 }
 
 /** OAuth label overrides; provider display names may be overridden one by one. */
@@ -274,6 +323,8 @@ export interface LoginFormProps {
   onOAuthClick?: (provider: OAuthProvider) => void;
   /** Label overrides for the built-in OAuth buttons (they follow `locale` otherwise). */
   oauthMessages?: OAuthMessagesOverride;
+  /** Text overrides for the second step shown when the server answers `MFA_REQUIRED` (since 0.10). */
+  mfaMessages?: Partial<AuthMessages['mfa']>;
   apiBasePath?: string;
   /** Link target of "forgot password". Default `/forgot-password` */
   forgotPasswordUrl?: string;
@@ -349,8 +400,12 @@ export interface AuthProviderProps {
 export interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: { id: string; email: string; name?: string; role: string } | null;
+  /** `mfaEnabled` is present when the server's `/me` reports it (since 0.10). */
+  user: { id: string; email: string; name?: string; role: string; mfaEnabled?: boolean } | null;
+  /** Throws `AuthError`; `key === 'MFA_REQUIRED'` means a second step is needed (`err.mfaToken` in bearer mode). */
   login: (email: string, password: string) => Promise<void>;
+  /** Completes the MFA second step and signs the user in (since 0.10). */
+  verifyMfa: (proof: MfaProof, opts?: { mfaToken?: string }) => Promise<{ redirectTo?: string }>;
   logout: () => Promise<void>;
   refresh: () => Promise<boolean>;
 }
@@ -451,4 +506,85 @@ export interface EmailVerificationPageProps
   className?: string;
   /** Class name slots for the surrounding AuthLayout */
   layoutClassNames?: AuthLayoutClassNames;
+}
+
+/** Proof for the second step: an authenticator code or a recovery code (since 0.10). */
+export type MfaProof = { code: string } | { recoveryCode: string };
+
+export type MfaInputMode = 'code' | 'recoveryCode';
+
+export interface MfaChallengeFormProps {
+  /** Token from the login response; omit in cookie mode (the server reads its pending cookie). */
+  mfaToken?: string;
+  apiBasePath?: string;
+  redirectAfterLogin?: string;
+  /** Target of the "start over" link when `onRestart` is not given. Default `/login` */
+  loginUrl?: string;
+  /** Called by "start over"; without it a link to `loginUrl` is rendered. */
+  onRestart?: () => void;
+  title?: string;
+  subtitle?: string;
+  locale?: 'ko' | 'en' | 'ja';
+  messages?: Partial<AuthMessages['mfa']>;
+  className?: string;
+  classNames?: AuthFormClassNames;
+  unstyled?: boolean;
+  forceColorScheme?: ColorScheme;
+  slots?: {
+    header?: ReactNode;
+    footer?: ReactNode;
+    beforeForm?: ReactNode;
+    afterForm?: ReactNode;
+  };
+  hooks?: AuthFormHooks<{ method: MfaInputMode }>;
+}
+
+export interface MfaChallengePageProps
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight' | 'forceColorScheme'>,
+    Omit<MfaChallengeFormProps, 'className' | 'forceColorScheme'> {
+  className?: string;
+  /** Class name slots for the surrounding AuthLayout */
+  layoutClassNames?: AuthLayoutClassNames;
+}
+
+export interface MfaStatus {
+  enabled: boolean;
+  recoveryCodesRemaining: number;
+}
+
+export interface MfaSetupInfo {
+  secret: string;
+  otpauthUri: string;
+}
+
+/** Account-settings screen that turns MFA on and off and manages recovery codes (since 0.10). Cookie auth only. */
+export interface MfaSettingsProps {
+  apiBasePath?: string;
+  /** Account label shown under the QR code (e.g. `"binder (me@example.com)"`). Not shown by default. */
+  issuerLabel?: string;
+  /** Replaces the built-in QR code. Receives the `otpauth://` URI. */
+  renderQr?: (otpauthUri: string) => ReactNode;
+  /** File name for the recovery-code download. Default `recovery-codes.txt` */
+  recoveryCodesFileName?: string;
+  locale?: 'ko' | 'en' | 'ja';
+  messages?: Partial<AuthMessages['mfa']>;
+  className?: string;
+  classNames?: AuthFormClassNames;
+  unstyled?: boolean;
+  forceColorScheme?: ColorScheme;
+  slots?: {
+    header?: ReactNode;
+    footer?: ReactNode;
+    /** Rendered instead of nothing when the server has MFA turned off (404 `MFA_NOT_CONFIGURED`). */
+    notConfigured?: ReactNode;
+  };
+  hooks?: {
+    onEnabled?(): void;
+    onDisabled?(): void;
+    onRecoveryCodesRegenerated?(): void;
+    /** Called for every failure shown, except 404 not-configured and 401 (see `onUnauthenticated`). */
+    onError?(text: string, info: AuthErrorInfo): void;
+    /** The session is missing or expired (401 that is not an MFA code error). */
+    onUnauthenticated?(): void;
+  };
 }

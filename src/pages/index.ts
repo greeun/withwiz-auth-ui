@@ -3,3 +3,4 @@ export { SignupPage } from './SignupPage';
 export { ForgotPasswordPage } from './ForgotPasswordPage';
 export { ResetPasswordPage } from './ResetPasswordPage';
 export { EmailVerificationPage } from './EmailVerificationPage';
+export { MfaChallengePage } from './MfaChallengePage';

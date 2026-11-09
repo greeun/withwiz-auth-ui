@@ -13,6 +13,12 @@ function firstFieldErrors(details: unknown): Record<string, string> {
   return out;
 }
 
+/** 본문 최상위 `retryAfter` 가 양의 유한수일 때만 `{ retryAfter }` 를 돌려준다(키가 없으면 빈 객체). */
+function readRetryAfter(body: Record<string, unknown>): { retryAfter?: number } {
+  const v = body.retryAfter;
+  return typeof v === 'number' && Number.isFinite(v) && v > 0 ? { retryAfter: v } : {};
+}
+
 /**
  * 실패 응답 본문을 하나의 형태로 정규화한다.
  *
@@ -37,6 +43,7 @@ export function readAuthError(status: number, body: unknown, fallback: string): 
       key: typeof error.key === 'string' ? error.key : undefined,
       code: typeof error.code === 'number' ? error.code : undefined,
       fieldErrors: firstFieldErrors(error.details),
+      ...readRetryAfter(body),
     };
   }
 
@@ -47,6 +54,7 @@ export function readAuthError(status: number, body: unknown, fallback: string): 
     text: typeof error === 'string' && error ? error : fallback,
     key: typeof body.code === 'string' ? body.code : undefined,
     fieldErrors: firstFieldErrors(body.details),
+    ...readRetryAfter(body),
   };
 }
 

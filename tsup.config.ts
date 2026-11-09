@@ -12,7 +12,7 @@ export default defineConfig({
   format: ['esm'],
   dts: false,
   clean: true,
-  external: ['react', 'react-dom', 'next', 'zod'],
+  external: ['react', 'react-dom', 'next', 'zod', 'uqr'],
   sourcemap: true,
   treeshake: true,
 });

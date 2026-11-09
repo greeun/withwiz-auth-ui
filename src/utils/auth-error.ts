@@ -6,10 +6,18 @@ import type { AuthErrorInfo } from '../types';
  */
 export class AuthError extends Error {
   readonly info: AuthErrorInfo;
+  /**
+   * Token for the MFA second step; only present in bearer mode (since 0.10).
+   * Non-enumerable so error reporters that serialize the error do not pick it up.
+   */
+  declare readonly mfaToken?: string;
 
-  constructor(info: AuthErrorInfo) {
+  constructor(info: AuthErrorInfo, extra?: { mfaToken?: string }) {
     super(info.text);
     this.name = 'AuthError';
     this.info = info;
+    if (extra?.mfaToken !== undefined) {
+      Object.defineProperty(this, 'mfaToken', { value: extra.mfaToken, enumerable: false });
+    }
   }
 }

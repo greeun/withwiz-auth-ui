@@ -18,6 +18,7 @@ export function mergeMessages(locale: string, overrides?: AuthMessagesOverrides)
     forgotPassword: { ...base.forgotPassword, ...overrides.forgotPassword },
     resetPassword: { ...base.resetPassword, ...overrides.resetPassword },
     emailVerification: { ...base.emailVerification, ...overrides.emailVerification },
+    mfa: { ...base.mfa, ...overrides.mfa },
     oauth: {
       ...base.oauth,
       ...overrides.oauth,

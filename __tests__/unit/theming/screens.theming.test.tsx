@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { LoginScreen, SignupScreen, ForgotPasswordScreen } from '../../../src/screens';
+import { LoginScreen, SignupScreen, ForgotPasswordScreen, MfaChallengeScreen } from '../../../src/screens';
 import { LoginPage } from '../../../src/pages';
 
 describe('Screen/Page theming pass-through', () => {
@@ -35,5 +35,17 @@ describe('Screen/Page theming pass-through', () => {
   it('applies to Page aliases too', () => {
     const { container } = render(<LoginPage layoutClassNames={{ content: 'layout-content' }} />);
     expect(container.querySelector('.wiz-auth-content.layout-content')).toBeTruthy();
+  });
+
+  it('MfaChallengeScreen splits layoutClassNames from form classNames', () => {
+    const { container } = render(
+      <MfaChallengeScreen
+        layoutClassNames={{ root: 'layout-root', sidePanel: 'layout-side' }}
+        classNames={{ root: 'form-root', input: 'form-input' }}
+      />
+    );
+    expect(container.querySelector('.wiz-auth-page.layout-root')).toBeTruthy();
+    expect(container.querySelector('.wiz-auth-side-panel.layout-side')).toBeTruthy();
+    expect(container.querySelector('.wiz-auth-form.form-root')).toBeTruthy();
   });
 });
