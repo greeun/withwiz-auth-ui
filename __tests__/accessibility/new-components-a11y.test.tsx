@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { ResetPasswordForm } from '../../src/components/ResetPasswordForm';
+import { MfaChallengeForm } from '../../src/components/MfaChallengeForm';
 import { EmailVerificationForm } from '../../src/components/EmailVerificationForm';
 import {
   LoginPage,
@@ -137,5 +138,14 @@ describe('Pages accessibility - h1 heading within AuthLayout', () => {
       const heading = screen.getByRole('heading');
       expect(heading).toHaveTextContent('인증 완료');
     });
+  });
+});
+
+describe('MfaChallengeForm accessibility', () => {
+  it('code input is labelled, has h1 and a named submit button', () => {
+    render(<MfaChallengeForm locale="ko" />);
+    expect(screen.getByLabelText('인증 코드')).toHaveAttribute('id', 'wiz-mfa-code');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('2단계 인증');
+    expect(screen.getByRole('button', { name: '확인' })).toHaveAttribute('type', 'submit');
   });
 });

@@ -507,6 +507,32 @@ export type MfaProof = { code: string } | { recoveryCode: string };
 
 export type MfaInputMode = 'code' | 'recoveryCode';
 
+export interface MfaChallengeFormProps {
+  /** Token from the login response; omit in cookie mode (the server reads its pending cookie). */
+  mfaToken?: string;
+  apiBasePath?: string;
+  redirectAfterLogin?: string;
+  /** Target of the "start over" link when `onRestart` is not given. Default `/login` */
+  loginUrl?: string;
+  /** Called by "start over"; without it a link to `loginUrl` is rendered. */
+  onRestart?: () => void;
+  title?: string;
+  subtitle?: string;
+  locale?: 'ko' | 'en' | 'ja';
+  messages?: Partial<AuthMessages['mfa']>;
+  className?: string;
+  classNames?: AuthFormClassNames;
+  unstyled?: boolean;
+  forceColorScheme?: ColorScheme;
+  slots?: {
+    header?: ReactNode;
+    footer?: ReactNode;
+    beforeForm?: ReactNode;
+    afterForm?: ReactNode;
+  };
+  hooks?: AuthFormHooks<{ method: MfaInputMode }>;
+}
+
 export interface MfaStatus {
   enabled: boolean;
   recoveryCodesRemaining: number;

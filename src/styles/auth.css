@@ -319,6 +319,37 @@
     text-decoration: underline;
   }
 
+  .wiz-auth-mfa-toggle {
+    margin-top: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    color: var(--wiz-auth-primary);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .wiz-auth-mfa-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .wiz-auth-mfa-actions {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .wiz-auth-mfa-actions a.wiz-auth-submit,
+  .wiz-auth-mfa-actions button.wiz-auth-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+
   .wiz-auth-forgot {
     margin-top: 12px;
     text-align: center;

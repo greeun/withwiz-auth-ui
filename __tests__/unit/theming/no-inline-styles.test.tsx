@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react';
 import {
-  AuthLayout, LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, OAuthButtons,
+  AuthLayout, LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, OAuthButtons, MfaChallengeForm,
 } from '../../../src/components';
 import {
   LoginScreen, SignupScreen, ForgotPasswordScreen, ResetPasswordScreen, EmailVerificationScreen,
@@ -39,6 +39,11 @@ describe('no inline styles', () => {
 
   it('ResetPasswordForm renders none', () => {
     const { container } = render(<ResetPasswordForm token="tok" />);
+    expect(inlineStyled(container)).toEqual([]);
+  });
+
+  it('MfaChallengeForm renders none', () => {
+    const { container } = render(<MfaChallengeForm onRestart={() => {}} />);
     expect(inlineStyled(container)).toEqual([]);
   });
 
