@@ -41,7 +41,8 @@ export function AuthProvider({ children, apiBasePath = '/api/auth', onAuthChange
       const body = await readJsonSafely(res);
       const info = readAuthError(res.status, body, 'Login failed');
       if (info.key === 'MFA_REQUIRED') {
-        const token = readSuccessField(body, 'mfaToken');
+        // LoginForm 과 같이 본문 최상위의 문자열만 읽는다(data 봉투 안은 보지 않는다).
+        const token = (body as { mfaToken?: unknown } | null)?.mfaToken;
         throw new AuthError(info, typeof token === 'string' && token ? { mfaToken: token } : undefined);
       }
       throw new AuthError(info);

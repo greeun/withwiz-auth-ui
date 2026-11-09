@@ -48,6 +48,26 @@ describe('AuthProvider MFA', () => {
     expect((err as AuthError).mfaToken).toBeUndefined();
   });
 
+  it('login(): mfaToken 은 본문 최상위 문자열만 읽는다(data 봉투 안·문자열 아닌 값은 무시)', async () => {
+    const f = vi.fn().mockResolvedValueOnce(meGuest())
+      .mockResolvedValueOnce(json(401, { error: { key: 'MFA_REQUIRED', message: 'm' }, data: { mfaToken: 'nested' } }))
+      .mockResolvedValueOnce(json(401, { error: { key: 'MFA_REQUIRED', message: 'm' }, mfaToken: 123 }));
+    const { result } = await ready(f);
+    let err: unknown;
+    await act(async () => { err = await catchError(result.current.login('a@example.com', 'pw')); });
+    expect((err as AuthError).info.key).toBe('MFA_REQUIRED');
+    expect((err as AuthError).mfaToken).toBeUndefined();
+    await act(async () => { err = await catchError(result.current.login('a@example.com', 'pw')); });
+    expect((err as AuthError).mfaToken).toBeUndefined();
+  });
+
+  it('AuthError.mfaToken 은 열거되지 않아 오류 직렬화에 실리지 않는다', () => {
+    const err = new AuthError({ text: 'm', key: 'MFA_REQUIRED', status: 401 } as never, { mfaToken: 'secret-tok' });
+    expect(err.mfaToken).toBe('secret-tok');
+    expect(Object.keys(err)).not.toContain('mfaToken');
+    expect(JSON.stringify(err)).not.toContain('secret-tok');
+  });
+
   it('login(): 그 밖의 실패는 0.9 와 같은 AuthError, mfaToken 없음', async () => {
     const f = vi.fn().mockResolvedValueOnce(meGuest())
       .mockResolvedValueOnce(json(401, { error: { key: 'INVALID_CREDENTIALS', message: 'bad' }, mfaToken: 'x' }));

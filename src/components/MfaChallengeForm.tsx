@@ -43,6 +43,12 @@ export function MfaChallengeForm({
     if (focusTick > 0) inputRef.current?.focus();
   }, [focusTick]);
   const [blocked, setBlocked] = useState<'expired' | 'locked' | null>(null);
+  // 만료되면 이 단계에서 할 수 있는 일은 처음부터 다시뿐이므로 그 버튼(링크)으로 포커스를 옮긴다.
+  const restartRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (blocked === 'expired') restartRef.current?.focus();
+  }, [blocked]);
+  const setRestartRef = (el: HTMLElement | null) => { restartRef.current = el; };
 
   const cls = (base: string, slot?: string) => cx(unstyled ? undefined : base, slot);
 
@@ -152,9 +158,9 @@ export function MfaChallengeForm({
 
       <div className={cls('wiz-auth-mfa-actions')}>
         {onRestart ? (
-          <button type="button" onClick={onRestart} className={restartClass}>{t.restart}</button>
+          <button type="button" ref={setRestartRef} onClick={onRestart} className={restartClass}>{t.restart}</button>
         ) : (
-          <a href={safeRedirectTarget(loginUrl, '/login')} className={restartClass}>{t.restart}</a>
+          <a href={safeRedirectTarget(loginUrl, '/login')} ref={setRestartRef} className={restartClass}>{t.restart}</a>
         )}
       </div>
 

@@ -160,6 +160,23 @@ describe('MfaChallengeForm', () => {
     expect(screen.getByRole('link', { name: '처음부터 다시' })).toHaveClass('wiz-auth-submit');
   });
 
+  it('MFA_PENDING_EXPIRED: 포커스를 강조된 처음부터 다시로 옮긴다(링크·버튼 모두)', async () => {
+    mockFetch.mockResolvedValueOnce(fail(401, { error: { key: 'MFA_PENDING_EXPIRED', message: 'x' } }));
+    const { unmount } = render(<MfaChallengeForm />);
+    typeCode('123456');
+    submit();
+    await screen.findByRole('alert');
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('link', { name: '처음부터 다시' })));
+    unmount();
+
+    mockFetch.mockResolvedValueOnce(fail(401, { error: { key: 'MFA_PENDING_EXPIRED', message: 'x' } }));
+    render(<MfaChallengeForm onRestart={() => {}} />);
+    typeCode('123456');
+    submit();
+    await screen.findByRole('alert');
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: '처음부터 다시' })));
+  });
+
   it('MFA_LOCKED + retryAfter 600: "10분" 문구, 제출 비활성', async () => {
     mockFetch.mockResolvedValueOnce(fail(429, { error: { key: 'MFA_LOCKED', message: 'x' }, retryAfter: 600 }));
     render(<MfaChallengeForm />);

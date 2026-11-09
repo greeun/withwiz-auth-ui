@@ -97,6 +97,12 @@ export function MfaSettings({
   const fail = (info: AuthErrorInfo) => {
     if (routeTerminal(info)) return;
     const text = describeMfaError(info, t);
+    // 다른 탭·기기에서 이미 켜거나 끈 경우: 화면이 서버와 어긋났으므로 상태를 다시 조회한다.
+    if (info.key === 'MFA_ALREADY_ENABLED' || info.key === 'MFA_NOT_ENABLED') {
+      hooks?.onError?.(text, info);
+      void reload();
+      return;
+    }
     if (info.key === 'MFA_INVALID_CODE') {
       setFieldError(text);
       setValue('');
@@ -207,7 +213,8 @@ export function MfaSettings({
     document.body.appendChild(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(url);
+    // 클릭 직후 회수하면 일부 브라우저는 다운로드를 시작하기 전에 URL 을 잃는다. 한 틱 뒤에 회수한다.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
   if (view.step === 'notConfigured') return slots?.notConfigured !== undefined ? <>{slots.notConfigured}</> : null;

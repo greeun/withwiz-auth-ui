@@ -50,6 +50,8 @@ beforeEach(() => {
 afterEach(() => {
   vi.restoreAllMocks();
   delete (navigator as { clipboard?: unknown }).clipboard;
+  delete (URL as { createObjectURL?: unknown }).createObjectURL;
+  delete (URL as { revokeObjectURL?: unknown }).revokeObjectURL;
 });
 
 describe('MfaSettings', () => {
@@ -246,7 +248,7 @@ describe('MfaSettings', () => {
     expect(writeText).toHaveBeenCalledWith(SETUP.secret);
   });
 
-  it('다운로드: URL.createObjectURL 에 text/plain Blob, a.download === recoveryCodesFileName', async () => {
+  it('다운로드: URL.createObjectURL 에 text/plain Blob, a.download === recoveryCodesFileName, URL 은 한 틱 뒤 회수', async () => {
     const createObjectURL = vi.fn(() => 'blob:mfa');
     const revokeObjectURL = vi.fn();
     Object.assign(URL, { createObjectURL, revokeObjectURL });
@@ -269,10 +271,72 @@ describe('MfaSettings', () => {
     expect(text).toBe(CODES.join('\n') + '\n');
     expect(clicked?.download).toBe('binder-codes.txt');
     expect(clicked?.href).toBe('blob:mfa');
-    expect(revokeObjectURL).toHaveBeenCalledWith('blob:mfa');
     expect(document.querySelector('a[download]')).toBeNull();
-    delete (URL as { createObjectURL?: unknown }).createObjectURL;
-    delete (URL as { revokeObjectURL?: unknown }).revokeObjectURL;
+    // 클릭 직후 회수하면 일부 브라우저가 다운로드를 시작하기 전에 URL 이 사라진다.
+    // 회수는 한 틱 뒤에 일어난다(위의 FileReader 대기 동안 이미 지났을 수 있으므로 waitFor 로 확인).
+    await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledWith('blob:mfa'));
+  });
+
+  it('다운로드 클릭 직후(같은 틱)에는 Blob URL 을 아직 회수하지 않는다', async () => {
+    const revokeObjectURL = vi.fn();
+    Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:mfa'), revokeObjectURL });
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    await toRecoveryCodes();
+    fireEvent.click(btn('다운로드'));
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+    await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledWith('blob:mfa'));
+  });
+
+  it('setup 이 MFA_ALREADY_ENABLED 면 onError 로 알리고 상태를 다시 조회해 켜짐 화면으로 간다', async () => {
+    const onError = vi.fn();
+    mockFetch
+      .mockResolvedValueOnce(statusOff())
+      .mockResolvedValueOnce(fail(409, { success: false, error: { key: 'MFA_ALREADY_ENABLED', message: 'x' } }))
+      .mockResolvedValueOnce(statusOn(7));
+    render(<MfaSettings hooks={{ onError }} />);
+    fireEvent.click(await screen.findByRole('button', { name: '2단계 인증 켜기' }));
+    expect(await screen.findByText('2단계 인증이 켜져 있습니다')).toBeInTheDocument();
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+    expect(mockFetch.mock.calls[2][0]).toBe('/api/auth/mfa');
+    expect(onError).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ key: 'MFA_ALREADY_ENABLED' }));
+  });
+
+  it('enable 이 MFA_ALREADY_ENABLED 면 상태를 다시 조회한다', async () => {
+    const onError = vi.fn();
+    await toSetup({ hooks: { onError } });
+    mockFetch
+      .mockResolvedValueOnce(fail(409, { success: false, error: { key: 'MFA_ALREADY_ENABLED', message: 'x' } }))
+      .mockResolvedValueOnce(statusOn(10));
+    typeCode('123456');
+    fireEvent.click(btn('켜기'));
+    expect(await screen.findByText('2단계 인증이 켜져 있습니다')).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ key: 'MFA_ALREADY_ENABLED' }));
+  });
+
+  it('disable 이 MFA_NOT_ENABLED 면 onError 로 알리고 상태를 다시 조회해 꺼짐 화면으로 간다', async () => {
+    const onError = vi.fn();
+    mockFetch
+      .mockResolvedValueOnce(statusOn(5))
+      .mockResolvedValueOnce(fail(409, { success: false, error: { key: 'MFA_NOT_ENABLED', message: 'x' } }))
+      .mockResolvedValueOnce(statusOff());
+    render(<MfaSettings hooks={{ onError }} />);
+    fireEvent.click(await screen.findByRole('button', { name: '2단계 인증 끄기' }));
+    typeCode('123456');
+    fireEvent.click(btn('끄기'));
+    expect(await screen.findByText('2단계 인증이 꺼져 있습니다')).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ key: 'MFA_NOT_ENABLED' }));
+  });
+
+  it('재발급이 MFA_NOT_ENABLED 면 상태를 다시 조회한다', async () => {
+    mockFetch
+      .mockResolvedValueOnce(statusOn(5))
+      .mockResolvedValueOnce(fail(409, { success: false, error: { key: 'MFA_NOT_ENABLED', message: 'x' } }))
+      .mockResolvedValueOnce(statusOff());
+    render(<MfaSettings />);
+    fireEvent.click(await screen.findByRole('button', { name: '복구 코드 다시 만들기' }));
+    typeCode('123456');
+    fireEvent.click(btn('다시 만들기'));
+    expect(await screen.findByText('2단계 인증이 꺼져 있습니다')).toBeInTheDocument();
   });
 
   it('localStorage·sessionStorage 의 setItem 을 한 번도 부르지 않는다', async () => {
