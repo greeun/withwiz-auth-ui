@@ -85,6 +85,15 @@ describe('LoginForm 2단계 전환', () => {
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
 
+  it('2단계 성공 시 안전하지 않은 redirectAfterLogin 은 막고 / 로 간다', async () => {
+    await loginToSecondStep({}, { redirectAfterLogin: 'https://evil.com' });
+    mockFetch.mockResolvedValueOnce(ok({ success: true, user: { id: 'u1' } }));
+    fireEvent.change(screen.getByLabelText('인증 코드'), { target: { value: '123456' } });
+    fireEvent.click(screen.getByRole('button', { name: '확인' }));
+    await waitFor(() => expect(window.location.href).not.toBe(''));
+    expect(window.location.href).toBe('/');
+  });
+
   it('처음부터 다시: 1단계로 돌아가고 이메일은 유지, 비밀번호는 빈 값', async () => {
     await loginToSecondStep();
     fireEvent.click(screen.getByRole('button', { name: '처음부터 다시' }));

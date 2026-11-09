@@ -92,10 +92,12 @@ export function MfaChallengeForm({
         return;
       }
 
-      // 서버가 준 redirectTo 도 같은 출처 검사를 거친다. 통과 못 하면 redirectAfterLogin.
+      // redirectAfterLogin(소비자가 ?next= 등에서 받아 넘길 수 있다)과 서버 redirectTo 모두
+      // 같은 출처 검사를 거친다. redirectAfterLogin 이 통과 못 하면 '/'.
+      const fallback = safeRedirectTarget(redirectAfterLogin);
       const serverTarget = result.data.redirectTo
-        ? safeRedirectTarget(result.data.redirectTo, redirectAfterLogin)
-        : redirectAfterLogin;
+        ? safeRedirectTarget(result.data.redirectTo, fallback)
+        : fallback;
       let target: unknown;
       try {
         target = await hooks?.onSuccess?.(result.data.user, { body: result.body });
@@ -104,7 +106,7 @@ export function MfaChallengeForm({
         return;
       }
       setValue('');
-      window.location.href = safeRedirectTarget(pickRedirectTarget(target, serverTarget), redirectAfterLogin);
+      window.location.href = safeRedirectTarget(pickRedirectTarget(target, serverTarget), fallback);
     } finally {
       setLoading(false);
     }

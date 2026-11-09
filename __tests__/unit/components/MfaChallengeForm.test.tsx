@@ -74,6 +74,26 @@ describe('MfaChallengeForm', () => {
     await waitFor(() => expect(window.location.href).toBe('/home'));
   });
 
+  it.each([
+    ['https://evil.com/phish'],
+    ['javascript:alert(1)'],
+    ['//evil.com'],
+  ])('redirectAfterLogin 이 안전하지 않으면(%s) 서버 redirectTo 없이 / 로 간다', async (unsafe) => {
+    mockFetch.mockResolvedValueOnce(ok({ success: true, user: {} }));
+    render(<MfaChallengeForm redirectAfterLogin={unsafe} />);
+    typeCode('123456');
+    submit();
+    await waitFor(() => expect(window.location.href).toBe('/'));
+  });
+
+  it('redirectAfterLogin 이 안전하지 않고 서버 redirectTo 도 다른 출처면 / 로 간다', async () => {
+    mockFetch.mockResolvedValueOnce(ok({ success: true, user: {}, redirectTo: 'https://evil.example/x' }));
+    render(<MfaChallengeForm redirectAfterLogin="https://evil.com" />);
+    typeCode('123456');
+    submit();
+    await waitFor(() => expect(window.location.href).toBe('/'));
+  });
+
   it('onSuccess 가 경로를 돌려주면 그 경로가 우선한다', async () => {
     mockFetch.mockResolvedValueOnce(ok({ success: true, user: {}, redirectTo: '/apps' }));
     render(<MfaChallengeForm redirectAfterLogin="/home" hooks={{ onSuccess: async () => '/custom' }} />);
