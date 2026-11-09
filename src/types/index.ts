@@ -400,8 +400,12 @@ export interface AuthProviderProps {
 export interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: { id: string; email: string; name?: string; role: string } | null;
+  /** `mfaEnabled` is present when the server's `/me` reports it (since 0.10). */
+  user: { id: string; email: string; name?: string; role: string; mfaEnabled?: boolean } | null;
+  /** Throws `AuthError`; `key === 'MFA_REQUIRED'` means a second step is needed (`err.mfaToken` in bearer mode). */
   login: (email: string, password: string) => Promise<void>;
+  /** Completes the MFA second step and signs the user in (since 0.10). */
+  verifyMfa: (proof: MfaProof, opts?: { mfaToken?: string }) => Promise<{ redirectTo?: string }>;
   logout: () => Promise<void>;
   refresh: () => Promise<boolean>;
 }
