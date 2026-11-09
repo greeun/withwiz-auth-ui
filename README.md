@@ -5,6 +5,7 @@ Customizable authentication UI components for React / Next.js projects.
 ## Features
 
 - Login, Signup, Forgot Password, Reset Password, Email Verification forms
+- Two-factor authentication (TOTP + recovery codes): code step in `LoginForm`, OAuth challenge page, account-settings `MfaSettings` (since 0.10)
 - OAuth support (Google, GitHub, Kakao, Meta, Microsoft)
 - i18n (Korean, English, Japanese)
 - Slot-based layout customization
@@ -236,7 +237,21 @@ import '@withwiz/auth-ui/styles';
 ```
 
 Available: `LoginPage`, `SignupPage`, `ForgotPasswordPage`, `ResetPasswordPage`,
-`EmailVerificationPage` (also exported from `@withwiz/auth-ui/pages`).
+`EmailVerificationPage`, `MfaChallengePage` (also exported from `@withwiz/auth-ui/pages`).
+
+### MfaChallengePage
+
+The page the server redirects to after an OAuth login of an MFA account (toolkit
+`urls.mfaChallenge`). It wraps `MfaChallengeForm` in `AuthLayout`; the pending token
+arrives in a cookie, so no `mfaToken` is passed.
+
+```tsx
+<MfaChallengePage loginUrl="/login" redirectAfterLogin="/" />
+```
+
+Props: `MfaChallengeFormProps` (except `className`/`forceColorScheme`, which go to the
+layout) plus the `AuthLayout` props (`logo`, `pattern`, `backgroundColor`, `leftPanel`,
+`fullHeight`) and `layoutClassNames`.
 
 ## Screens
 
@@ -274,7 +289,7 @@ export const Reset  = (p) => <ResetPasswordScreen  {...brand} {...p} />;
 ```
 
 Available: `LoginScreen`, `SignupScreen`, `ForgotPasswordScreen`,
-`ResetPasswordScreen`, `EmailVerificationScreen` (also exported from
+`ResetPasswordScreen`, `EmailVerificationScreen`, `MfaChallengeScreen` (also exported from
 `@withwiz/auth-ui/screens`). Each `*ScreenProps` equals the matching
 `*PageProps`.
 
@@ -299,15 +314,16 @@ Wraps your app to provide authentication context (`useAuth` hook).
 #### useAuth Hook
 
 ```tsx
-const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
+const { isAuthenticated, isLoading, user, login, verifyMfa, logout, refresh } = useAuth();
 ```
 
 | Property | Type | Description |
 |---|---|---|
 | `isAuthenticated` | `boolean` | Whether user is logged in |
 | `isLoading` | `boolean` | Loading state during initial check |
-| `user` | `{ id, email, name?, role }` | Current user or null |
-| `login(email, password)` | `Promise<void>` | Login method |
+| `user` | `{ id, email, name?, role, mfaEnabled? }` | Current user or null. `mfaEnabled` is present when the server's `/me` reports it (0.10) |
+| `login(email, password)` | `Promise<void>` | Login method. For an MFA account it throws `AuthError` with `key === 'MFA_REQUIRED'`; in header/hybrid mode `err.mfaToken` holds the pending token (0.10) |
+| `verifyMfa(proof, opts?)` | `Promise<{ redirectTo?: string }>` | Second step: `proof` is `{ code }` or `{ recoveryCode }`; pass `{ mfaToken: err.mfaToken }` when you have one. On success the user state refreshes and `onAuthChange(true)` fires (0.10) |
 | `logout()` | `Promise<void>` | Logout method |
 | `refresh()` | `Promise<boolean>` | Refresh token |
 
@@ -333,6 +349,7 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   title="Welcome back"
   subtitle="Sign in to your account"
   messages={{ submitButton: 'Log In' }}  // Partial override
+  mfaMessages={{ title: '…' }}   // Partial override for the MFA code step (0.10)
   hooks={{
     onBeforeSubmit: async (data) => true,
     // Awaited (0.8+). Return a path ('/…' or http(s) URL) to redirect there; throw an Error to stay with its message shown.
@@ -417,6 +434,76 @@ const { isAuthenticated, isLoading, user, login, logout, refresh } = useAuth();
   resendUrl="/auth/resend"
 />
 ```
+
+---
+
+### MfaChallengeForm
+
+The code-entry step for an MFA account: a 6-digit authenticator code, or a recovery code
+via "Sign in with a recovery code". `LoginForm` switches to it by itself when the server
+answers `401 MFA_REQUIRED`; use it directly on the page that `urls.mfaChallenge` points to
+(or through `MfaChallengePage`). Nothing is submitted automatically after the sixth digit.
+
+```tsx
+<MfaChallengeForm
+  mfaToken={token}               // header/hybrid mode only; omit in cookie mode (the pending cookie is used)
+  apiBasePath="/api/auth"
+  redirectAfterLogin="/"
+  loginUrl="/login"              // target of "Start over"
+  onRestart={() => {}}           // replaces the "Start over" link with a callback
+  locale="en"
+  messages={{ submit: 'Verify' }}
+  hooks={{ onSuccess, onError }} // hooks.onSuccess may return a redirect path, like LoginForm
+/>
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `mfaToken` | `string` | — | Pending token from the login response (header/hybrid). Kept in memory only. |
+| `apiBasePath` | `string` | `/api/auth` | Calls `POST {apiBasePath}/mfa/verify` |
+| `redirectAfterLogin` | `string` | `/` | Used when the response has no usable `redirectTo` |
+| `loginUrl` | `string` | `/login` | "Start over" link target |
+| `onRestart` | `() => void` | — | Called by "Start over" instead of navigating |
+| `locale` / `messages` | `'ko'\|'en'\|'ja'` / `Partial<AuthMessages['mfa']>` | `ko` | Texts |
+| `className` `classNames` `unstyled` `forceColorScheme` `slots` `hooks` | | | Same customization as the other forms (`hooks.onBeforeSubmit/onSuccess/onError`, `{ method: 'code' \| 'recoveryCode' }`) |
+
+After success it goes to the response's `redirectTo` (set for OAuth logins; same-origin only),
+then to `redirectAfterLogin`. Errors: a wrong code clears the input and keeps focus;
+an expired challenge disables the form and highlights "Start over"; a lock (`MFA_LOCKED`) shows the wait in
+minutes (`ceil(retryAfter / 60)`, no countdown) and disables the form — without `retryAfter` the server's text is shown.
+
+---
+
+### MfaSettings
+
+Account-settings panel: turn MFA on (QR code + secret key, then a code to confirm, then the
+recovery codes), turn it off, and regenerate recovery codes. It needs no `AuthProvider`.
+
+```tsx
+<MfaSettings
+  issuerLabel="binder (me@example.com)"
+  hooks={{ onEnabled: refetchUser, onDisabled: refetchUser }}
+/>
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `apiBasePath` | `string` | `/api/auth` | Calls `GET {api}/mfa`, `POST {api}/mfa/{setup,enable,disable,recovery-codes}` |
+| `issuerLabel` | `string` | — | Account label shown under the QR code |
+| `renderQr` | `(otpauthUri: string) => ReactNode` | built-in SVG | Replace the QR code |
+| `recoveryCodesFileName` | `string` | `recovery-codes.txt` | Download file name |
+| `locale` / `messages` | | `ko` | Texts (`AuthMessages['mfa']`) |
+| `className` `classNames` `unstyled` `forceColorScheme` | | | Customization as above |
+| `slots` | `{ header?, footer?, notConfigured? }` | | `notConfigured` is rendered when the server answers 404 `MFA_NOT_CONFIGURED`; by default nothing is rendered |
+| `hooks` | `{ onEnabled?, onDisabled?, onRecoveryCodesRegenerated?, onError?(text, info), onUnauthenticated? }` | | `onError` is not called for 404 not-configured or 401 |
+
+Behavior to know:
+
+- **Cookie auth only.** Requests carry the access cookie (`credentials: 'include'`); there is no way to pass a bearer token. A header-only app cannot use it.
+- A `401` whose `key` starts with `MFA_` (e.g. `MFA_INVALID_CODE`) is a step error shown on the step. Any other `401` means the session is gone: `hooks.onUnauthenticated` is called and a sign-in message is shown.
+- The QR code is always black on white so authenticator apps can scan it, even in dark mode. Its element keeps the class `wiz-auth-mfa-qr` in `unstyled` mode too.
+- `MfaSettings` does not update `useAuth().user.mfaEnabled`; refetch in `onEnabled` / `onDisabled` if you show it.
+- Recovery codes are shown once, held only in component state, offered as copy (hidden when `navigator.clipboard` is missing) and `.txt` download, and cleared when the user confirms "I saved them" and clicks Done.
 
 ---
 
@@ -581,6 +668,12 @@ The components expect these server-side endpoints:
 | POST | `/api/auth/reset-password` | Set new password (`{ token, password }`) |
 | POST | `/api/auth/verify-email` | Verify email (`{ token }`) |
 | POST | `/api/auth/oauth/login` | Start OAuth flow (returns `{ loginUrl }`) |
+| POST | `/api/auth/mfa/verify` | MFA second step (`{ code }` or `{ recoveryCode }`, plus `{ mfaToken }` when no pending cookie) — 200 + session, `redirectTo` for OAuth logins; 401 `MFA_INVALID_CODE` / `MFA_PENDING_EXPIRED`, 429 `MFA_LOCKED` (+ `retryAfter` seconds) |
+| GET | `/api/auth/mfa` | MFA status (`{ enabled, recoveryCodesRemaining }`); 404 `MFA_NOT_CONFIGURED` when MFA is off |
+| POST | `/api/auth/mfa/setup` | Start enrollment (`{ secret, otpauthUri }`) |
+| POST | `/api/auth/mfa/enable` | Confirm enrollment (`{ code }` → `{ recoveryCodes }`) |
+| POST | `/api/auth/mfa/disable` | Turn MFA off (`{ code }` or `{ recoveryCode }`) |
+| POST | `/api/auth/mfa/recovery-codes` | Regenerate recovery codes (`{ code }` → `{ recoveryCodes }`) |
 
 All endpoints are prefixed with `apiBasePath` (default: `/api/auth`).
 
@@ -623,6 +716,46 @@ interface AuthErrorInfo {
 `useAuth().login` throws `AuthError` (an `Error` whose `message` is `info.text`) with the same `info`.
 
 ## Migration
+
+### 0.10
+
+MFA (TOTP + recovery codes) screens. Needs `@withwiz/toolkit` 0.30 on the server for the `/mfa` endpoints.
+Apps that do not use MFA see no change: nothing below happens unless the server answers `MFA_REQUIRED`.
+
+- **`login()` can throw `MFA_REQUIRED`.** For an MFA account, `useAuth().login` rejects with an `AuthError` whose
+  `key` is `MFA_REQUIRED` (HTTP 401); in header/hybrid mode `err.mfaToken` carries the pending token. If you call `login()`
+  yourself, handle that key and finish with `verifyMfa({ code }, { mfaToken: err.mfaToken })`. `LoginForm` handles it for you
+  and swaps to the code step in place (OAuth buttons and links are hidden meanwhile).
+- New: `MfaChallengeForm`, `MfaSettings`, `MfaChallengeScreen`, `MfaChallengePage`, `useAuth().verifyMfa`,
+  `AuthError.mfaToken`, `AuthErrorInfo.retryAfter`, `user.mfaEnabled`, `LoginForm` prop `mfaMessages`,
+  and the `mfa` message group in ko/en/ja.
+- New runtime dependency: `uqr` (pinned `0.1.3`) for the QR code. It is `external` in the bundle, so your package manager installs it.
+- Server side: turn MFA on in toolkit 0.30's `createAuthHandlers` with its `mfa` option and set `urls.mfaChallenge` to the
+  page below; see the MFA section of the toolkit README for the option fields.
+
+```ts
+// server (toolkit 0.30) — option details: toolkit README, MFA section
+createAuthHandlers({
+  // ...your existing options
+  mfa: { /* see toolkit README */ },
+  urls: { baseUrl, mfaChallenge: '/mfa' },
+});
+```
+
+```tsx
+// app/mfa/page.tsx — where OAuth logins of MFA accounts land
+import { MfaChallengePage } from '@withwiz/auth-ui';
+import '@withwiz/auth-ui/styles';
+
+export default function Page() {
+  return <MfaChallengePage loginUrl="/login" />;
+}
+
+// account settings
+import { MfaSettings } from '@withwiz/auth-ui';
+
+<MfaSettings issuerLabel="binder" />
+```
 
 ### 0.8.4
 
@@ -718,6 +851,11 @@ is ignored.
 fields you declare in `extraFields`, and the values you pass in `extraPayload`
 are sent; form values win over `extraPayload` keys of the same name. Still
 allow-list the fields you persist server-side.
+
+**MFA secrets.** Recovery codes, the TOTP secret key and the pending token (`mfaToken`) are
+handled in memory only: never written to `localStorage`, `sessionStorage` or a URL, and cleared when the
+step ends. Nothing is submitted automatically when the sixth digit is typed, so a typo does not count
+as a failed attempt.
 
 **Cookies and CSRF.** Requests are sent with `credentials: 'include'` and
 `Content-Type: application/json`. The JSON content type forces a CORS

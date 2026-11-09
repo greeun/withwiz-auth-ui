@@ -21,6 +21,7 @@ import {
   MfaChallengePage,
   MfaChallengeScreen,
   MfaChallengeForm,
+  MfaSettings,
 } from '../../src/index';
 
 // Mock fetch for components that call API on mount (AuthProvider)
@@ -130,6 +131,13 @@ describe('Library exports - smoke tests', () => {
     expect(EmailVerificationPage).toBeDefined();
     expect(typeof EmailVerificationPage).toBe('function');
   });
+  it('MfaChallengeForm can be imported and is a function', () => {
+    expect(typeof MfaChallengeForm).toBe('function');
+  });
+  it('MfaSettings can be imported and is a function', () => {
+    expect(MfaSettings).toBeDefined();
+    expect(typeof MfaSettings).toBe('function');
+  });
   it('MfaChallengePage can be imported and is a function', () => {
     expect(MfaChallengePage).toBeDefined();
     expect(typeof MfaChallengePage).toBe('function');
@@ -207,6 +215,10 @@ describe('Components render without crashing', () => {
   });
   it('MfaChallengePage renders without crashing', () => {
     const { container } = render(React.createElement(MfaChallengePage, { mfaToken: 'test' }));
+    expect(container).toBeTruthy();
+  });
+  it('MfaSettings renders without crashing', () => {
+    const { container } = render(React.createElement(MfaSettings));
     expect(container).toBeTruthy();
   });
 });
