@@ -1,13 +1,13 @@
 /**
  * MFA 계약 형태 테스트 — toolkit 0.30 서버 응답 본문 ↔ auth-ui MFA 화면
  *
- * devDependency 인 @withwiz/toolkit 이 아직 ^0.21.0 이라 실제 MFA 처리기를 쓸 수 없다.
- * 그래서 toolkit develop(c7d94ec)의 응답 본문을 옮긴 고정 데이터로 두 오류 형식(legacy·standard)을 확인한다.
+ * jsdom 에서는 toolkit 의 JWT 서명(대기 토큰)이 실패해 화면과 실제 처리기를 함께 돌릴 수 없다.
+ * 그래서 화면 동작은 toolkit 0.30.0 응답 본문을 옮긴 고정 데이터로 두 오류 형식(legacy·standard)에서 확인하고,
+ * 고정 데이터가 실제 응답과 같은 모양인지는 mfa-handlers-contract.test.ts(node 환경, 실제 처리기)가 확인한다.
  *   - respond.ts errorBody: legacy `{ success:false, error: message, code }`, standard `buildErrorBody` 봉투
  *   - mfa-pending.ts mfaRequiredResponse: header·hybrid 는 본문 최상위 `mfaToken`, cookie 는 없음
  *   - mfa.handlers.ts mfaErrorResponse: 잠금은 429 + 본문 최상위 `retryAfter`(초)
  *   - session.ts: 성공 `{ success:true, user, ...extra }`(extra 에 OAuth 출신 `redirectTo`)
- * TODO: toolkit 0.30.0 배포 뒤 devDependency 를 올리고 실제 처리기 계약 테스트로 바꾼다.
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LoginForm } from '../../src/components/LoginForm';
