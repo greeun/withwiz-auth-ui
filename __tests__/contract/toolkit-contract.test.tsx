@@ -16,6 +16,7 @@ import { LoginForm } from '../../src/components/LoginForm';
 import { SignupForm } from '../../src/components/SignupForm';
 import { ResetPasswordForm } from '../../src/components/ResetPasswordForm';
 import { EmailVerificationForm } from '../../src/components/EmailVerificationForm';
+import { ResendVerificationForm } from '../../src/components/ResendVerificationForm';
 
 type Row = { id: string; email: string; token: string; type: string; expires: Date; used: boolean; createdAt: Date };
 
@@ -83,6 +84,7 @@ function createBackend(overrides: Partial<AuthHandlerOptions> = {}) {
     'forgot-password': handlers.forgotPassword,
     'reset-password': handlers.resetPassword,
     'verify-email': handlers.verifyEmail,
+    'resend-verification': handlers.resendVerification,
     'oauth/login': handlers.oauthAuthorize,
   };
 
@@ -232,6 +234,42 @@ describe.each(['legacy', 'standard'] as const)('toolkit 계약 — errorFormat %
     await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1), { timeout: 10000 });
     expect(backend.users.get('verify@example.com').emailVerified).toBeInstanceOf(Date);
     expect(backend.tokens.some((t) => t.token === TokenGenerator.hash(token))).toBe(false);
+  });
+});
+
+describe.each(['legacy', 'standard'] as const)('toolkit 계약 — 인증 메일 재발송(0.11 ↔ toolkit 0.31), errorFormat %s', (errorFormat) => {
+  const register = (backend: ReturnType<typeof createBackend>, email: string) =>
+    backend.handlers.register(new Request('http://localhost/api/auth/register', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email, password: 'password123' }),
+    }) as any);
+
+  it('미인증 계정이면 새 인증 토큰을 만들고 메일을 보내며, 그 토큰으로 인증이 끝난다', async () => {
+    const backend = createBackend({ errorFormat, features: { emailVerificationRequired: true } });
+    await register(backend, 'pending@example.com');
+    backend.sent.verification.clear();
+
+    const onSuccess = vi.fn();
+    render(<ResendVerificationForm defaultEmail="pending@example.com" hooks={{ onSuccess }} />);
+    fireEvent.click(screen.getByRole('button', { name: '인증 메일 보내기' }));
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1), { timeout: 10000 });
+
+    const token = backend.sent.verification.get('pending@example.com');
+    expect(token).toBeTruthy();
+    const res = await backend.handlers.verifyEmail(new Request('http://localhost/api/auth/verify-email', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: 'pending@example.com', token }),
+    }) as any);
+    expect(res.status).toBe(200);
+    expect(backend.users.get('pending@example.com').emailVerified).toBeInstanceOf(Date);
+  });
+
+  it('없는 계정도 같은 성공 화면을 보여 주고 메일은 보내지 않는다', async () => {
+    const backend = createBackend({ errorFormat, features: { emailVerificationRequired: true } });
+    render(<ResendVerificationForm defaultEmail="nobody@example.com" />);
+    fireEvent.click(screen.getByRole('button', { name: '인증 메일 보내기' }));
+    expect(await screen.findByRole('status', {}, { timeout: 10000 })).toBeInTheDocument();
+    expect(backend.sent.verification.size).toBe(0);
   });
 });
 
