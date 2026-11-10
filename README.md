@@ -420,6 +420,7 @@ Asks for a new verification email (0.11+). Posts `{ email }` to `${apiBasePath}/
   apiBasePath="/api/auth"
   loginUrl="/login"
   defaultEmail={emailFromQuery}  // optional prefill
+  // emailReadOnly               // 0.11.2+: lock the field, e.g. signed-in screen sending to the session email
 />
 ```
 
@@ -740,6 +741,9 @@ interface AuthErrorInfo {
 ### 0.11
 
 Verification email resend. Additive; nothing changes for apps that do not use it.
+
+- 0.11.2: `ResendVerificationForm` prop `emailReadOnly` locks the email field (pair it with `defaultEmail` on a signed-in
+  screen whose server sends to the session address via toolkit 0.32 `hooks.resolveSessionEmail`).
 
 - New: `ResendVerificationForm`, `ResendVerificationPage`, `ResendVerificationScreen` and the `resendVerification`
   message group in ko/en/ja. The form posts `{ email }` to `${apiBasePath}/resend-verification` and prefills the
