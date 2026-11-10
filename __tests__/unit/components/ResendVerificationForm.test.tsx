@@ -31,6 +31,23 @@ describe('ResendVerificationForm', () => {
     expect(screen.getByLabelText('이메일 *')).toHaveValue('me@example.com');
   });
 
+  it('emailReadOnly 면 이메일 칸을 고칠 수 없고 그 값으로 제출한다(0.11.2)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal('fetch', fetchMock);
+    render(<ResendVerificationForm defaultEmail="me@example.com" emailReadOnly />);
+    const input = screen.getByLabelText('이메일 *');
+    expect(input).toHaveAttribute('readonly');
+    expect(input).toHaveAttribute('aria-readonly', 'true');
+    fireEvent.click(screen.getByRole('button', { name: '인증 메일 보내기' }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ email: 'me@example.com' });
+  });
+
+  it('기본은 고칠 수 있다', () => {
+    render(<ResendVerificationForm />);
+    expect(screen.getByLabelText('이메일 *')).not.toHaveAttribute('readonly');
+  });
+
   it('apiBasePath/resend-verification 에 { email } 을 보내고 성공 안내를 보여 준다', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true });
     vi.stubGlobal('fetch', fetchMock);

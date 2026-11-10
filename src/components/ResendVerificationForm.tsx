@@ -14,7 +14,7 @@ import type { AuthErrorInfo, ResendVerificationFormProps } from '../types';
  * Asks for a new verification email (since 0.11). Posts `{ email }` to `${apiBasePath}/resend-verification`.
  * The server answers the same for every address, so the success text is worded for "if the account exists".
  */
-export function ResendVerificationForm({ locale = 'ko', messages: messageOverrides, apiBasePath = '/api/auth', className, classNames, unstyled = false, requiredMark = true, forceColorScheme, loginUrl = '/login', defaultEmail = '', hooks, slots }: ResendVerificationFormProps) {
+export function ResendVerificationForm({ locale = 'ko', messages: messageOverrides, apiBasePath = '/api/auth', className, classNames, unstyled = false, requiredMark = true, forceColorScheme, loginUrl = '/login', defaultEmail = '', emailReadOnly = false, hooks, slots }: ResendVerificationFormProps) {
   const t = { ...getMessages(locale).resendVerification, ...messageOverrides };
   const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
@@ -85,7 +85,7 @@ export function ResendVerificationForm({ locale = 'ko', messages: messageOverrid
       <form onSubmit={handleSubmit} className={cls('wiz-auth-fields', classNames?.form)}>
         <div className={cls('wiz-auth-field', classNames?.field)}>
           <label htmlFor="wiz-resend-email" className={cls('wiz-auth-label', classNames?.label)}>{t.emailLabel}<RequiredMark show={requiredMark} unstyled={unstyled} className={classNames?.requiredMark} /></label>
-          <input id="wiz-resend-email" type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-resend-email', fieldErrors.email)} />
+          <input id="wiz-resend-email" type="email" autoComplete="email" placeholder={t.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} required readOnly={emailReadOnly} aria-readonly={emailReadOnly || undefined} disabled={loading} className={cls('wiz-auth-input', classNames?.input)} {...fieldErrorA11y('wiz-resend-email', fieldErrors.email)} />
           {fieldErrors.email && <p id="wiz-resend-email-error" className={cls('wiz-auth-field-error', classNames?.fieldError)}>{fieldErrors.email}</p>}
         </div>
         {error && <div role="alert" className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
