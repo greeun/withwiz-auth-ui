@@ -12,6 +12,7 @@ import { safeRedirectTarget, pickRedirectTarget } from '../utils/safe-redirect';
 import { readAuthError, networkAuthError, readJsonSafely, hookFailure } from '../utils/read-auth-error';
 import { readSuccessField } from '../utils/read-success-body';
 import { pickFieldErrors, formLevelText, fieldErrorA11y } from '../utils/form-errors';
+import { withEmailQuery } from '../utils/link-email';
 import type { AuthErrorInfo, LoginFormProps } from '../types';
 
 export function LoginForm({
@@ -38,10 +39,13 @@ export function LoginForm({
   forgotPasswordUrl = '/forgot-password',
   signupUrl = '/signup',
   magicLinkUrl = '/auth/magic-link',
+  resendVerificationUrl = '/resend-verification',
 }: LoginFormProps) {
   const t = { ...getMessages(locale).login, ...messageOverrides };
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
+  /** Email refused with `EMAIL_NOT_VERIFIED`; shows the resend link under the error. */
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   /** Set once the server asks for a second factor; `token` only exists in header/hybrid delivery modes. */
@@ -69,6 +73,7 @@ export function LoginForm({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    setUnverifiedEmail(null);
     setFieldErrors({});
 
     const parsed = schema.safeParse(form);
@@ -103,6 +108,7 @@ export function LoginForm({
           setMfa({ token: typeof token === 'string' ? token : undefined });
           return;
         }
+        if (info.key === 'EMAIL_NOT_VERIFIED') setUnverifiedEmail(parsed.data.email);
         fail(info.key === 'EMAIL_NOT_VERIFIED' ? { ...info, text: t.emailNotVerified } : info);
         return;
       }
@@ -228,6 +234,11 @@ export function LoginForm({
         </div>
 
         {error && <div role="alert" className={cls('wiz-auth-error', classNames?.error)}>{error}</div>}
+        {error && unverifiedEmail && (
+          <p className={cls('wiz-auth-footer', classNames?.footer)}>
+            <a href={withEmailQuery(resendVerificationUrl, unverifiedEmail)} className={cls('wiz-auth-link', classNames?.link)}>{t.resendVerification}</a>
+          </p>
+        )}
 
         <button type="submit" disabled={loading} className={cls('wiz-auth-submit', classNames?.submitButton)}>
           {loading ? t.submitting : t.submitButton}

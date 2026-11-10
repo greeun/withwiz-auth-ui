@@ -4,6 +4,7 @@ export { LoginForm } from './LoginForm';
 export { SignupForm } from './SignupForm';
 export { AuthLayout } from './AuthLayout';
 export { ForgotPasswordForm } from './ForgotPasswordForm';
+export { ResendVerificationForm } from './ResendVerificationForm';
 export { ResetPasswordForm } from './ResetPasswordForm';
 export { EmailVerificationForm } from './EmailVerificationForm';
 export { MfaChallengeForm } from './MfaChallengeForm';

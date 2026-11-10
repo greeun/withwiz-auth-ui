@@ -14,3 +14,12 @@ export function emailFromLink(): string | undefined {
   if (typeof window === 'undefined') return undefined;
   return new URLSearchParams(window.location.search).get('email') || undefined;
 }
+
+/** `url` with `?email=` added (since 0.11). Keeps an existing query and hash; returns `url` unchanged without an email. */
+export function withEmailQuery(url: string, email: string | undefined): string {
+  if (!email) return url;
+  const hashAt = url.indexOf('#');
+  const base = hashAt >= 0 ? url.slice(0, hashAt) : url;
+  const hash = hashAt >= 0 ? url.slice(hashAt) : '';
+  return `${base}${base.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}${hash}`;
+}

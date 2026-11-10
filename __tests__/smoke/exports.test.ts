@@ -22,6 +22,9 @@ import {
   MfaChallengeScreen,
   MfaChallengeForm,
   MfaSettings,
+  ResendVerificationForm,
+  ResendVerificationPage,
+  ResendVerificationScreen,
 } from '../../src/index';
 
 // Mock fetch for components that call API on mount (AuthProvider)
@@ -90,6 +93,13 @@ describe('Library exports - smoke tests', () => {
     expect(messages.forgotPassword).toBeDefined();
     expect(messages.resetPassword).toBeDefined();
     expect(messages.emailVerification).toBeDefined();
+    expect(messages.resendVerification).toBeDefined();
+  });
+
+  it('ResendVerification Form·Page·Screen are exported from the index (0.11)', () => {
+    for (const C of [ResendVerificationForm, ResendVerificationPage, ResendVerificationScreen]) {
+      expect(typeof C).toBe('function');
+    }
   });
 
   it('mergeMessages can be imported and merges correctly', () => {
