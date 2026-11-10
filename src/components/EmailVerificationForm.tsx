@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { getMessages } from '../i18n';
 import { authPost } from '../utils/api-client';
-import { emailFromLink } from '../utils/link-email';
+import { emailFromLink, withEmailQuery } from '../utils/link-email';
 import { cx } from '../utils/class-names';
 import { readAuthError, networkAuthError, readJsonSafely } from '../utils/read-auth-error';
 import type { AuthErrorInfo, EmailVerificationFormProps } from '../types';
@@ -101,7 +101,7 @@ export function EmailVerificationForm({
       <h2 className={cls('wiz-auth-status-title', classNames?.title)} data-state="error">{t.errorTitle}</h2>
       <p className={cls('wiz-auth-status-message', classNames?.message)}>{errorMessage}</p>
       <div className={cls('wiz-auth-status-actions', classNames?.actions)}>
-        <a href={resendUrl} className={cls('wiz-auth-status-link', classNames?.secondaryLink)}>{t.resendLink}</a>
+        <a href={withEmailQuery(resendUrl, email ?? emailFromLink())} className={cls('wiz-auth-status-link', classNames?.secondaryLink)}>{t.resendLink}</a>
         <a href={loginUrl} className={cls('wiz-auth-status-primary', classNames?.primaryAction)}>{t.loginButton}</a>
       </div>
     </div>

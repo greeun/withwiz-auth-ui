@@ -237,7 +237,7 @@ import '@withwiz/auth-ui/styles';
 ```
 
 Available: `LoginPage`, `SignupPage`, `ForgotPasswordPage`, `ResetPasswordPage`,
-`EmailVerificationPage`, `MfaChallengePage` (also exported from `@withwiz/auth-ui/pages`).
+`EmailVerificationPage`, `ResendVerificationPage`, `MfaChallengePage` (also exported from `@withwiz/auth-ui/pages`).
 
 ### MfaChallengePage
 
@@ -289,7 +289,7 @@ export const Reset  = (p) => <ResetPasswordScreen  {...brand} {...p} />;
 ```
 
 Available: `LoginScreen`, `SignupScreen`, `ForgotPasswordScreen`,
-`ResetPasswordScreen`, `EmailVerificationScreen`, `MfaChallengeScreen` (also exported from
+`ResetPasswordScreen`, `EmailVerificationScreen`, `ResendVerificationScreen`, `MfaChallengeScreen` (also exported from
 `@withwiz/auth-ui/screens`). Each `*ScreenProps` equals the matching
 `*PageProps`.
 
@@ -405,6 +405,25 @@ const { isAuthenticated, isLoading, user, login, verifyMfa, logout, refresh } = 
   slots={{ header: null }}  // hide the built-in title (0.8+)
 />
 ```
+
+---
+
+### ResendVerificationForm
+
+Asks for a new verification email (0.11+). Posts `{ email }` to `${apiBasePath}/resend-verification`
+(toolkit 0.31 `createAuthHandlers().resendVerification`). Serve it at the path `EmailVerificationForm`'s
+`resendUrl` points to (default `/resend-verification`) so the "resend" link on a failed verification lands here.
+
+```tsx
+<ResendVerificationForm
+  locale="ko"
+  apiBasePath="/api/auth"
+  loginUrl="/login"
+  defaultEmail={emailFromQuery}  // optional prefill
+/>
+```
+
+The server answers the same for every address, so the success text is worded for "if the account exists and is not verified yet".
 
 ---
 
@@ -667,6 +686,7 @@ The components expect these server-side endpoints:
 | POST | `/api/auth/forgot-password` | Send reset email |
 | POST | `/api/auth/reset-password` | Set new password (`{ token, password }`) |
 | POST | `/api/auth/verify-email` | Verify email (`{ token }`) |
+| POST | `/api/auth/resend-verification` | Resend the verification email (`{ email }`, always 200; toolkit 0.31+) |
 | POST | `/api/auth/oauth/login` | Start OAuth flow (returns `{ loginUrl }`) |
 | POST | `/api/auth/mfa/verify` | MFA second step (`{ code }` or `{ recoveryCode }`, plus `{ mfaToken }` when no pending cookie) — 200 + session, `redirectTo` for OAuth logins; 401 `MFA_INVALID_CODE` / `MFA_PENDING_EXPIRED`, 429 `MFA_LOCKED` (+ `retryAfter` seconds) |
 | GET | `/api/auth/mfa` | MFA status (`{ enabled, recoveryCodesRemaining }`); 404 `MFA_NOT_CONFIGURED` when MFA is off |
@@ -716,6 +736,23 @@ interface AuthErrorInfo {
 `useAuth().login` throws `AuthError` (an `Error` whose `message` is `info.text`) with the same `info`.
 
 ## Migration
+
+### 0.11
+
+Verification email resend. Additive; nothing changes for apps that do not use it.
+
+- New: `ResendVerificationForm`, `ResendVerificationPage`, `ResendVerificationScreen` and the `resendVerification`
+  message group in ko/en/ja. The form posts `{ email }` to `${apiBasePath}/resend-verification` and prefills the
+  field from `?email=` (or the `defaultEmail` prop).
+- `LoginForm`: when login is refused with `EMAIL_NOT_VERIFIED`, a "resend verification email" link appears under the
+  error, pointing to the new `resendVerificationUrl` prop (default `/resend-verification`) with `?email=` added.
+  New message key `login.resendVerification`.
+- `EmailVerificationForm`: the resend link on a failed verification now carries the link's email as `?email=`.
+- Server side: route `POST /api/auth/resend-verification` to toolkit 0.31's `createAuthHandlers().resendVerification`
+  and keep it behind your auth rate limit. Render the form at `EmailVerificationForm`'s `resendUrl`
+  (default `/resend-verification`).
+- Types: `AuthMessages.resendVerification` and `AuthMessages.login.resendVerification` are new required fields. This only affects code that builds a full
+  `AuthMessages` dictionary by hand; add the group there.
 
 ### 0.10
 

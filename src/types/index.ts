@@ -147,6 +147,8 @@ export interface AuthMessages {
     passwordTooShort: string;
     invalidCredentials: string;
     emailNotVerified: string;
+    /** Link shown under the "not verified" error (since 0.11). */
+    resendVerification: string;
     networkError: string;
   };
   signup: {
@@ -175,6 +177,19 @@ export interface AuthMessages {
     successMessage: string;
   };
   forgotPassword: {
+    title: string;
+    subtitle: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    submitButton: string;
+    submitting: string;
+    success: string;
+    backToLogin: string;
+    failed: string;
+    networkError: string;
+  };
+  /** Resend the verification email (since 0.11). */
+  resendVerification: {
     title: string;
     subtitle: string;
     emailLabel: string;
@@ -332,6 +347,11 @@ export interface LoginFormProps {
   signupUrl?: string;
   /** Where the magic-link button goes. Default `/auth/magic-link` */
   magicLinkUrl?: string;
+  /**
+   * Where the "resend verification email" link points when login is refused with `EMAIL_NOT_VERIFIED`
+   * (since 0.11). The typed email is added as `?email=`. Default `/resend-verification`.
+   */
+  resendVerificationUrl?: string;
 }
 
 export interface SignupFormProps {
@@ -426,6 +446,17 @@ export interface ForgotPasswordFormProps {
   hooks?: AuthFormHooks<{ email: string }, void>;
 }
 
+/**
+ * Verification email resend form (since 0.11). Posts `{ email }` to `${apiBasePath}/resend-verification`
+ * (toolkit 0.31 `resendVerification`). The server answers the same for every address, so the success
+ * text never says whether the account exists.
+ */
+export interface ResendVerificationFormProps extends Omit<ForgotPasswordFormProps, 'messages'> {
+  messages?: Partial<AuthMessages['resendVerification']>;
+  /** Prefills the email field, e.g. from the failed verification link. */
+  defaultEmail?: string;
+}
+
 export interface ResetPasswordFormProps {
   /** Show `*` after required field labels. Default `true` (since 0.8.4). */
   requiredMark?: boolean;
@@ -487,6 +518,14 @@ export interface SignupPageProps
 export interface ForgotPasswordPageProps
   extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight' | 'forceColorScheme'>,
     Omit<ForgotPasswordFormProps, 'className' | 'forceColorScheme'> {
+  className?: string;
+  /** Class name slots for the surrounding AuthLayout */
+  layoutClassNames?: AuthLayoutClassNames;
+}
+
+export interface ResendVerificationPageProps
+  extends Pick<AuthLayoutProps, 'logo' | 'pattern' | 'backgroundColor' | 'leftPanel' | 'fullHeight' | 'forceColorScheme'>,
+    Omit<ResendVerificationFormProps, 'className' | 'forceColorScheme'> {
   className?: string;
   /** Class name slots for the surrounding AuthLayout */
   layoutClassNames?: AuthLayoutClassNames;
