@@ -455,6 +455,11 @@ export interface ResendVerificationFormProps extends Omit<ForgotPasswordFormProp
   messages?: Partial<AuthMessages['resendVerification']>;
   /** Prefills the email field, e.g. from the failed verification link. */
   defaultEmail?: string;
+  /**
+   * Makes the email field read-only (since 0.11.2). Use it with `defaultEmail` on a signed-in screen whose server
+   * sends to the session's address (toolkit `hooks.resolveSessionEmail`), so the field cannot suggest another address.
+   */
+  emailReadOnly?: boolean;
 }
 
 export interface ResetPasswordFormProps {
