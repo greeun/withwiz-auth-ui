@@ -104,7 +104,7 @@ describe('MfaSettings', () => {
     expect(screen.getByRole('img', { name: '인증 앱으로 스캔할 QR 코드' })).toBeInTheDocument();
     expect(screen.getByText(SETUP.secret)).toHaveClass('wiz-auth-mfa-secret');
     expect(screen.getByText('binder (a@b.c)')).toBeInTheDocument();
-    expect(document.activeElement).toBe(screen.getByLabelText('인증 코드'));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('인증 코드')));
     // 등록·재발급은 인증 앱 코드만 받는다.
     expect(screen.queryByRole('button', { name: '복구 코드로 로그인' })).toBeNull();
   });
@@ -132,7 +132,7 @@ describe('MfaSettings', () => {
     expect(onEnabled).toHaveBeenCalledTimes(1);
     const list = document.querySelector('ol.wiz-auth-mfa-codes')!;
     expect(list.querySelectorAll('li > code')).toHaveLength(10);
-    expect(document.activeElement).toBe(screen.getByRole('heading', { name: '복구 코드' }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('heading', { name: '복구 코드' })));
     expect(btn('완료')).toBeDisabled();
     fireEvent.click(screen.getByLabelText('복구 코드를 안전한 곳에 저장했습니다'));
     expect(btn('완료')).not.toBeDisabled();
@@ -158,7 +158,7 @@ describe('MfaSettings', () => {
     const input = screen.getByLabelText('인증 코드');
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input).toHaveValue('');
-    expect(document.activeElement).toBe(input);
+    await waitFor(() => expect(document.activeElement).toBe(input));
     expect(screen.getByText(SETUP.secret)).toBeInTheDocument();
     expect(screen.queryByText('로그인이 필요합니다')).toBeNull();
   });
@@ -201,7 +201,7 @@ describe('MfaSettings', () => {
     mockFetch.mockResolvedValueOnce(statusOn(2)).mockResolvedValueOnce(codesBody());
     render(<MfaSettings hooks={{ onRecoveryCodesRegenerated }} />);
     fireEvent.click(await screen.findByRole('button', { name: '복구 코드 다시 만들기' }));
-    expect(document.activeElement).toBe(screen.getByLabelText('인증 코드'));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('인증 코드')));
     expect(screen.queryByRole('button', { name: '복구 코드로 로그인' })).toBeNull();
     typeCode('654321');
     fireEvent.click(btn('다시 만들기'));
@@ -217,7 +217,7 @@ describe('MfaSettings', () => {
     render(<MfaSettings hooks={{ onDisabled }} />);
     fireEvent.click(await screen.findByRole('button', { name: '2단계 인증 끄기' }));
     fireEvent.click(btn('복구 코드로 로그인'));
-    expect(document.activeElement).toBe(screen.getByLabelText('복구 코드'));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByLabelText('복구 코드')));
     typeCode(' ABCD-1234 ', '복구 코드');
     fireEvent.click(btn('끄기'));
     expect(await screen.findByText('2단계 인증이 꺼져 있습니다')).toBeInTheDocument();
